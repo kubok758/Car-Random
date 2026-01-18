@@ -3,12 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Авто-Рандомайзер 3000</title>
+    <title>Авто-Рандомайзер: Равные Шансы</title>
     <style>
         :root {
             --primary: #00ff88;
-            --bg: #1a1a1a;
-            --card-bg: #2d2d2d;
+            --economy: #a8a8a8; /* Серый */
+            --middle: #00d9ff;  /* Голубой */
+            --premium: #d400ff; /* Фиолетовый */
+            --luxury: #ffcc00;  /* Золотой */
+            --bg: #121212;
+            --card-bg: #1e1e1e;
             --text: #ffffff;
         }
 
@@ -20,7 +24,7 @@
             align-items: center;
             min-height: 100vh;
             background-color: var(--bg);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             color: var(--text);
             overflow: hidden;
         }
@@ -28,288 +32,230 @@
         .container {
             text-align: center;
             width: 100%;
-            max-width: 600px;
+            max-width: 500px;
             padding: 20px;
         }
 
         h1 {
-            font-size: 2rem;
-            margin-bottom: 40px;
+            font-size: 1.8rem;
+            margin-bottom: 30px;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #ccc;
+            letter-spacing: 1px;
+            color: #888;
         }
 
         .display-box {
             background-color: var(--card-bg);
-            border: 2px solid #444;
-            border-radius: 15px;
-            padding: 40px 20px;
-            margin-bottom: 40px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            position: relative;
-            overflow: hidden;
-            min-height: 120px;
+            border: 1px solid #333;
+            border-radius: 20px;
+            padding: 30px 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            min-height: 140px;
             display: flex;
             align-items: center;
             justify-content: center;
             flex-direction: column;
+            transition: all 0.3s;
         }
 
         #carName {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--primary);
-            text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
-            line-height: 1.2;
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.1;
+            margin-bottom: 10px;
         }
 
-        #carClass {
-            margin-top: 10px;
-            font-size: 1rem;
-            color: #888;
-            font-weight: 400;
+        #carTier {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 5px 12px;
+            border-radius: 10px;
+            background: #333;
+            color: #aaa;
+            font-weight: bold;
         }
 
         .spin-btn {
             background: linear-gradient(135deg, var(--primary), #00cc6a);
             border: none;
-            padding: 20px 60px;
-            font-size: 1.5rem;
+            padding: 18px 50px;
+            font-size: 1.3rem;
             font-weight: bold;
             color: #000;
             border-radius: 50px;
             cursor: pointer;
-            transition: transform 0.1s, box-shadow 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+            width: 100%;
+            max-width: 300px;
+            transition: transform 0.1s;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
         }
 
         .spin-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 0 30px rgba(0, 255, 136, 0.6);
+            filter: brightness(1.1);
         }
 
         .spin-btn:active {
-            transform: translateY(2px);
+            transform: translateY(1px);
         }
 
         .spin-btn:disabled {
-            background: #555;
-            color: #888;
-            cursor: not-allowed;
+            background: #444;
+            color: #777;
+            cursor: default;
             box-shadow: none;
+            transform: none;
         }
 
-        /* Декоративные элементы */
-        .decoration {
-            position: absolute;
-            width: 200px;
-            height: 200px;
-            background: radial-gradient(circle, rgba(0,255,136,0.1) 0%, rgba(0,0,0,0) 70%);
-            border-radius: 50%;
-            z-index: -1;
-        }
-        .d1 { top: -50px; left: -50px; }
-        .d2 { bottom: -50px; right: -50px; }
+        /* Цветовые стили для классов */
+        .tier-economy #carName { color: var(--economy); }
+        .tier-middle #carName { color: var(--middle); text-shadow: 0 0 10px rgba(0, 217, 255, 0.3); }
+        .tier-premium #carName { color: var(--premium); text-shadow: 0 0 15px rgba(212, 0, 255, 0.4); }
+        .tier-luxury #carName { color: var(--luxury); text-shadow: 0 0 20px rgba(255, 204, 0, 0.6); }
+
+        .tier-economy #carTier { color: var(--economy); border: 1px solid var(--economy); background: transparent; }
+        .tier-middle #carTier { color: var(--middle); border: 1px solid var(--middle); background: rgba(0, 217, 255, 0.1); }
+        .tier-premium #carTier { color: var(--premium); border: 1px solid var(--premium); background: rgba(212, 0, 255, 0.1); }
+        .tier-luxury #carTier { color: var(--luxury); border: 1px solid var(--luxury); background: rgba(255, 204, 0, 0.1); }
 
     </style>
 </head>
 <body>
 
-    <div class="decoration d1"></div>
-    <div class="decoration d2"></div>
-
     <div class="container">
-        <h1>Гараж Удачи</h1>
+        <h1>Car Randomizer v3.0</h1>
         
-        <div class="display-box">
-            <div id="carName">Нажми кнопку</div>
-            <div id="carClass">чтобы выбрать авто</div>
+        <div class="display-box" id="resultBox">
+            <div id="carName">Жми кнопку</div>
+            <div id="carTier">Равные шансы 25%</div>
         </div>
 
-        <button class="spin-btn" id="spinBtn" onclick="startSpin()">Крутить!</button>
+        <button class="spin-btn" id="spinBtn" onclick="startSpin()">КРУТИТЬ</button>
     </div>
 
     <script>
-        // База данных автомобилей (Сжатая структура для генерации 1000+ вариантов)
-        const carDatabase = {
-            // --- КИТАЙСКИЕ БРЕНДЫ (Популярные + Новые) ---
-            "Geely": ["Monjaro", "Coolray", "Tugella", "Atlas Pro", "Emgrand", "Okavango", "Preface", "Atlas New"],
-            "Haval": ["Jolion", "F7", "F7x", "H9", "Dargo", "M6", "H6", "H5", "H3"],
-            "Chery": ["Tiggo 4 Pro", "Tiggo 7 Pro Max", "Tiggo 8 Pro Max", "Arrizo 8", "Tiggo 9", "eQ1"],
-            "Exeed": ["LX", "TXL", "VX", "RX", "Yaoguang"],
-            "Omoda": ["C5", "S5", "S5 GT", "E5"],
-            "Tank": ["300", "500", "400", "700"],
-            "Jetour": ["Dashing", "X70 Plus", "X90 Plus", "T2"],
-            "Zeekr": ["001", "009", "X", "007"],
-            "Li Auto": ["L7", "L9", "L8", "One"],
-            "Voyah": ["Free", "Dream", "Passion"],
-            "BYD": ["Han", "Tang", "Song Plus", "Seal", "Dolphin", "Yuan Plus", "YangWang U8"],
-            "GAC": ["GS8", "GN8", "GS3", "Emkoo"],
-            "Changan": ["UNI-K", "UNI-V", "CS55 Plus", "CS35 Plus", "CS95", "Lamore", "Hunter Plus"],
-            "Hongqi": ["H5", "H9", "E-HS9", "HS5"],
-            "Kaiyi": ["E5", "X3", "X3 Pro"],
-            "BAIC": ["U5 Plus", "X35", "BJ40"],
-            
-            // --- НЕМЕЦКАЯ ТРОЙКА + VAG ---
-            "BMW": ["3 Series", "5 Series", "7 Series", "X1", "X3", "X5", "X6", "X7", "M3 Competition", "M5 CS", "M4 CSL", "iX", "i4", "XM", "Z4", "8 Series"],
-            "Mercedes-Benz": ["C-Class", "E-Class", "S-Class", "G-Class (Geländewagen)", "GLA", "GLC", "GLE", "GLS", "Maybach S-Class", "AMG GT", "EQS", "EQE", "CLA", "V-Class"],
-            "Audi": ["A3", "A4", "A5", "A6", "A7", "A8", "Q3", "Q5", "Q7", "Q8", "RS6 Avant", "RS7", "e-tron GT", "R8 V10"],
-            "Volkswagen": ["Golf GTI", "Passat", "Tiguan", "Touareg", "Polo", "Jetta", "Arteon", "Teramont", "ID.4", "ID.6", "Amarok"],
-            "Porsche": ["911 Carrera", "911 Turbo S", "Cayenne", "Cayenne Coupe", "Macan", "Panamera", "Taycan", "718 Cayman"],
-
-            // --- ЯПОНИЯ ---
-            "Toyota": ["Camry 3.5", "Corolla", "RAV4", "Land Cruiser 300", "Land Cruiser Prado", "Highlander", "Hilux", "Supra", "Yaris", "Prius", "Alphard", "Tundra", "Sequoia", "Fortuner", "Crown"],
-            "Lexus": ["ES 250", "RX 350", "LX 600", "NX 200", "GX 460", "IS 300", "LS 500", "LC 500"],
-            "Mazda": ["3", "6", "CX-5", "CX-9", "CX-30", "CX-60", "MX-5 Miata"],
-            "Honda": ["Civic Type R", "Accord", "CR-V", "Pilot", "HR-V", "Jazz", "Odyssey"],
-            "Nissan": ["Qashqai", "X-Trail", "Murano", "Patrol", "GTR (R35)", "Leaf", "Juke", "Pathfinder", "Ariya"],
-            "Subaru": ["Forester", "Outback", "WRX STI", "XV", "Ascent"],
-            "Mitsubishi": ["Outlander", "Pajero Sport", "L200", "ASX", "Eclipse Cross"],
-
-            // --- КОРЕЯ ---
-            "Kia": ["Rio", "Ceed", "K5", "Sportage", "Sorento", "Mohave", "Carnival", "Soul", "Stinger", "Cerato", "Seltos", "EV6"],
-            "Hyundai": ["Solaris", "Elantra", "Sonata", "Tucson", "Santa Fe", "Palisade", "Creta", "Staria", "Ioniq 5"],
-            "Genesis": ["G70", "G80", "G90", "GV70", "GV80"],
-
-            // --- США ---
-            "Tesla": ["Model 3 Performance", "Model Y", "Model S Plaid", "Model X", "Cybertruck"],
-            "Ford": ["Focus", "Mondeo", "Mustang GT", "Explorer", "F-150 Raptor", "Bronco", "Ranger", "Edge"],
-            "Chevrolet": ["Tahoe", "Suburban", "Camaro SS", "Corvette C8", "Traverse", "Silverado"],
-            "Jeep": ["Grand Cherokee", "Wrangler Rubicon", "Gladiator", "Compass"],
-            "Cadillac": ["Escalade", "CT5-V Blackwing", "XT5", "Lyriq"],
-            "Dodge": ["Challenger Hellcat", "Charger", "Ram 1500 TRX", "Durango"],
-
-            // --- ЕВРОПА И ДР. ---
-            "Skoda": ["Octavia A8", "Kodiaq", "Superb", "Karoq", "Rapid", "Fabia"],
-            "Volvo": ["XC90", "XC60", "XC40", "S90", "S60", "V90 Cross Country"],
-            "Land Rover": ["Range Rover Vogue", "Range Rover Sport", "Defender 110", "Discovery", "Evoque", "Velar"],
-            "Jaguar": ["F-Pace", "F-Type", "XF", "I-Pace"],
-            "Peugeot": ["3008", "5008", "408", "2008", "508"],
-            "Renault": ["Duster", "Arkana", "Logan", "Sandero", "Kaptur", "Megane", "Koleos"],
-
-            // --- ЭКОНОМ / БЮДЖЕТ (РФ и СНГ) ---
-            "Lada": ["Vesta NG", "Granta", "Niva Legend", "Niva Travel", "Largus", "Vesta SW Cross"],
-            "UAZ": ["Patriot", "Hunter", "Bukhanka"],
-            
-            // --- ЛЮКС И ГИПЕРКАРЫ ---
-            "Rolls-Royce": ["Phantom", "Cullinan", "Ghost", "Spectre", "Wraith"],
-            "Bentley": ["Bentayga", "Continental GT", "Flying Spur"],
-            "Ferrari": ["SF90 Stradale", "F8 Tributo", "Roma", "Purosangue", "812 Superfast"],
-            "Lamborghini": ["Urus", "Huracan EVO", "Revuelto", "Aventador SVJ"],
-            "Bugatti": ["Chiron", "Divo", "Mistral"]
+        // === БАЗА ДАННЫХ ===
+        const db = {
+            economy: [
+                "Lada Granta", "Lada Vesta", "Lada Priora", "Lada Niva Legend", "Lada Largus",
+                "Hyundai Solaris", "Hyundai Accent", "Hyundai Creta",
+                "Kia Rio", "Kia Rio X", "Kia Picanto", "Kia Ceed (Old)",
+                "Renault Logan", "Renault Sandero", "Renault Duster", "Renault Kaptur",
+                "Volkswagen Polo", "Skoda Rapid", "Daewoo Matiz", "Daewoo Nexia",
+                "Chevrolet Niva", "Chevrolet Cruze", "Ford Focus II", "Ford Fiesta",
+                "Toyota Corolla (Old)", "Nissan Almera", "Nissan Note", "Haval Jolion (Lite)",
+                "Chery Tiggo 4", "Lifan Solano", "Lifan X60", "Geely Emgrand"
+            ],
+            middle: [
+                "Toyota Camry", "Toyota RAV4", "Toyota Highlander", "Kia K5", "Kia Sportage", "Kia Sorento",
+                "Hyundai Sonata", "Hyundai Tucson", "Hyundai Santa Fe", "Skoda Octavia", "Skoda Kodiaq",
+                "Volkswagen Tiguan", "Volkswagen Passat", "Mazda 6", "Mazda CX-5",
+                "Nissan X-Trail", "Subaru Forester", "Honda CR-V", "Honda Accord",
+                "Haval F7", "Haval Dargo", "Tank 300", "Geely Monjaro", "Geely Tugella", "Geely Coolray",
+                "Chery Tiggo 8 Pro", "Chery Arrizo 8", "Omoda C5", "Exeed LX", "Jetour Dashing",
+                "Changan UNI-V", "Changan UNI-K"
+            ],
+            premium: [
+                "BMW 3 Series", "BMW 5 Series", "BMW X5", "BMW X6", "BMW X7",
+                "Mercedes C-Class", "Mercedes E-Class", "Mercedes GLE", "Mercedes G-Class",
+                "Audi A5", "Audi A6", "Audi Q7", "Audi Q8", "Audi e-tron",
+                "Lexus RX 350", "Lexus NX", "Lexus LX 600",
+                "Volvo XC90", "Volvo XC60", "Land Rover Defender", "Range Rover Sport",
+                "Porsche Cayenne", "Porsche Macan", "Zeekr 001", "Li Auto L9", "Voyah Free",
+                "Tank 500", "Tesla Model Y", "Cadillac Escalade", "Jeep Grand Cherokee"
+            ],
+            luxury: [
+                "Rolls-Royce Cullinan", "Rolls-Royce Phantom", "Rolls-Royce Ghost",
+                "Bentley Bentayga", "Bentley Continental GT", "Bentley Flying Spur",
+                "Ferrari F8 Tributo", "Ferrari SF90", "Ferrari Roma", "Ferrari 812 Superfast",
+                "Lamborghini Urus", "Lamborghini Huracan", "Lamborghini Aventador", "Lamborghini Revuelto",
+                "Porsche 911 Turbo S", "Bugatti Chiron", "Bugatti Divo", "McLaren 720S",
+                "Aston Martin DBX", "Aston Martin Vantage", "Maybach S-Class", "Koenigsegg Jesko"
+            ]
         };
 
-        // Генерация плоского списка (Массив всех машин)
-        let allCars = [];
-        
-        // Функция для определения условного класса по цене/бренду (для отображения)
-        function getCarClass(brand, model) {
-            const luxury = ["Rolls-Royce", "Bentley", "Ferrari", "Lamborghini", "Bugatti", "Porsche"];
-            const premium = ["BMW", "Mercedes-Benz", "Audi", "Lexus", "Volvo", "Land Rover", "Jaguar", "Genesis", "Cadillac", "Zeekr", "Li Auto", "Voyah", "Hongqi", "YangWang"];
-            const budget = ["Lada", "Renault", "Kia", "Hyundai", "Volkswagen", "Skoda", "Toyota", "Nissan", "Haval", "Chery", "Geely", "Omoda", "Jetour", "UAZ"];
-
-            if (luxury.includes(brand)) return "💰💰💰 Luxury / Эксклюзив";
-            if (premium.includes(brand)) return "💰💰 Премиум класс";
-            if (model.includes("M5") || model.includes("AMG") || model.includes("RS") || model.includes("GTR") || model.includes("Hellcat")) return "🏎️ Спорт / Заряженная";
-            if (model.includes("Land Cruiser") || model.includes("Tahoe") || model.includes("Patrol") || model.includes("Escalade") || model.includes("G-Class")) return "🐘 Тяжелый Люкс Внедорожник";
-            
-            return "🚗 Средний / Масс-маркет";
-        }
-
-        // Заполняем массив
-        for (const [brand, models] of Object.entries(carDatabase)) {
-            models.forEach(model => {
-                allCars.push({
-                    fullName: `${brand} ${model}`,
-                    type: getCarClass(brand, model)
-                });
-            });
-        }
-
-        // Чтобы искусственно увеличить количество до 1000+, 
-        // добавим вариации (годы, поколения) для популярных моделей, если список покажется коротким.
-        // Сейчас у нас около 200 уникальных баз, умножим их визуально.
-        // Но для честности, просто продублируем список 5 раз с небольшими рандомными приписками,
-        // чтобы эмулировать "огромную" базу подержанных и новых авто.
-        
-        const suffixes = ["(Restyling)", "(New)", "(Long)", "Black Edition", "White Edition", "Sport Package"];
-        let extendedCars = [...allCars];
-        
-        // Генерируем дополнительные 800+ вариантов
-        for(let i=0; i<4; i++) {
-            allCars.forEach(car => {
-                const randomSuffix = suffixes[Math.floor(Math.random() * suffixes.length)];
-                extendedCars.push({
-                    fullName: `${car.fullName} ${randomSuffix}`,
-                    type: car.type
-                });
-            });
-        }
-
-        // Перемешиваем массив один раз при старте
-        extendedCars.sort(() => Math.random() - 0.5);
-
-        // --- ЛОГИКА РАНДОМАЙЗЕРА ---
-
         const carNameEl = document.getElementById('carName');
-        const carClassEl = document.getElementById('carClass');
+        const carTierEl = document.getElementById('carTier');
+        const resultBox = document.getElementById('resultBox');
         const spinBtn = document.getElementById('spinBtn');
         let isSpinning = false;
+
+        // Создаем общий пул просто для визуальной анимации
+        const visualPool = [
+            ...db.economy, ...db.middle, ...db.premium, ...db.luxury
+        ];
+
+        // === ЛОГИКА 25% НА КАЖДЫЙ КЛАСС ===
+        function getFairWinner() {
+            // 1. Сначала равновероятно выбираем КЛАСС (из 4-х)
+            const tiers = ['economy', 'middle', 'premium', 'luxury'];
+            const randomTierKey = tiers[Math.floor(Math.random() * tiers.length)];
+            
+            // 2. Затем выбираем случайную машину ВНУТРИ этого класса
+            const tierList = db[randomTierKey];
+            const winnerCar = tierList[Math.floor(Math.random() * tierList.length)];
+
+            // Подготовим красивые названия для отображения
+            let displayLabel = "";
+            if(randomTierKey === 'economy') displayLabel = "🚗 Эконом класс";
+            if(randomTierKey === 'middle') displayLabel = "🚙 Средний класс";
+            if(randomTierKey === 'premium') displayLabel = "💎 Премиум";
+            if(randomTierKey === 'luxury') displayLabel = "👑 ЛЮКС / ЭКСКЛЮЗИВ";
+
+            return { name: winnerCar, tier: randomTierKey, label: displayLabel };
+        }
 
         function startSpin() {
             if (isSpinning) return;
             isSpinning = true;
             spinBtn.disabled = true;
-            spinBtn.innerText = "Выбираем...";
+            spinBtn.innerText = "Ищем...";
+            
+            resultBox.className = 'display-box'; // Сброс цвета
+            carTierEl.style.opacity = '0'; 
 
             let counter = 0;
-            let speed = 50; // Начальная скорость (мс)
-            let maxSteps = 40 + Math.floor(Math.random() * 20); // Сколько раз сменится текст (40-60 раз)
+            let speed = 40; 
+            // Быстрый прокрут (около 1.5 - 2 секунд)
+            let maxSteps = 15 + Math.floor(Math.random() * 10); 
             
-            // Звук тиканья (опционально, здесь без аудиофайлов для простоты)
-
             const spinInterval = () => {
-                // Выбираем случайную машину из списка для мелькания
-                const randomCar = extendedCars[Math.floor(Math.random() * extendedCars.length)];
-                
-                carNameEl.innerText = randomCar.fullName;
-                carClassEl.innerText = randomCar.type;
+                // Мелькают случайные названия
+                const randomVisual = visualPool[Math.floor(Math.random() * visualPool.length)];
+                carNameEl.innerText = randomVisual;
 
                 counter++;
 
                 if (counter < maxSteps) {
-                    // Эффект замедления: увеличиваем интервал с каждым шагом
-                    if (counter > maxSteps - 15) {
-                        speed += 30; // Резкое замедление в конце
-                    } else if (counter > maxSteps - 25) {
-                        speed += 10;
-                    }
+                    if (counter > maxSteps - 5) speed += 30; // Тормозим в конце
+                    else if (counter > maxSteps - 10) speed += 10;
+                    
                     setTimeout(spinInterval, speed);
                 } else {
-                    // Остановка
-                    finishSpin(randomCar);
+                    finishSpin();
                 }
             };
 
             spinInterval();
         }
 
-        function finishSpin(finalCar) {
+        function finishSpin() {
+            const winData = getFairWinner(); // Получаем результат с равными шансами
+
+            carNameEl.innerText = winData.name;
+            carTierEl.innerText = winData.label;
+            
+            // Красим блок в цвет класса
+            resultBox.className = `display-box tier-${winData.tier}`;
+            carTierEl.style.opacity = '1';
+
             isSpinning = false;
             spinBtn.disabled = false;
-            spinBtn.innerText = "Крутить еще!";
-            
-            // Финальная подсветка
-            carNameEl.style.color = "#fff";
-            setTimeout(() => {
-                carNameEl.style.color = "var(--primary)";
-            }, 300);
+            spinBtn.innerText = "Крутить еще";
         }
-
     </script>
 </body>
 </html>
-
