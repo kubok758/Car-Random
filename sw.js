@@ -1,4 +1,4 @@
-const CACHE_NAME = 'car-rando-v12';
+const CACHE_NAME = 'car-rando-v15';
 const ASSETS = [
   '/',
   '/index.html',
