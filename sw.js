@@ -1,5 +1,5 @@
-// Изменили версию на v2, чтобы телефон обновил файлы
-const CACHE_NAME = 'car-rando-v2';
+// ВЕРСИЯ v3 (ЧТОБЫ СБРОСИТЬ КЭШ)
+const CACHE_NAME = 'car-rando-v3';
 const ASSETS = [
   '/',
   '/index.html',
@@ -11,15 +11,13 @@ const ASSETS = [
   '/porsche.jpg'
 ];
 
-// Установка (кэширование)
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
   );
-  self.skipWaiting(); // Принудительно активировать новый воркер
+  self.skipWaiting();
 });
 
-// Активация и удаление старого кэша (v1)
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keyList) => {
@@ -33,7 +31,6 @@ self.addEventListener('activate', (e) => {
   return self.clients.claim();
 });
 
-// Запрос файлов
 self.addEventListener('fetch', (e) => {
   e.respondWith(
     caches.match(e.request).then((response) => response || fetch(e.request))
