@@ -38,54 +38,54 @@
             box-sizing: border-box;
         }
 
-        /* === КНОПКА ЗВУКА (НОВЫЙ ДИЗАЙН) === */
-        .sound-btn {
+        /* === ВЕРХНИЕ КНОПКИ (НАСТРОЙКИ) === */
+        .settings-bar {
             position: absolute;
             top: 20px;
             right: 20px;
-            background: rgba(255, 255, 255, 0.05); /* Еле заметный фон */
-            border: 1px solid rgba(255, 255, 255, 0.3); /* Тонкая обводка */
+            display: flex;
+            gap: 10px;
+            z-index: 200;
+        }
+
+        .icon-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             color: #fff;
-            width: 50px;
-            height: 50px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             cursor: pointer;
-            z-index: 200;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.2s ease;
             backdrop-filter: blur(5px);
+            padding: 0;
         }
 
-        /* SVG иконки внутри кнопки */
-        .sound-btn svg {
-            width: 24px;
-            height: 24px;
+        .icon-btn svg {
+            width: 20px;
+            height: 20px;
             fill: none;
             stroke: currentColor;
             stroke-width: 2;
             stroke-linecap: round;
             stroke-linejoin: round;
-            transition: 0.2s;
         }
 
-        .sound-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: #fff;
-            transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(255,255,255,0.2);
+        .icon-btn:active { transform: scale(0.9); }
+        
+        /* Состояние "Выключено" */
+        .icon-btn.off {
+            opacity: 0.5;
+            border-color: #444;
+            color: #888;
+            background: transparent;
         }
         
-        .sound-btn:active {
-            transform: scale(0.95);
-        }
-
-        /* Выключенное состояние (красноватый оттенок или просто темнее) */
-        .sound-btn.muted {
-            opacity: 0.6;
-            border-color: #555;
-        }
+        .slash { display: none; }
+        .icon-btn.off .slash { display: block; }
 
         h1 {
             font-size: 1.8rem;
@@ -93,7 +93,7 @@
             letter-spacing: 4px;
             color: #333;
             margin-bottom: 30px;
-            margin-top: 40px; /* Отступ чтобы не наезжать на кнопку звука */
+            margin-top: 50px;
         }
 
         .output-box {
@@ -131,6 +131,7 @@
             letter-spacing: 3px;
             color: #555;
             font-weight: 700;
+            text-transform: uppercase;
         }
 
         .controls { display: flex; flex-direction: column; gap: 15px; }
@@ -149,7 +150,6 @@
             transition: 0.1s;
             box-shadow: 0 0 20px rgba(255,255,255,0.1);
         }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(255,255,255,0.2); }
         .btn:active { transform: translateY(2px); background: #ddd; }
         .btn:disabled { background: #333; color: #555; transform: none; box-shadow: none;}
 
@@ -168,10 +168,19 @@
             transition: 0.2s;
             font-family: 'Segoe UI', sans-serif;
             letter-spacing: 1px;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        #googleBtn svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
         }
         #googleBtn:hover { border-color: #fff; color: #fff; background: rgba(255,255,255,0.05); }
         #googleBtn:active { transform: scale(0.98); }
-        .g-icon { margin-right: 8px; font-style: normal; }
 
         .glow-eco { border-color: var(--eco); box-shadow: 0 0 40px rgba(0,255,157,0.15); }
         .glow-eco #carName { background: -webkit-linear-gradient(#fff, var(--eco)); -webkit-background-clip: text; }
@@ -194,91 +203,110 @@
 <body>
 
 <div class="wrapper">
-    <button class="sound-btn" id="soundToggle" onclick="toggleSound()">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-        </svg>
-    </button>
+    <div class="settings-bar">
+        <button class="icon-btn" id="vibroToggle" onclick="toggleVibro()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <rect x="10" y="4" width="4" height="16" rx="2"></rect>
+                <path d="M7 8 L6 8"></path> <path d="M7 12 L6 12"></path> <path d="M7 16 L6 16"></path>
+                <path d="M17 8 L18 8"></path> <path d="M17 12 L18 12"></path> <path d="M17 16 L18 16"></path>
+                <path d="M4 10 L3 10"></path> <path d="M4 14 L3 14"></path>
+                <path d="M20 10 L21 10"></path> <path d="M20 14 L21 14"></path>
+                <line x1="3" y1="3" x2="21" y2="21" class="slash" stroke="#888"></line>
+            </svg>
+        </button>
+        <button class="icon-btn" id="soundToggle" onclick="toggleSound()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                <line x1="23" y1="9" x2="17" y2="15" class="slash" stroke="#888"></line>
+                <line x1="17" y1="9" x2="23" y2="15" class="slash" stroke="#888"></line>
+            </svg>
+        </button>
+    </div>
 
     <div id="cheatPanel">
-        <div style="color:red; font-size:10px; font-weight:bold">ADMIN MODE</div>
+        <div style="color:red; font-size:10px; font-weight:bold">АДМИН ПАНЕЛЬ</div>
         <div class="cheat-grid">
-            <button class="cheat-btn" style="background:var(--eco)" onclick="activateCheat('economy')">ECO</button>
-            <button class="cheat-btn" style="background:var(--mid)" onclick="activateCheat('middle')">MID</button>
-            <button class="cheat-btn" style="background:var(--pre); color:white" onclick="activateCheat('premium')">PREM</button>
-            <button class="cheat-btn" style="background:var(--lux)" onclick="activateCheat('luxury')">LUX</button>
+            <button class="cheat-btn" style="background:var(--eco)" onclick="activateCheat('economy')">ЭКО</button>
+            <button class="cheat-btn" style="background:var(--mid)" onclick="activateCheat('middle')">СРЕД</button>
+            <button class="cheat-btn" style="background:var(--pre); color:white" onclick="activateCheat('premium')">ПРЕМ</button>
+            <button class="cheat-btn" style="background:var(--lux)" onclick="activateCheat('luxury')">ЛЮКС</button>
         </div>
     </div>
 
     <h1>Car Randomizer</h1>
 
     <div class="output-box" id="box">
-        <div id="carName">READY</div>
-        <div id="tierLabel">PRESS BUTTON</div>
+        <div id="carName">ГОТОВО</div>
+        <div id="tierLabel">НАЖМИ КНОПКУ</div>
     </div>
 
     <div class="controls">
-        <button class="btn" id="spinBtn" onclick="spin()">GENERATE</button>
+        <button class="btn" id="spinBtn" onclick="spin()">КРУТИТЬ</button>
         <button id="googleBtn" onclick="openGoogle()">
-            <span class="g-icon">📷</span> ПОСМОТРЕТЬ ФОТО
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+            ПОСМОТРЕТЬ ФОТО
         </button>
     </div>
 </div>
 
 <script>
-    // === АУДИО СИСТЕМА ===
-    const popSoundSrc = "data:audio/wav;base64,UklGRl9vT1BXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ"+
-    "tvdT1OAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"+
-    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"+
-    "AAAAAAAAAAAA//+9vbW1t7f//7W1taWl//+lpaWlpf//paWlpaWl//+lpaWlpf//paWlpaWl//+lpaWlpf//paWlpaWl//"+
-    "8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"+
-    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+    // === АУДИО ДВИЖОК ===
+    let audioCtx = null;
+    let isSoundOn = true;
+    let isVibroOn = true;
 
-    const clickAudio = new Audio(popSoundSrc);
-    clickAudio.volume = 0.5;
-    
-    let isMuted = false;
-
-    // SVG код для иконок
-    const iconSoundOn = `
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-        </svg>`;
-    
-    const iconSoundOff = `
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-            <line x1="23" y1="9" x2="17" y2="15"></line>
-            <line x1="17" y1="9" x2="23" y2="15"></line>
-        </svg>`;
-
-    function toggleSound() {
-        isMuted = !isMuted;
-        const btn = document.getElementById('soundToggle');
-        
-        if(isMuted) {
-            btn.innerHTML = iconSoundOff;
-            btn.classList.add('muted');
-        } else {
-            btn.innerHTML = iconSoundOn;
-            btn.classList.remove('muted');
+    function initAudio() {
+        if (!audioCtx) {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new AudioContext();
+        }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
         }
     }
 
-    function playTick() {
-        if (isMuted) return;
-        if (navigator.vibrate) {
-            try { navigator.vibrate(5); } catch(e){}
+    function playClickSound() {
+        if (!isSoundOn || !audioCtx) return;
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        osc.type = 'triangle'; 
+        osc.frequency.setValueAtTime(800, audioCtx.currentTime); 
+        osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.05);
+        gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.05);
+    }
+
+    // === УПРАВЛЕНИЕ ===
+    function toggleSound() {
+        isSoundOn = !isSoundOn;
+        const btn = document.getElementById('soundToggle');
+        if(!isSoundOn) btn.classList.add('off'); else btn.classList.remove('off');
+        initAudio();
+    }
+
+    function toggleVibro() {
+        isVibroOn = !isVibroOn;
+        const btn = document.getElementById('vibroToggle');
+        if(!isVibroOn) btn.classList.add('off'); else btn.classList.remove('off');
+    }
+
+    function doVibrate(pattern) {
+        if (isVibroOn && navigator.vibrate) {
+            try { navigator.vibrate(pattern); } catch(e){}
         }
-        clickAudio.currentTime = 0;
-        clickAudio.play().catch(e => {});
     }
 
     // === ГЕНЕРАТОР ===
     const r = (arr) => arr[Math.floor(Math.random() * arr.length)];
-
+    
     function genEconomy() {
         const pool = [
             () => `Lada Priora ${r(['Sedan', 'Hatchback', 'Coupe'])}`,
@@ -297,7 +325,6 @@
         ];
         return r(pool)();
     }
-
     function genMiddle() {
         const brands = {
             toyota: [
@@ -330,7 +357,6 @@
         const brandName = brandKey.charAt(0).toUpperCase() + brandKey.slice(1);
         return `${brandName} ${car.model} ${chassis} ${trim}`;
     }
-
     function genPremium() {
         const germans = [
             { 
@@ -392,7 +418,6 @@
         const engine = r(config.eng);
         return `${selectedBrand.brand} ${engine} ${config.ch}`;
     }
-
     function genLuxury() {
         const hypers = [
             "Ferrari 488 Pista", "Ferrari F8 Tributo", "Ferrari 812 Superfast", "Ferrari SF90 Stradale", "Ferrari LaFerrari", "Ferrari Enzo", "Ferrari F40",
@@ -411,6 +436,8 @@
     // === ЛОГИКА ===
     let cheatNext = null;
     let currentCar = "";
+    let clicks = 0;
+    let timer;
 
     const carNameEl = document.getElementById('carName');
     const tierLabelEl = document.getElementById('tierLabel');
@@ -419,24 +446,22 @@
     const googleBtn = document.getElementById('googleBtn');
     const cheatPanel = document.getElementById('cheatPanel');
 
-    let clicks = 0;
-    let timer;
     box.addEventListener('click', () => {
         clicks++;
         clearTimeout(timer);
         timer = setTimeout(() => clicks = 0, 400);
         if (clicks === 10) {
             clicks = 0;
-            if (navigator.vibrate) navigator.vibrate(50);
-            if (prompt("CODE:") === "758") cheatPanel.style.display = 'block';
+            doVibrate(50);
+            if (prompt("КОД ДОСТУПА:") === "758") cheatPanel.style.display = 'block';
         }
     });
 
     function activateCheat(tier) {
         cheatNext = tier;
         cheatPanel.style.display = 'none';
-        if (navigator.vibrate) navigator.vibrate([50, 50]);
-        alert("Next: " + tier.toUpperCase());
+        doVibrate([50, 50]);
+        alert("Следующая: " + tier.toUpperCase());
     }
 
     function openGoogle() {
@@ -448,19 +473,15 @@
 
     function spin() {
         if (spinBtn.disabled) return;
+        
+        initAudio();
+        
         spinBtn.disabled = true;
         googleBtn.style.display = 'none';
         
         box.className = 'output-box'; 
         carNameEl.style.opacity = 0.5;
-        tierLabelEl.innerText = "SEARCHING...";
-
-        if(!isMuted) {
-            clickAudio.play().then(() => {
-                clickAudio.pause();
-                clickAudio.currentTime = 0;
-            }).catch(()=>{});
-        }
+        tierLabelEl.innerText = "ПОИСК...";
 
         let speed = 50;
         let steps = 0;
@@ -470,7 +491,8 @@
             const funcs = [genEconomy, genMiddle, genPremium, genLuxury];
             carNameEl.innerText = funcs[Math.floor(Math.random()*funcs.length)]();
             
-            playTick();
+            playClickSound();
+            doVibrate(5); 
 
             steps++;
             if (steps < maxSteps) {
@@ -501,19 +523,19 @@
 
         if (tier === 'economy') {
             resultName = genEconomy();
-            label = "TIER 1: ECONOMY / STOCK";
+            label = "КЛАСС 1: ЭКОНОМ / СТОК";
             box.classList.add('glow-eco');
         } else if (tier === 'middle') {
             resultName = genMiddle();
-            label = "TIER 2: JDM / TUNING";
+            label = "КЛАСС 2: JDM / ТЮНИНГ";
             box.classList.add('glow-mid');
         } else if (tier === 'premium') {
             resultName = genPremium();
-            label = "TIER 3: GERMAN POWER";
+            label = "КЛАСС 3: НЕМЕЦКАЯ МОЩЬ";
             box.classList.add('glow-pre');
         } else {
             resultName = genLuxury();
-            label = "TIER 4: EXOTIC / HYPERCAR";
+            label = "КЛАСС 4: ЭКЗОТИКА / ГИПЕРКАРЫ";
             box.classList.add('glow-lux');
         }
 
@@ -523,9 +545,9 @@
         tierLabelEl.innerText = label;
         spinBtn.disabled = false;
         
-        googleBtn.style.display = 'block';
+        googleBtn.style.display = 'flex'; 
 
-        if (!isMuted && navigator.vibrate) navigator.vibrate([30, 50, 30]);
+        doVibrate([30, 50, 30]); 
     }
 </script>
 
