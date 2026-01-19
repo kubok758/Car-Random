@@ -15,10 +15,11 @@
             --bg-color: #0b0b0b;
             --card: #141414;
             --text: #e0e0e0;
-            --eco: #00ff9d;
-            --mid: #00eaff;
-            --pre: #d600ff;
-            --lux: #ffbd00;
+            --eco: #00ff9d;   /* Зеленый */
+            --mid: #00eaff;   /* Голубой */
+            --pre: #d600ff;   /* Фиолетовый */
+            --lux: #ffbd00;   /* Золотой */
+            --chn: #ff3333;   /* Красный (Китай) */
         }
 
         body {
@@ -38,11 +39,13 @@
             touch-action: manipulation; 
             -webkit-tap-highlight-color: transparent;
             transition: background-color 0.5s ease;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            overflow: hidden;
         }
 
         body::before {
             content: "";
-            position: fixed;
+            position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.4);
             z-index: -1;
@@ -56,6 +59,8 @@
             position: relative;
             padding: 20px;
             box-sizing: border-box;
+            max-height: 100vh;
+            overflow: visible;
         }
 
         /* === ВЕРХНИЕ КНОПКИ === */
@@ -141,7 +146,6 @@
             margin-top: 0; 
         }
 
-        /* УВЕЛИЧЕННАЯ ВЫСОТА БЛОКА (Fix для дергания) */
         .output-box {
             background: rgba(20, 20, 20, 0.85);
             border: 2px solid rgba(255,255,255,0.1);
@@ -152,7 +156,7 @@
             box-shadow: 0 0 50px rgba(0,0,0,0.5);
             transition: 0.1s transform, 0.3s border-color, 0.3s box-shadow;
             cursor: pointer;
-            min-height: 160px; /* Было 120px, стало 160px */
+            min-height: 160px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -170,7 +174,7 @@
             -webkit-text-fill-color: transparent;
             filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
             margin-bottom: 10px;
-            min-height: 2.2em; /* Резерв места под 2 строки */
+            min-height: 2.2em;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -227,14 +231,22 @@
         #googleBtn:hover { border-color: #fff; color: #fff; background: rgba(0,0,0,0.8); }
         #googleBtn:active { transform: scale(0.98); }
 
+        /* Цвета карточек */
         .glow-eco { border-color: var(--eco); box-shadow: 0 0 40px rgba(0,255,157,0.15); }
         .glow-eco #carName { background: -webkit-linear-gradient(#fff, var(--eco)); -webkit-background-clip: text; }
+        
         .glow-mid { border-color: var(--mid); box-shadow: 0 0 50px rgba(0,234,255,0.2); }
         .glow-mid #carName { background: -webkit-linear-gradient(#fff, var(--mid)); -webkit-background-clip: text; }
+        
         .glow-pre { border-color: var(--pre); box-shadow: 0 0 60px rgba(214,0,255,0.25); }
         .glow-pre #carName { background: -webkit-linear-gradient(#fff, var(--pre)); -webkit-background-clip: text; }
+        
         .glow-lux { border-color: var(--lux); box-shadow: 0 0 80px rgba(255,189,0,0.3); }
         .glow-lux #carName { background: -webkit-linear-gradient(#fff, var(--lux)); -webkit-background-clip: text; }
+
+        /* Стиль для Китая */
+        .glow-chn { border-color: var(--chn); box-shadow: 0 0 60px rgba(255, 51, 51, 0.25); }
+        .glow-chn #carName { background: -webkit-linear-gradient(#fff, var(--chn)); -webkit-background-clip: text; }
 
         #cheatPanel {
             display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
@@ -242,7 +254,7 @@
             box-shadow: 0 0 30px rgba(255,0,0,0.5); width: 80%; max-width: 400px; text-align: center;
         }
         .cheat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 5px; }
-        .cheat-btn { padding: 15px; cursor: pointer; font-weight: bold; border:none; font-size: 1rem; }
+        .cheat-btn { padding: 10px; cursor: pointer; font-weight: bold; border:none; font-size: 0.8rem; }
     </style>
 </head>
 <body>
@@ -287,51 +299,39 @@
     </div>
 </div>
 
-<div class="wrapper">
-    <div id="cheatPanel">
-        <div style="color:red; font-size:10px; font-weight:bold">АДМИН ПАНЕЛЬ</div>
-        <div class="cheat-grid">
-            <button class="cheat-btn" style="background:var(--eco)" onclick="activateCheat('economy')">ЭКО</button>
-            <button class="cheat-btn" style="background:var(--mid)" onclick="activateCheat('middle')">СРЕД</button>
-            <button class="cheat-btn" style="background:var(--pre); color:white" onclick="activateCheat('premium')">ПРЕМ</button>
-            <button class="cheat-btn" style="background:var(--lux)" onclick="activateCheat('luxury')">ЛЮКС</button>
-        </div>
+<div id="cheatPanel">
+    <div style="color:red; font-size:10px; font-weight:bold">АДМИН ПАНЕЛЬ</div>
+    <div class="cheat-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+        <button class="cheat-btn" style="background:var(--eco)" onclick="activateCheat('economy')">ЭКО</button>
+        <button class="cheat-btn" style="background:var(--mid)" onclick="activateCheat('middle')">СРЕД</button>
+        <button class="cheat-btn" style="background:var(--pre); color:white" onclick="activateCheat('premium')">ПРЕМ</button>
+        <button class="cheat-btn" style="background:var(--lux)" onclick="activateCheat('luxury')">ЛЮКС</button>
+        <button class="cheat-btn" style="background:var(--chn); color:white; grid-column: span 2;" onclick="activateCheat('china')">КИТАЙ</button>
     </div>
+</div>
 
-    <h1>Car Randomizer</h1>
+<h1>Car Randomizer</h1>
 
-    <div class="output-box" id="box">
-        <div id="carName">ГОТОВО</div>
-        <div id="tierLabel">НАЖМИ КНОПКУ</div>
-    </div>
+<div class="output-box" id="box">
+    <div id="carName">ГОТОВО</div>
+    <div id="tierLabel">НАЖМИ КНОПКУ</div>
+</div>
 
-    <div class="controls">
-        <button class="btn" id="spinBtn" onclick="spin()">КРУТИТЬ</button>
-        <button id="googleBtn" onclick="openGoogle()">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                <circle cx="12" cy="13" r="4"></circle>
-            </svg>
-            ПОСМОТРЕТЬ ФОТО
-        </button>
-    </div>
+<div class="controls">
+    <button class="btn" id="spinBtn" onclick="spin()">КРУТИТЬ</button>
+    <button id="googleBtn" onclick="openGoogle()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+            <circle cx="12" cy="13" r="4"></circle>
+        </svg>
+        ПОСМОТРЕТЬ ФОТО
+    </button>
 </div>
 
 <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js')
-                .then(reg => {
-                    reg.onupdatefound = () => {
-                        const installingWorker = reg.installing;
-                        installingWorker.onstatechange = () => {
-                            if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                console.log('Update available');
-                            }
-                        };
-                    };
-                })
-                .catch(err => console.log('SW Fail:', err));
+            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Fail:', err));
         });
     }
 
@@ -434,8 +434,9 @@
         }
     }
 
-    // === GENERATOR ===
+    // === ГЕНЕРАТОР ===
     const r = (arr) => arr[Math.floor(Math.random() * arr.length)];
+    
     function genEconomy() {
         const pool = [
             () => `Lada Priora ${r(['Sedan', 'Hatchback', 'Coupe'])}`,
@@ -454,6 +455,7 @@
         ];
         return r(pool)();
     }
+    
     function genMiddle() {
         const brands = {
             toyota: [
@@ -481,12 +483,38 @@
         };
         const k=r(Object.keys(brands)), c=r(brands[k]); return `${k.charAt(0).toUpperCase()+k.slice(1)} ${c.model} ${r(c.chassis)} ${r(c.trims)}`;
     }
+    
     function genPremium() {
         const g=[{b:"BMW",c:[{h:"E36",e:["318is","320i","325i","328i","M3"]},{h:"E46",e:["320i","325i","330Ci","330d","M3","M3 CSL"]},{h:"E92",e:["320i","325i","330d","335i","M3"]},{h:"F30",e:["320d","328i","330i","335i","340i"]},{h:"F80",e:["M3","M3 Competition","M3 CS"]},{h:"G20",e:["320d","330i","M340i"]},{h:"G80",e:["M3","M3 Competition"]},{h:"E34",e:["525i","530i","540i","M5 3.8"]},{h:"E39",e:["525i","530d","540i","M5"]},{h:"E60",e:["525i","530d","535d","545i","550i","M5"]},{h:"F10",e:["520d","528i","530d","535i","550i","M550d","M5"]},{h:"F90",e:["M5","M5 Competition","M5 CS"]},{h:"G30",e:["530d","540i","M550i"]},{h:"E38",e:["730d","740i","750iL"]},{h:"G12",e:["740d","750Li","M760Li"]},{h:"E53",e:["X5 3.0d","X5 4.4i","X5 4.8is"]},{h:"E70",e:["X5 3.0d","X5 4.8i","X5M"]},{h:"F15",e:["X5 40d","X5 M50d"]},{h:"F85",e:["X5M"]},{h:"G05",e:["X5 30d","X5 40i","X5 M50d"]},{h:"F95",e:["X5M Competition"]},{h:"G07",e:["X7 M50d","X7 M60i"]}]},{b:"Mercedes-Benz",c:[{h:"W204",e:["C180","C200","C250","C300","C350","C63 AMG","C63 AMG Black Series"]},{h:"W205",e:["C180","C200 4Matic","C43 AMG","C63 S AMG"]},{h:"W211",e:["E200 Kompressor","E320 CDI","E500","E55 AMG","E63 AMG"]},{h:"W212",e:["E200","E250 CDI","E300","E350","E400","E63 AMG","E63 S AMG"]},{h:"W213",e:["E200d","E220d","E300","E400d","E53 AMG","E63 S AMG"]},{h:"W140",e:["S500","S600"]},{h:"W222",e:["S350d","S500","S63 AMG","S65 AMG"]},{h:"W223",e:["S450","S580","S680 Maybach"]},{h:"W463",e:["G500","G55 AMG","G63 AMG"]},{h:"W464",e:["G63 AMG","G350d"]}]},{b:"Audi",c:[{h:"C6",e:["A6 3.0 TDI","S6 V10","RS6 Avant"]},{h:"C7",e:["A6 3.0 TFSI","A7 3.0 TDI","S7","RS6 Performance","RS7"]},{h:"C8",e:["A6 55 TFSI","RS6 Avant","RS7 Sportback"]},{h:"8V",e:["S3 Sedan","RS3 Sportback"]},{h:"B9",e:["A4 2.0 TFSI","A5 Sportback","RS4 Avant","RS5 Coupe"]},{h:"4M",e:["Q7 3.0 TDI","Q8 50 TDI","SQ8","RS Q8"]}]}];
         const s=r(g), f=r(s.c); return `${s.b} ${r(f.e)} ${f.h}`;
     }
+    
     function genLuxury() {
         return r(["Ferrari 488 Pista","Ferrari F8 Tributo","Ferrari 812 Superfast","Ferrari SF90 Stradale","Ferrari LaFerrari","Ferrari Enzo","Ferrari F40","Lamborghini Aventador SVJ","Lamborghini Huracan Performante","Lamborghini Urus","Lamborghini Revuelto","Lamborghini Murcielago SV","Lamborghini Diablo VT","Porsche 911 Turbo S (992)","Porsche 911 GT3 RS (992)","Porsche 911 GT2 RS (991)","Porsche Carrera GT","Porsche 918 Spyder","Bugatti Chiron","Bugatti Chiron Super Sport","Bugatti Divo","Bugatti Veyron Super Sport","McLaren 720S","McLaren 765LT","McLaren P1","McLaren Senna","Rolls-Royce Phantom","Rolls-Royce Cullinan","Rolls-Royce Wraith","Bentley Continental GT Speed","Bentley Bentayga","Koenigsegg Agera RS","Koenigsegg Jesko","Pagani Huayra BC"]);
+    }
+
+    // === НОВАЯ ФУНКЦИЯ: КИТАЙСКИЕ МАШИНЫ ===
+    function genChina() {
+        const pool = [
+            // Geely
+            "Geely Monjaro Exclusive", "Geely Monjaro Flagship", "Geely Tugella Flagship", "Geely Coolray Flagship Sport",
+            "Geely Atlas Pro", "Geely Emgrand", "Geely Preface",
+            // Haval
+            "Haval Jolion Premium", "Haval F7x Tech Plus", "Haval Dargo Tech Plus", "Haval H9 Premium", "Haval M6", "Haval H3",
+            // Tank
+            "Tank 300 City Premium", "Tank 300 Offroad", "Tank 500 Premium", "Tank 500 Urban", "Tank 700",
+            // Zeekr
+            "Zeekr 001 FR", "Zeekr 001 YOU", "Zeekr 001 ME", "Zeekr 009", "Zeekr X", "Zeekr 007 Performance",
+            // Li Auto
+            "Li Auto L7 Max", "Li Auto L7 Pro", "Li Auto L9 Ultra", "Li Auto L9 Max", "Li Auto L8 Max", "Li Auto One",
+            // Voyah
+            "Voyah Free EVR", "Voyah Dream", "Voyah Passion",
+            // Chery / Exeed / Omoda
+            "Chery Tiggo 8 Pro Max", "Chery Arrizo 8", "Exeed VX President", "Exeed RX", "Omoda C5 Ultimate", "Omoda S5 GT",
+            // Avatr / HiPhi / Lotus
+            "Avatr 11", "Avatr 12", "HiPhi Z", "HiPhi X", "Lotus Eletre R", "YangWang U8"
+        ];
+        return r(pool);
     }
 
     // === MAIN LOGIC ===
@@ -511,7 +539,7 @@
         if (clicks === 10) {
             clicks = 0;
             doVibrate(50);
-            if (prompt("КОД ДОСТУПА:") === "758") cheatPanel.style.display = 'block';
+            if (prompt("КОД ДОСТУПА:") === "758") cheatPanel.style.display = 'grid';
         }
     });
 
@@ -544,7 +572,8 @@
         const maxSteps = 20 + Math.floor(Math.random() * 10);
 
         function tick() {
-            const funcs = [genEconomy, genMiddle, genPremium, genLuxury];
+            // ТЕПЕРЬ 5 КАТЕГОРИЙ В РОТАЦИИ
+            const funcs = [genEconomy, genMiddle, genPremium, genLuxury, genChina];
             carNameEl.innerText = funcs[Math.floor(Math.random()*funcs.length)]();
             
             playClickSound();
@@ -567,11 +596,13 @@
             tier = cheatNext;
             cheatNext = null;
         } else {
+            // Шансы: 20% на каждую категорию (0.2, 0.4, 0.6, 0.8, 1.0)
             const rand = Math.random();
-            if (rand < 0.25) tier = 'economy';
-            else if (rand < 0.50) tier = 'middle';
-            else if (rand < 0.75) tier = 'premium';
-            else tier = 'luxury';
+            if (rand < 0.20) tier = 'economy';
+            else if (rand < 0.40) tier = 'middle';
+            else if (rand < 0.60) tier = 'premium';
+            else if (rand < 0.80) tier = 'luxury';
+            else tier = 'china';
         }
 
         let resultName = "";
@@ -590,10 +621,15 @@
             resultName = genPremium();
             label = "КЛАСС 3: НЕМЕЦКАЯ МОЩЬ";
             glowClass = 'glow-pre';
-        } else {
+        } else if (tier === 'luxury') {
             resultName = genLuxury();
             label = "КЛАСС 4: ЭКЗОТИКА / ГИПЕРКАРЫ";
             glowClass = 'glow-lux';
+        } else {
+            // CHINA TIER
+            resultName = genChina();
+            label = "КЛАСС 5: КИТАЙ / ТЕХНОЛОГИИ";
+            glowClass = 'glow-chn';
         }
 
         currentCar = resultName;
