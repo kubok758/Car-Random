@@ -30,24 +30,27 @@
         body::before { content:''; position:absolute; inset:0; background: radial-gradient(circle at center, rgba(0,0,0,0.3), #000); z-index:0; pointer-events:none; }
 
         /* --- ANIMATIONS --- */
-        @keyframes flashEffect {
-            0% { filter: brightness(3) drop-shadow(0 0 20px #fff); transform: scale(1.05); color: #fff; }
-            100% { filter: brightness(1) drop-shadow(0 0 0 transparent); transform: scale(1); }
+        @keyframes blurMove {
+            0% { transform: scaleY(1); opacity: 1; filter: blur(0px); }
+            50% { transform: scaleY(1.2); opacity: 0.7; filter: blur(4px); }
+            100% { transform: scaleY(1); opacity: 1; filter: blur(0px); }
         }
-        @keyframes slotBlur {
-            0% { transform: translateY(-5px); filter: blur(3px); opacity: 0.7; }
-            50% { transform: translateY(5px); filter: blur(3px); opacity: 0.7; }
-            100% { transform: translateY(-5px); filter: blur(3px); opacity: 0.7; }
-        }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-2px); }
-            75% { transform: translateX(2px); }
+        
+        @keyframes impactFlash {
+            0% { text-shadow: 0 0 50px currentColor; transform: scale(1.1); filter: brightness(2); }
+            100% { text-shadow: 0 0 0 transparent; transform: scale(1); filter: brightness(1); }
         }
 
-        .flash-anim { animation: flashEffect 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
-        .spin-blur { animation: slotBlur 0.1s infinite linear; color: rgba(255,255,255,0.5); }
-        .shake-screen { animation: shake 0.2s linear; }
+        @keyframes screenShake {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(-2px, 2px); }
+            50% { transform: translate(2px, -2px); }
+            75% { transform: translate(-2px, -2px); }
+        }
+
+        .motion-blur { animation: blurMove 0.1s infinite; color: rgba(255,255,255,0.6); }
+        .impact { animation: impactFlash 0.3s ease-out forwards; }
+        .shaking { animation: screenShake 0.2s ease-out; }
 
         /* --- UI --- */
         .glass { background: var(--glass); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border: 1px solid var(--border); box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
@@ -61,18 +64,16 @@
         @supports (padding-top: env(safe-area-inset-top)) { .top-bar { top: calc(20px + env(safe-area-inset-top)); } }
 
         .wrapper { position: relative; z-index: 10; width: 90%; max-width: 420px; display: flex; flex-direction: column; gap: 20px; transition: 0.5s; }
-        .wrapper.hidden { opacity: 0; transform: scale(0.95); pointer-events: none; }
+        .wrapper.hidden { opacity: 0; transform: scale(0.9); pointer-events: none; }
 
         .app-title { text-align: center; font-size: 12px; letter-spacing: 4px; text-transform: uppercase; opacity: 0.5; font-weight: 700; margin-bottom: -10px; }
 
-        /* Main Card */
         .main-card { border-radius: 24px; padding: 30px 20px; display: flex; flex-direction: column; align-items: center; text-align: center; min-height: 220px; justify-content: center; }
-        .res-tier { font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; opacity: 0.7; }
-        .res-name { font-size: 24px; font-weight: 700; line-height: 1.2; margin-bottom: 5px; }
-        .res-spec { font-size: 16px; font-weight: 400; opacity: 0.6; }
-        .res-tune { font-size: 14px; color: var(--mat); margin-top: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .res-tier { font-size: 12px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 10px; opacity: 0.8; }
+        .res-name { font-size: 26px; font-weight: 800; line-height: 1.1; margin-bottom: 5px; }
+        .res-spec { font-size: 16px; font-weight: 500; opacity: 0.6; }
+        .res-tune { font-size: 14px; color: var(--mat); margin-top: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* Buttons */
         .controls { display: grid; grid-template-columns: 1fr auto; gap: 12px; }
         .btn-spin { background: #fff; color: #000; border: none; border-radius: 18px; height: 64px; font-size: 18px; font-weight: 800; letter-spacing: 1px; cursor: pointer; box-shadow: 0 0 30px rgba(255,255,255,0.1); transition: 0.1s; }
         .btn-spin:active { transform: scale(0.98); background: #e5e5e5; }
@@ -88,32 +89,33 @@
         }
         #cinematic.active { opacity: 1; pointer-events: auto; }
 
-        .cine-container { width: 100%; max-width: 400px; padding: 20px; display: flex; flex-direction: column; gap: 10px; text-align: center; }
+        .cine-container { width: 100%; max-width: 400px; padding: 20px; display: flex; flex-direction: column; gap: 15px; text-align: center; }
         
         .cine-row {
-            opacity: 0.1; transform: translateY(10px); transition: 0.3s;
+            opacity: 0.2; transform: translateY(10px); transition: 0.3s;
             display: flex; flex-direction: column; align-items: center; min-height: 50px;
-            margin-bottom: 5px;
         }
-        .cine-row.active { opacity: 1; transform: translateY(0); }
+        .cine-row.spinning { opacity: 0.8; transform: scale(1.05); }
+        .cine-row.done { opacity: 1; transform: scale(1); }
         
-        .cine-label { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: #666; margin-bottom: 2px; font-weight: 700; }
-        .cine-val { font-size: 22px; font-weight: 800; text-transform: uppercase; line-height: 1.1; }
+        .cine-label { font-size: 10px; text-transform: uppercase; letter-spacing: 3px; color: #555; margin-bottom: 4px; font-weight: 700; }
+        .cine-val { font-size: 24px; font-weight: 800; text-transform: uppercase; line-height: 1; white-space: nowrap; }
         
         #cTierVal { font-size: 20px; letter-spacing: 2px; }
         #cBrandVal { font-size: 32px; }
         #cModelVal { font-size: 26px; }
         #cSpecVal { font-size: 18px; color: #aaa; }
-        #cTuneVal { font-size: 16px; color: var(--mat); }
+        #cTuneVal { font-size: 16px; color: #666; }
+        #cTuneVal.tuned { color: var(--mat); text-shadow: 0 0 15px var(--mat); }
 
         #claimBtn {
-            margin-top: 30px; background: #fff; color: #000; border: none;
+            margin-top: 40px; background: #fff; color: #000; border: none;
             padding: 20px 0; width: 100%; font-size: 16px; font-weight: 900; letter-spacing: 2px;
             border-radius: 16px; cursor: pointer; opacity: 0; transform: translateY(20px); transition: 0.5s;
         }
-        #claimBtn.show { opacity: 1; transform: translateY(0); box-shadow: 0 0 50px rgba(255,255,255,0.3); }
+        #claimBtn.show { opacity: 1; transform: translateY(0); box-shadow: 0 0 50px rgba(255,255,255,0.4); }
 
-        /* GARAGE / BG MODALS (Simplified for length) */
+        /* MODALS */
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; opacity: 0; pointer-events: none; transition: 0.3s; display: flex; flex-direction: column; justify-content: flex-end; }
         .modal.active { opacity: 1; pointer-events: auto; }
         .modal-content { background: #111; border-top: 1px solid #333; border-radius: 24px 24px 0 0; padding: 20px; height: 80vh; display: flex; flex-direction: column; transform: translateY(100%); transition: 0.3s; }
@@ -121,23 +123,20 @@
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .g-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
         .g-item { background: #1a1a1a; border: 1px solid #333; border-radius: 14px; padding: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #444; }
-        .g-item.eco { border-color: var(--eco); } .g-item.mid { border-color: var(--mid); } .g-item.pre { border-color: var(--pre); } .g-item.lux { border-color: var(--lux); } .g-item.mat { border-color: var(--mat); }
         
+        /* Tier Colors */
+        .c-eco { color: var(--eco); } .b-eco { border-color: var(--eco); }
+        .c-mid { color: var(--mid); } .b-mid { border-color: var(--mid); }
+        .c-pre { color: var(--pre); } .b-pre { border-color: var(--pre); }
+        .c-lux { color: var(--lux); } .b-lux { border-color: var(--lux); }
+        .c-mat { color: var(--mat); } .b-mat { border-color: var(--mat); }
+
+        /* CHEAT & BG menus omitted for brevity but logic retained */
         .bg-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .bg-item { aspect-ratio: 1; border-radius: 12px; border: 2px solid rgba(255,255,255,0.1); cursor: pointer; }
-
-        /* CHEAT */
         #cheatMenu { position: absolute; top: 100px; left: 50%; transform: translate(-50%, -20px); background: #111; border: 1px solid #444; padding: 10px; border-radius: 16px; opacity: 0; pointer-events: none; transition: 0.2s; z-index: 2000; }
         #cheatMenu.active { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
-        .cheat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-        .cheat-btn { padding: 10px; background: #222; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-
-        /* TIER COLORS TEXT */
-        .t-eco { color: var(--eco); text-shadow: 0 0 20px var(--eco); }
-        .t-mid { color: var(--mid); text-shadow: 0 0 20px var(--mid); }
-        .t-pre { color: var(--pre); text-shadow: 0 0 20px var(--pre); }
-        .t-lux { color: var(--lux); text-shadow: 0 0 20px var(--lux); }
-        .t-mat { color: var(--mat); text-shadow: 0 0 20px var(--mat); }
+        .cheat-btn { padding: 10px; background: #222; margin: 2px; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -170,43 +169,18 @@
 
 <div id="cinematic">
     <div class="cine-container">
-        <div class="cine-row" id="r1"><div class="cine-label">КЛАСС</div><div class="cine-val" id="v1">...</div></div>
-        <div class="cine-row" id="r2"><div class="cine-label">МАРКА</div><div class="cine-val" id="v2">...</div></div>
-        <div class="cine-row" id="r3"><div class="cine-label">МОДЕЛЬ</div><div class="cine-val" id="v3">...</div></div>
-        <div class="cine-row" id="r4"><div class="cine-label">СПЕК</div><div class="cine-val" id="v4">...</div></div>
-        <div class="cine-row" id="r5"><div class="cine-label">ТЮНИНГ</div><div class="cine-val" id="v5">...</div></div>
+        <div class="cine-row" id="r1"><div class="cine-label">КЛАСС</div><div class="cine-val" id="v1"></div></div>
+        <div class="cine-row" id="r2"><div class="cine-label">МАРКА</div><div class="cine-val" id="v2"></div></div>
+        <div class="cine-row" id="r3"><div class="cine-label">МОДЕЛЬ</div><div class="cine-val" id="v3"></div></div>
+        <div class="cine-row" id="r4"><div class="cine-label">СПЕК</div><div class="cine-val" id="v4"></div></div>
+        <div class="cine-row" id="r5"><div class="cine-label">ТЮНИНГ</div><div class="cine-val" id="v5"></div></div>
         <button id="claimBtn" onclick="claim()">ЗАБРАТЬ</button>
     </div>
 </div>
 
-<div class="modal" id="garageModal">
-    <div class="modal-content">
-        <div class="modal-header"><div style="font-weight:800">ГАРАЖ</div><div onclick="closeModal('garageModal')">✕</div></div>
-        <div class="g-list" id="garageList"></div>
-        <button onclick="clearGarage()" style="margin-top:10px;padding:15px;background:#333;color:#fff;border:none;border-radius:12px">ОЧИСТИТЬ</button>
-    </div>
-</div>
-
-<div class="modal" id="bgModal">
-    <div class="modal-content" style="height:auto">
-        <div class="modal-header"><div style="font-weight:800">ФОН</div><div onclick="closeModal('bgModal')">✕</div></div>
-        <div class="bg-grid">
-            <div class="bg-item" style="background:#000" onclick="sBg('c','#000')"></div>
-            <div class="bg-item" style="background:#1a1a1a" onclick="sBg('c','#1a1a1a')"></div>
-            <div class="bg-item" style="background:url('mercedes.jpg') center/cover" onclick="sBg('i','mercedes.jpg')"></div>
-        </div>
-    </div>
-</div>
-
-<div id="cheatMenu">
-    <div class="cheat-grid">
-        <button class="cheat-btn" onclick="sc('economy')" style="color:var(--eco)">ECO</button>
-        <button class="cheat-btn" onclick="sc('middle')" style="color:var(--mid)">MID</button>
-        <button class="cheat-btn" onclick="sc('premium')" style="color:var(--pre)">PRE</button>
-        <button class="cheat-btn" onclick="sc('luxury')" style="color:var(--lux)">LUX</button>
-        <button class="cheat-btn" onclick="sc('matmall')" style="color:var(--mat)">MAT</button>
-    </div>
-</div>
+<div class="modal" id="garageModal"><div class="modal-content"><div class="modal-header"><h3>ГАРАЖ</h3><div onclick="closeModal('garageModal')">✕</div></div><div class="g-list" id="garageList"></div><button onclick="clearGarage()" style="margin-top:10px;padding:15px;background:#333;color:#fff;border:none;border-radius:12px">ОЧИСТИТЬ</button></div></div>
+<div class="modal" id="bgModal"><div class="modal-content" style="height:auto"><div class="modal-header"><h3>ФОН</h3><div onclick="closeModal('bgModal')">✕</div></div><div class="bg-grid"><div class="bg-item" style="background:#000" onclick="sBg('c','#000')"></div><div class="bg-item" style="background:#1a1a1a" onclick="sBg('c','#1a1a1a')"></div><div class="bg-item" style="background:url('mercedes.jpg') center/cover" onclick="sBg('i','mercedes.jpg')"></div></div></div></div>
+<div id="cheatMenu"><div style="display:grid;grid-template-columns:1fr 1fr;gap:5px"><button class="cheat-btn" onclick="sc('economy')">ECO</button><button class="cheat-btn" onclick="sc('middle')">MID</button><button class="cheat-btn" onclick="sc('premium')">PRE</button><button class="cheat-btn" onclick="sc('luxury')">LUX</button><button class="cheat-btn" onclick="sc('matmall')">MAT</button></div></div>
 
 <script>
     let snd=true, vib=true, cheat=null, audioCtx=null, gData=null;
@@ -225,9 +199,8 @@
 
     function initAudio(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); if(audioCtx.state==='suspended')audioCtx.resume(); }
     function click() { if(snd&&audioCtx){ const o=audioCtx.createOscillator(),g=audioCtx.createGain(); o.connect(g);g.connect(audioCtx.destination); o.frequency.value=800; g.gain.setValueAtTime(0.05,audioCtx.currentTime); g.gain.linearRampToValueAtTime(0,audioCtx.currentTime+0.05); o.start();o.stop(audioCtx.currentTime+0.05); } }
-    function boom() { if(snd&&audioCtx){ const o=audioCtx.createOscillator(),g=audioCtx.createGain(); o.connect(g);g.connect(audioCtx.destination); o.type='triangle'; o.frequency.value=100; g.gain.setValueAtTime(0.3,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+0.4); o.start();o.stop(audioCtx.currentTime+0.4); } }
-    function pulse() { if(vib&&navigator.vibrate) navigator.vibrate(20); }
-    function shock() { if(vib&&navigator.vibrate) navigator.vibrate([50,50,50]); }
+    function boom() { if(snd&&audioCtx){ const o=audioCtx.createOscillator(),g=audioCtx.createGain(); o.connect(g);g.connect(audioCtx.destination); o.type='triangle'; o.frequency.value=80; g.gain.setValueAtTime(0.4,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+0.3); o.start();o.stop(audioCtx.currentTime+0.3); } }
+    function shock() { if(vib&&navigator.vibrate) navigator.vibrate([30,30,30]); }
 
     function toggleSound(){ snd=!snd; document.getElementById('sndBtn').classList.toggle('off',!snd); localStorage.setItem('snd',snd?'1':'0'); if(snd)initAudio(); }
     function toggleVibro(){ vib=!vib; document.getElementById('vibBtn').classList.toggle('off',!vib); localStorage.setItem('vib',vib?'1':'0'); }
@@ -239,6 +212,16 @@
 
     const r=(a)=>a[Math.floor(Math.random()*a.length)];
     const ch=(p)=>Math.random()<p;
+    
+    // --- REALISTIC SPIN POOLS ---
+    function getSpinPool(type) {
+        if(type==='brand') return ['BMW','MERCEDES','TOYOTA','AUDI','PORSCHE','LADA','HAVAL','KIA','HONDA','TANK','ZEEKR','FERRARI','FORD'];
+        if(type==='model') return ['CAMRY','M5','911','PRIORA','CIVIC','CLS','URUS','VESTA','E63','LAND CRUISER','MONJARO','MUSTANG','GOLF'];
+        if(type==='spec') return ['COMPETITION','TURBO S','3.5 V6','AMG S','LONG','PERFORMANCE','GT-LINE','PLATINUM','SPORT','BLACK BADGE'];
+        if(type==='tune') return ['BRABUS','STAGE 2','MANHART','STOCK','HKS','LIBERTY WALK','ALPINA','STOCK','STOCK','ABT'];
+        return ['...'];
+    }
+
     function getTune(t){ 
         if(!ch(0.2))return null;
         const map={'b':['Manhart','G-Power','Alpina'],'m':['Brabus','Mansory'],'j':['HKS','VeilSide'],'l':['Stinger','Turbo'],'c':['Chip','Sport']};
@@ -251,87 +234,86 @@
         let d={tier:t, tune:null};
         
         if(t=='economy'){
-            d.tn='ЭКОНОМ'; d.css='t-eco'; d.gcss='eco';
+            d.tn='ЭКОНОМ'; d.css='c-eco'; d.gcss='eco';
             const c=[{b:'Lada',m:'Vesta NG',s:'Sport',t:'l'},{b:'VW',m:'Polo',s:'1.4 TSI',t:'c'},{b:'Skoda',m:'Rapid',s:'Monte Carlo',t:'c'},{b:'Kia',m:'Rio',s:'X-Line',t:'c'}];
             const x=r(c); d.b=x.b; d.m=x.m; d.s=x.s; d.tune=getTune(x.t);
         } else if(t=='middle'){
-            d.tn='СРЕДНИЙ / JDM'; d.css='t-mid'; d.gcss='mid';
+            d.tn='СРЕДНИЙ'; d.css='c-mid'; d.gcss='mid';
             const c=[{b:'Toyota',m:'Mark II',s:'Tourer V',t:'j'},{b:'Toyota',m:'Camry',s:'3.5 V6',t:'j'},{b:'Subaru',m:'WRX STI',s:'GC8',t:'j'},{b:'Geely',m:'Monjaro',s:'Flagship',t:'c'}];
             const x=r(c); d.b=x.b; d.m=x.m; d.s=x.s; d.tune=getTune(x.t);
         } else if(t=='premium'){
-            d.tn='ПРЕМИУМ'; d.css='t-pre'; d.gcss='pre';
+            d.tn='ПРЕМИУМ'; d.css='c-pre'; d.gcss='pre';
             const c=[{b:'BMW',m:'M5 F90',s:'Competition',t:'b'},{b:'Mercedes',m:'E63 S',s:'W213',t:'m'},{b:'Audi',m:'RS6',s:'C8 Avant',t:'c'},{b:'Zeekr',m:'001',s:'FR',t:'c'}];
             const x=r(c); d.b=x.b; d.m=x.m; d.s=x.s; d.tune=getTune(x.t);
         } else if(t=='luxury'){
-            d.tn='ЛЮКС'; d.css='t-lux'; d.gcss='lux';
+            d.tn='ЛЮКС'; d.css='c-lux'; d.gcss='lux';
             const c=[{b:'Ferrari',m:'SF90',s:'Stradale'},{b:'Lamborghini',m:'Urus',s:'Performante'},{b:'Porsche',m:'911 Turbo S',s:'(992)'},{b:'Bugatti',m:'Chiron',s:'Super Sport'}];
             const x=r(c); d.b=x.b; d.m=x.m; d.s=x.s; d.tune=getTune('m');
         } else {
-            d.tn='MAT-MALL'; d.css='t-mat'; d.gcss='mat';
-            d.b='Porsche'; d.m='Cayenne Coupe'; d.s='Turbo GT'; d.tune='Mat-Mall Edition';
+            d.tn='MAT-MALL'; d.css='c-mat'; d.gcss='mat';
+            d.b='Porsche'; d.m='Cayenne'; d.s='Turbo GT'; d.tune='Mat-Mall Edition';
         }
         return d;
     }
 
-    async function spinRow(id, final, css) {
+    async function spinRow(id, final, poolType, css) {
         const el = document.getElementById(id);
-        const elVal = el.querySelector('.cine-val');
+        const val = el.querySelector('.cine-val');
         el.classList.add('active');
-        elVal.className = 'cine-val spin-blur';
+        val.className = 'cine-val motion-blur'; // Start blur
         
-        // Spin logic
-        const pool = ['LOADING','SEARCHING','...','SCANNING','TARGET'];
-        for(let i=0; i<10; i++) {
-            elVal.innerText = r(pool);
+        const pool = getSpinPool(poolType);
+        
+        // Spin fast
+        for(let i=0; i<15; i++) {
+            val.innerText = r(pool);
             click();
-            await new Promise(r=>setTimeout(r, 60 + i*10));
+            await new Promise(r=>setTimeout(r, 60)); // Fast ticks
         }
         
-        elVal.innerText = final;
-        elVal.className = 'cine-val flash-anim';
-        if(css) elVal.classList.add(css);
-        boom(); pulse();
+        // Stop
+        val.innerText = final;
+        val.className = 'cine-val impact'; // Flash
+        if(css) val.classList.add(css);
         
-        // Shake screen on impact
-        document.body.classList.add('shake-screen');
-        setTimeout(()=>document.body.classList.remove('shake-screen'), 200);
+        document.body.classList.add('shaking'); // Screen shake
+        setTimeout(()=>document.body.classList.remove('shaking'), 200);
+        boom(); 
     }
 
     async function startCinematic() {
         initAudio();
         gData = generate();
         
-        // UI Reset
         document.getElementById('mainWrapper').classList.add('hidden');
         document.getElementById('cinematic').classList.add('active');
         document.getElementById('claimBtn').classList.remove('show');
         
-        ['v1','v2','v3','v4','v5'].forEach(id=>document.getElementById(id).innerText='...');
+        ['v1','v2','v3','v4','v5'].forEach(id=>document.getElementById(id).innerText='');
         ['r1','r2','r3','r4','r5'].forEach(id=>document.getElementById(id).classList.remove('active'));
 
-        // Step 1: Tier
-        await spinRow('r1', gData.tn, gData.css);
-        await new Promise(r=>setTimeout(r, 300));
-
-        // Step 2: Brand
-        await spinRow('r2', gData.b);
-        await new Promise(r=>setTimeout(r, 300));
-
-        // Step 3: Model
-        await spinRow('r3', gData.m);
-        await new Promise(r=>setTimeout(r, 300));
-
-        // Step 4: Spec
-        await spinRow('r4', gData.s);
-        await new Promise(r=>setTimeout(r, 300));
-
-        // Step 5: Tune
+        // Sequence
+        await new Promise(r=>setTimeout(r, 500));
+        await spinRow('r1', gData.tn, 'tier', gData.css);
+        
+        await new Promise(r=>setTimeout(r, 400));
+        await spinRow('r2', gData.b, 'brand');
+        
+        await new Promise(r=>setTimeout(r, 400));
+        await spinRow('r3', gData.m, 'model');
+        
+        await new Promise(r=>setTimeout(r, 400));
+        await spinRow('r4', gData.s, 'spec');
+        
+        await new Promise(r=>setTimeout(r, 400));
+        // Tuning logic for display
         const tTxt = gData.tune ? gData.tune : "STOCK";
-        await spinRow('r5', tTxt, gData.tune ? 't-mat' : null);
+        const tCss = gData.tune ? 'c-mat' : null;
+        await spinRow('r5', tTxt, 'tune', tCss);
         if(!gData.tune) document.getElementById('v5').style.opacity = 0.5;
 
-        // Finish
         shock();
+        await new Promise(r=>setTimeout(r, 300));
         document.getElementById('claimBtn').classList.add('show');
     }
 
@@ -339,7 +321,6 @@
         document.getElementById('cinematic').classList.remove('active');
         document.getElementById('mainWrapper').classList.remove('hidden');
         
-        // Render Result
         document.getElementById('mTier').innerText = gData.tn;
         document.getElementById('mTier').className = 'res-tier '+gData.css;
         document.getElementById('mName').innerText = gData.b + ' ' + gData.m;
@@ -347,7 +328,6 @@
         document.getElementById('mTune').innerText = gData.tune ? '+ '+gData.tune : '';
         document.getElementById('gBtn').classList.add('visible');
 
-        // Save
         const n = `${gData.b} ${gData.m} ${gData.s}`;
         const ex = garage.find(c => c.n === n && c.t === gData.tune);
         if(ex) ex.c++;
@@ -360,7 +340,7 @@
         l.innerHTML = garage.length ? '' : '<div style="color:#666;text-align:center;padding:20px">Пусто</div>';
         garage.forEach(i => {
             const t = i.t ? `<span style="color:var(--mat)"> ${i.t}</span>` : '';
-            l.innerHTML += `<div class="g-item ${i.css}"><div><div style="font-size:10px;opacity:0.7">${i.tn}</div><div class="g-name">${i.n}${t}</div></div><div class="g-count">x${i.c}</div></div>`;
+            l.innerHTML += `<div class="g-item b-${i.css}"><div><div style="font-size:10px;opacity:0.7">${i.tn}</div><div class="g-name">${i.n}${t}</div></div><div class="g-count">x${i.c}</div></div>`;
         });
     }
 
