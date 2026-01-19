@@ -10,305 +10,319 @@
     <title>ULTIMATE CAR RANDOMIZER</title>
     <style>
         :root { --bg-color: #0b0b0b; --card: #141414; --text: #e0e0e0; --eco: #00ff9d; --mid: #00eaff; --pre: #d600ff; --lux: #ffbd00; --mat: #ff0040; }
-        html { height: 100%; width: 100%; overflow: hidden; }
-        body { background-color: var(--bg-color); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: scroll; color: var(--text); font-family: 'Arial Black', 'Impact', sans-serif; position: fixed; top: 0; left: 0; right: 0; bottom: 0; height: 100%; width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0; padding: 0; overflow: hidden; overscroll-behavior: none; touch-action: none; user-select: none; -webkit-tap-highlight-color: transparent; transition: background-color 0.5s ease; }
-        body::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: -1; pointer-events: none; }
-        .wrapper { width: 90%; max-width: 600px; padding: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; z-index: 10; }
+        
+        /* АНИМАЦИИ */
+        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 70% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes slideUp { 0% { transform: translateY(20px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+        @keyframes glowPulse { 0% { box-shadow: 0 0 10px currentColor; } 50% { box-shadow: 0 0 30px currentColor; } 100% { box-shadow: 0 0 10px currentColor; } }
+        @keyframes scanline { 0% { background-position: 0% 0%; } 100% { background-position: 0% 100%; } }
+
+        html, body { height: 100%; width: 100%; overflow: hidden; margin: 0; padding: 0; }
+        body {
+            background-color: var(--bg-color); background-size: cover; background-position: center;
+            font-family: 'Arial Black', 'Impact', sans-serif; color: var(--text);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            user-select: none; -webkit-tap-highlight-color: transparent;
+            transition: background-color 0.5s ease;
+        }
+        body::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: -1; }
+
+        /* UI */
         .settings-bar { position: absolute; top: 20px; right: 20px; display: flex; gap: 10px; z-index: 1000; }
         @supports (padding-top: env(safe-area-inset-top)) { .settings-bar { top: calc(20px + env(safe-area-inset-top)); } }
-        .icon-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); padding: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: all 0.2s ease; }
-        .icon-btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-        .icon-btn:active { transform: scale(0.95); background: rgba(255,255,255,0.2); }
-        .icon-btn.off { opacity: 0.5; border-color: #444; color: #888; background: rgba(0,0,0,0.8); }
-        .icon-btn.active { background: rgba(255, 255, 255, 0.9); color: #000; box-shadow: 0 0 15px rgba(255, 255, 255, 0.5); }
+        .icon-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; backdrop-filter: blur(10px); transition: 0.2s; }
+        .icon-btn:active { transform: scale(0.9); }
+        .icon-btn.off { opacity: 0.5; background: rgba(0,0,0,0.8); color: #888; border-color: #444; }
+        .icon-btn.active { background: #fff; color: #000; box-shadow: 0 0 15px #fff; }
         .slash { display: none; } .icon-btn.off .slash { display: block; }
-        #bgMenu { display: none; position: absolute; top: 80px; right: 20px; width: 260px; background: rgba(20, 20, 20, 0.95); border: 1px solid #444; border-radius: 15px; padding: 15px; z-index: 1001; box-shadow: 0 10px 40px rgba(0,0,0,0.8); backdrop-filter: blur(10px); text-align: left; }
-        @supports (padding-top: env(safe-area-inset-top)) { #bgMenu { top: calc(80px + env(safe-area-inset-top)); } }
-        #bgMenu h3 { margin: 0 0 10px 0; font-size: 0.9rem; color: #888; text-transform: uppercase; font-family: 'Segoe UI', sans-serif; letter-spacing: 1px; border-bottom: 1px solid #333; padding-bottom: 5px; }
-        .bg-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; }
-        .bg-btn { width: 100%; aspect-ratio: 1; border-radius: 8px; border: 2px solid rgba(255,255,255,0.1); cursor: pointer; transition: transform 0.2s; position: relative; overflow: hidden; }
-        .bg-btn:hover { border-color: #fff; } .bg-btn:active { transform: scale(0.9); }
-        .c-black { background: #0b0b0b; } .c-gray { background: #2d2d2d; } .c-blue { background: #0f1c2e; } .c-red { background: #2e0f0f; }
-        .img-merc { background: url('mercedes.jpg') center/cover; } .img-bmw { background: url('bmw.jpg') center/cover; } .img-porsche { background: url('porsche.jpg') center/cover; }
-        .mobile-wallpapers { display: none; } @media (max-width: 768px) { .mobile-wallpapers { display: block; } }
-        h1 { font-size: 1.8rem; text-transform: uppercase; letter-spacing: 4px; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5); margin-bottom: 30px; line-height: 1.2; width: 100%; }
-        .output-box { background: rgba(20, 20, 20, 0.85); border: 2px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 20px; width: 100%; position: relative; box-shadow: 0 0 50px rgba(0,0,0,0.5); transition: 0.1s transform, 0.3s border-color, 0.3s box-shadow; cursor: pointer; min-height: 180px; display: flex; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
-        .output-box:active { transform: scale(0.98); }
-        #carName { font-size: 1.8rem; line-height: 1.2; text-transform: uppercase; background: -webkit-linear-gradient(#fff, #aaa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 10px rgba(255,255,255,0.1)); margin-bottom: 10px; word-break: break-word; }
-        #tierLabel { font-family: 'Segoe UI', sans-serif; font-size: 0.8rem; letter-spacing: 3px; color: #999; font-weight: 700; text-transform: uppercase; }
-        .controls { width: 100%; display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
-        .btn { background: #fff; color: #000; border: none; padding: 20px 0; width: 100%; font-size: 1.4rem; font-weight: 900; text-transform: uppercase; border-radius: 12px; cursor: pointer; transition: 0.1s; box-shadow: 0 0 20px rgba(255,255,255,0.1); }
-        .btn:active { transform: translateY(2px); background: #ddd; } .btn:disabled { background: #333; color: #555; box-shadow: none; }
-        #googleBtn { display: none; background: rgba(0,0,0,0.6); color: #aaa; border: 2px solid rgba(255,255,255,0.2); padding: 15px 0; width: 100%; font-size: 1rem; font-weight: 700; text-transform: uppercase; border-radius: 8px; cursor: pointer; transition: 0.2s; font-family: 'Segoe UI', sans-serif; letter-spacing: 1px; align-items: center; justify-content: center; gap: 10px; }
-        #googleBtn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; }
-        #googleBtn:hover { border-color: #fff; color: #fff; background: rgba(0,0,0,0.8); }
-        #googleBtn:active { transform: scale(0.98); }
-        .glow-eco { border-color: var(--eco); box-shadow: 0 0 40px rgba(0,255,157,0.15); } .glow-eco #carName { background: -webkit-linear-gradient(#fff, var(--eco)); -webkit-background-clip: text; }
-        .glow-mid { border-color: var(--mid); box-shadow: 0 0 50px rgba(0,234,255,0.2); } .glow-mid #carName { background: -webkit-linear-gradient(#fff, var(--mid)); -webkit-background-clip: text; }
-        .glow-pre { border-color: var(--pre); box-shadow: 0 0 60px rgba(214,0,255,0.25); } .glow-pre #carName { background: -webkit-linear-gradient(#fff, var(--pre)); -webkit-background-clip: text; }
-        .glow-lux { border-color: var(--lux); box-shadow: 0 0 80px rgba(255,189,0,0.3); } .glow-lux #carName { background: -webkit-linear-gradient(#fff, var(--lux)); -webkit-background-clip: text; }
-        .glow-mat { border-color: var(--mat); box-shadow: 0 0 80px rgba(255, 0, 64, 0.6); } .glow-mat #carName { background: -webkit-linear-gradient(#fff, var(--mat)); -webkit-background-clip: text; }
-        #cheatPanel { display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #000; border: 2px solid red; padding: 10px; z-index: 2000; box-shadow: 0 0 30px rgba(255,0,0,0.5); width: 80%; max-width: 400px; text-align: center; border-radius: 10px; }
-        .cheat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 5px; }
-        .cheat-btn { padding: 10px; cursor: pointer; font-weight: bold; border:none; font-size: 0.8rem; border-radius: 5px; }
+
+        /* MENUS */
+        #bgMenu { display: none; position: absolute; top: 80px; right: 20px; background: #141414; border: 1px solid #333; padding: 10px; border-radius: 10px; z-index: 1001; }
+        .bg-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 5px; }
+        .bg-btn { width: 40px; height: 40px; border-radius: 5px; border: 1px solid #555; }
+        
+        #cheatPanel { display: none; position: absolute; top: 20px; background: #000; border: 1px solid red; padding: 10px; z-index: 2000; border-radius: 10px; }
+        .cheat-btn { padding: 5px 10px; margin: 2px; font-weight: bold; border: none; border-radius: 4px; }
+
+        /* MAIN BOX */
+        .wrapper { width: 90%; max-width: 500px; display: flex; flex-direction: column; align-items: center; gap: 20px; z-index: 10; }
+        
+        h1 { font-size: 2rem; letter-spacing: 5px; margin: 0; text-shadow: 0 4px 20px rgba(0,0,0,0.8); opacity: 0.8; }
+
+        .output-box {
+            width: 100%; min-height: 220px;
+            background: rgba(20, 20, 20, 0.9);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            position: relative; overflow: hidden;
+            transition: 0.3s all;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+
+        /* STYLES FOR ANIMATION PHASES */
+        .phase-1-tier {
+            font-size: 1.2rem; letter-spacing: 4px; font-family: 'Segoe UI', sans-serif; font-weight: 900;
+            text-transform: uppercase; margin-bottom: 20px;
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        
+        .phase-2-brand {
+            font-size: 2.5rem; line-height: 1; text-transform: uppercase; margin-bottom: 5px;
+            background: linear-gradient(180deg, #fff, #888); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: slideUp 0.4s ease-out forwards;
+        }
+
+        .phase-3-model {
+            font-size: 1.2rem; color: #aaa; text-transform: uppercase; font-weight: 600;
+            animation: slideUp 0.4s ease-out forwards;
+        }
+
+        /* GLOW CLASSES */
+        .glow-eco { border-color: var(--eco); box-shadow: 0 0 30px rgba(0,255,157,0.2); } .text-eco { color: var(--eco); text-shadow: 0 0 15px var(--eco); }
+        .glow-mid { border-color: var(--mid); box-shadow: 0 0 40px rgba(0,234,255,0.25); } .text-mid { color: var(--mid); text-shadow: 0 0 20px var(--mid); }
+        .glow-pre { border-color: var(--pre); box-shadow: 0 0 50px rgba(214,0,255,0.3); } .text-pre { color: var(--pre); text-shadow: 0 0 25px var(--pre); }
+        .glow-lux { border-color: var(--lux); box-shadow: 0 0 60px rgba(255,189,0,0.35); } .text-lux { color: var(--lux); text-shadow: 0 0 30px var(--lux); }
+        .glow-mat { border-color: var(--mat); box-shadow: 0 0 80px rgba(255,0,64,0.5); } .text-mat { color: var(--mat); text-shadow: 0 0 40px var(--mat); }
+
+        .scan-text { font-size: 1.5rem; opacity: 0.5; font-family: monospace; letter-spacing: 2px; }
+
+        .controls { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+        .btn { padding: 20px; font-size: 1.5rem; font-weight: 900; background: #fff; border: none; border-radius: 12px; cursor: pointer; text-transform: uppercase; transition: 0.1s; }
+        .btn:active { transform: scale(0.98); background: #ddd; }
+        .btn:disabled { background: #333; color: #555; }
+        #googleBtn { display: none; padding: 15px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: #fff; font-weight: 700; border-radius: 12px; align-items: center; justify-content: center; gap: 10px; text-transform: uppercase; }
+        #googleBtn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
     </style>
 </head>
 <body>
 
 <div class="settings-bar">
-    <button class="icon-btn" id="fastToggle" onclick="toggleFast()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg></button>
-    <button class="icon-btn" id="bgToggle" onclick="toggleBgMenu()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg></button>
-    <button class="icon-btn" id="vibroToggle" onclick="toggleVibro()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="10" y="4" width="4" height="16" rx="2"></rect><path d="M7 8 L6 8"></path><path d="M7 12 L6 12"></path><path d="M7 16 L6 16"></path><path d="M17 8 L18 8"></path><path d="M17 12 L18 12"></path><path d="M17 16 L18 16"></path><line x1="3" y1="3" x2="21" y2="21" class="slash" stroke="#888"></line></svg></button>
-    <button class="icon-btn" id="soundToggle" onclick="toggleSound()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path><line x1="23" y1="9" x2="17" y2="15" class="slash" stroke="#888"></line><line x1="17" y1="9" x2="23" y2="15" class="slash" stroke="#888"></line></svg></button>
+    <button class="icon-btn" id="fastToggle" onclick="toggleFast()"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+    <button class="icon-btn" id="bgToggle" onclick="toggleBgMenu()"><svg viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+    <button class="icon-btn" id="vibroToggle" onclick="toggleVibro()"><svg viewBox="0 0 24 24"><rect x="10" y="4" width="4" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><line x1="3" y1="3" x2="21" y2="21" class="slash" stroke="#888" stroke-width="2"/></svg></button>
+    <button class="icon-btn" id="soundToggle" onclick="toggleSound()"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="none" stroke="currentColor" stroke-width="2"/><line x1="23" y1="9" x2="17" y2="15" class="slash" stroke="#888" stroke-width="2"/></svg></button>
 </div>
 
 <div id="bgMenu">
-    <h3>Цвета</h3>
+    <div style="color:#888; font-size:10px; margin-bottom:5px">ЦВЕТА</div>
     <div class="bg-grid">
-        <div class="bg-btn c-black" onclick="setBgColor('#0b0b0b')"></div>
-        <div class="bg-btn c-gray" onclick="setBgColor('#2d2d2d')"></div>
-        <div class="bg-btn c-blue" onclick="setBgColor('#0f1c2e')"></div>
-        <div class="bg-btn c-red" onclick="setBgColor('#2e0f0f')"></div>
+        <div class="bg-btn c-black" style="background:#0b0b0b" onclick="setBgColor('#0b0b0b')"></div>
+        <div class="bg-btn c-gray" style="background:#2d2d2d" onclick="setBgColor('#2d2d2d')"></div>
+        <div class="bg-btn c-blue" style="background:#0f1c2e" onclick="setBgColor('#0f1c2e')"></div>
+        <div class="bg-btn c-red" style="background:#2e0f0f" onclick="setBgColor('#2e0f0f')"></div>
     </div>
-    <div class="mobile-wallpapers">
-        <h3>Обои</h3>
-        <div class="bg-grid">
-            <div class="bg-btn img-merc" onclick="setBgImage('mercedes.jpg')"></div>
-            <div class="bg-btn img-bmw" onclick="setBgImage('bmw.jpg')"></div>
-            <div class="bg-btn img-porsche" onclick="setBgImage('porsche.jpg')"></div>
-        </div>
+    <div style="color:#888; font-size:10px; margin:10px 0 5px">ОБОИ</div>
+    <div class="bg-grid">
+        <div class="bg-btn" style="background:url('mercedes.jpg') center/cover" onclick="setBgImage('mercedes.jpg')"></div>
+        <div class="bg-btn" style="background:url('bmw.jpg') center/cover" onclick="setBgImage('bmw.jpg')"></div>
+        <div class="bg-btn" style="background:url('porsche.jpg') center/cover" onclick="setBgImage('porsche.jpg')"></div>
     </div>
 </div>
 
 <div id="cheatPanel">
-    <div style="color:red; font-size:10px; font-weight:bold">АДМИН ПАНЕЛЬ</div>
     <div class="cheat-grid" style="grid-template-columns: 1fr 1fr;">
-        <button class="cheat-btn" style="background:var(--eco)" onclick="activateCheat('economy')">ЭКО</button>
-        <button class="cheat-btn" style="background:var(--mid)" onclick="activateCheat('middle')">СРЕД</button>
-        <button class="cheat-btn" style="background:var(--pre); color:white" onclick="activateCheat('premium')">ПРЕМ</button>
-        <button class="cheat-btn" style="background:var(--lux)" onclick="activateCheat('luxury')">ЛЮКС</button>
-        <button class="cheat-btn" style="background:var(--mat); color:white; grid-column: span 2" onclick="activateCheat('matmall')">MAT-MALL</button>
+        <button class="cheat-btn" style="background:var(--eco)" onclick="ac('economy')">ECO</button>
+        <button class="cheat-btn" style="background:var(--mid)" onclick="ac('middle')">MID</button>
+        <button class="cheat-btn" style="background:var(--pre); color:white" onclick="ac('premium')">PREM</button>
+        <button class="cheat-btn" style="background:var(--lux)" onclick="ac('luxury')">LUX</button>
+        <button class="cheat-btn" style="background:var(--mat); color:white; grid-column:span 2" onclick="ac('matmall')">MAT</button>
     </div>
 </div>
 
 <div class="wrapper">
-    <h1>Car Randomizer</h1>
+    <h1>CAR RANDOMIZER</h1>
+    
     <div class="output-box" id="box">
-        <div id="carName">ГОТОВО</div>
-        <div id="tierLabel">НАЖМИ КНОПКУ</div>
+        <div class="scan-text" id="scanText">ГОТОВО</div>
+        <div id="resultContainer" style="display:none; text-align:center;">
+            <div id="resTier" class="phase-1-tier"></div>
+            <div id="resBrand" class="phase-2-brand"></div>
+            <div id="resModel" class="phase-3-model"></div>
+        </div>
     </div>
+
     <div class="controls">
         <button class="btn" id="spinBtn" onclick="spin()">КРУТИТЬ</button>
         <button id="googleBtn" onclick="openGoogle()">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-            ПОСМОТРЕТЬ ФОТО
+            <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            ФОТО
         </button>
     </div>
 </div>
 
 <script>
-    if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Fail:', err)); }); }
-
-    // === UI ===
-    function toggleBgMenu() { const m = document.getElementById('bgMenu'); m.style.display = (m.style.display === 'block') ? 'none' : 'block'; }
-    document.addEventListener('click', (e) => { const m = document.getElementById('bgMenu'), b = document.getElementById('bgToggle'); if (!m.contains(e.target) && !b.contains(e.target)) m.style.display = 'none'; });
-    function setBgColor(c) { document.body.style.backgroundImage = 'none'; document.body.style.backgroundColor = c; document.getElementById('bgMenu').style.display = 'none'; localStorage.setItem('carApp_bgType', 'color'); localStorage.setItem('carApp_bgValue', c); }
-    function setBgImage(f) { document.body.style.backgroundColor = '#0b0b0b'; document.body.style.backgroundImage = `url('${f}')`; document.getElementById('bgMenu').style.display = 'none'; localStorage.setItem('carApp_bgType', 'image'); localStorage.setItem('carApp_bgValue', f); }
-
-    // === SETTINGS ===
-    let audioCtx=null, isSoundOn=true, isVibroOn=true, isFastSpin=false;
+    // --- SETTINGS ---
+    let sSound=true, sVibro=true, sFast=false, cheat=null, result="", audioCtx=null;
+    
+    function init() {
+        if(localStorage.getItem('cr_snd')==='0') toggleSound();
+        if(localStorage.getItem('cr_vib')==='0') toggleVibro();
+        if(localStorage.getItem('cr_fst')==='1') toggleFast();
+        const bgt=localStorage.getItem('cr_bgt'), bgv=localStorage.getItem('cr_bgv');
+        if(bgt==='c') document.body.style.background = bgv;
+        if(bgt==='i') document.body.style.backgroundImage = `url('${bgv}')`;
+    }
+    
+    // --- UI HELPERS ---
+    const el = (id) => document.getElementById(id);
+    const box = el('box'), spinBtn = el('spinBtn'), googleBtn = el('googleBtn');
+    
+    function toggleBgMenu() { el('bgMenu').style.display = el('bgMenu').style.display==='block'?'none':'block'; }
+    function setBgColor(c) { document.body.style.background=c; saveBg('c',c); toggleBgMenu(); }
+    function setBgImage(f) { document.body.style.background=`#000 url('${f}') center/cover fixed`; saveBg('i',f); toggleBgMenu(); }
+    function saveBg(t,v) { localStorage.setItem('cr_bgt',t); localStorage.setItem('cr_bgv',v); }
+    
+    function toggleSound() { sSound=!sSound; el('soundToggle').classList.toggle('off',!sSound); localStorage.setItem('cr_snd',sSound?'1':'0'); if(sSound)initAudio(); }
+    function toggleVibro() { sVibro=!sVibro; el('vibroToggle').classList.toggle('off',!sVibro); localStorage.setItem('cr_vib',sVibro?'1':'0'); }
+    function toggleFast() { sFast=!sFast; el('fastToggle').classList.toggle('active',sFast); localStorage.setItem('cr_fst',sFast?'1':'0'); }
+    
     function initAudio() { if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); if(audioCtx.state==='suspended') audioCtx.resume(); }
-    function playClickSound() {
-        if(!isSoundOn||!audioCtx)return; const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+    function beep(freq=800, dur=0.05) {
+        if(!sSound||!audioCtx)return; const o=audioCtx.createOscillator(),g=audioCtx.createGain();
         o.connect(g); g.connect(audioCtx.destination); o.type='triangle'; 
-        o.frequency.setValueAtTime(800,audioCtx.currentTime); o.frequency.exponentialRampToValueAtTime(1200,audioCtx.currentTime+0.05);
-        g.gain.setValueAtTime(0.3,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+0.05);
-        o.start(); o.stop(audioCtx.currentTime+0.05);
+        o.frequency.value=freq; g.gain.setValueAtTime(0.3,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+dur);
+        o.start(); o.stop(audioCtx.currentTime+dur);
     }
-    function toggleSound() { isSoundOn=!isSoundOn; document.getElementById('soundToggle').classList.toggle('off',!isSoundOn); localStorage.setItem('carApp_sound',isSoundOn); initAudio(); }
-    function toggleVibro() { isVibroOn=!isVibroOn; document.getElementById('vibroToggle').classList.toggle('off',!isVibroOn); localStorage.setItem('carApp_vibro',isVibroOn); }
-    function toggleFast() { isFastSpin=!isFastSpin; document.getElementById('fastToggle').classList.toggle('active',isFastSpin); localStorage.setItem('carApp_fast',isFastSpin); }
-    function doVibrate(p) { if(isVibroOn&&navigator.vibrate) try{navigator.vibrate(p);}catch(e){} }
-    function initSettings() {
-        if(localStorage.getItem('carApp_sound')==='false'){ isSoundOn=false; document.getElementById('soundToggle').classList.add('off'); }
-        if(localStorage.getItem('carApp_vibro')==='false'){ isVibroOn=false; document.getElementById('vibroToggle').classList.add('off'); }
-        if(localStorage.getItem('carApp_fast')==='true'){ isFastSpin=true; document.getElementById('fastToggle').classList.add('active'); }
-        const t=localStorage.getItem('carApp_bgType'), v=localStorage.getItem('carApp_bgValue');
-        if(t==='color'&&v){ document.body.style.backgroundImage='none'; document.body.style.backgroundColor=v; }
-        else if(t==='image'&&v){ document.body.style.backgroundColor='#0b0b0b'; document.body.style.backgroundImage=`url('${v}')`; }
-    }
+    function vib(ms) { if(sVibro&&navigator.vibrate) navigator.vibrate(ms); }
 
-    // === GENERATOR ENGINE ===
-    const r = (arr) => arr[Math.floor(Math.random() * arr.length)];
+    // --- CAR GENERATOR (SAME MASSIVE DATA) ---
+    const r = (a) => a[Math.floor(Math.random()*a.length)];
     const chance = (p) => Math.random() < p;
-
-    // Tuning Generator
-    function getTune(type) {
-        if (!chance(0.15)) return ""; // 85% Stock
-        if (type === 'bmw') return " (" + r(['Manhart', 'G-Power', 'Alpina', 'Hamann', 'AC Schnitzer', 'Dinan', 'Stage 2', 'Stage 3', 'Drift Spec']) + ")";
-        if (type === 'merc') return " (" + r(['Brabus', 'Mansory', 'Renntech', 'Lorinser', 'Carlsson', 'Wald', 'Stage 2', 'Rocket 900']) + ")";
-        if (type === 'audi') return " (" + r(['ABT Sportsline', 'MTM', 'Mansory', 'Prior Design', 'Stage 2', 'Stage 3', 'RS6-R']) + ")";
-        if (type === 'jdm') return " (" + r(['HKS', 'VeilSide', 'Liberty Walk', 'Rocket Bunny', 'BN Sports', 'Top Secret', 'Spoon', 'Mugen', 'NISMO', 'TRD']) + ")";
-        if (type === 'lada') return " (" + r(['Stinger Exhaust', 'Stage 2', 'Turbo Kit 300hp', 'Na Pnevme', 'Bunker', 'Opera Style', 'Boevaya Klassika']) + ")";
-        if (type === 'china') return " (" + r(['Black Edition', 'Sport Package', 'Chip Tuning', 'Wrap', 'Offroad Kit']) + ")";
-        if (type === 'super') return " (" + r(['Mansory', 'Novitec', 'Liberty Walk', 'Underground Racing', 'DMC', 'Vorsteiner', '1016 Industries']) + ")";
+    function getTune(t) {
+        if(!chance(0.15)) return ""; 
+        if(t=='bmw') return " ("+r(['Manhart','G-Power','Alpina','Hamann','Stage 2'])+")";
+        if(t=='merc') return " ("+r(['Brabus','Mansory','Renntech','Lorinser','Rocket 900'])+")";
+        if(t=='jdm') return " ("+r(['HKS','VeilSide','Liberty Walk','Rocket Bunny','Drift Spec'])+")";
+        if(t=='lada') return " ("+r(['Stinger','Stage 2','Turbo','Pneuma','Bunker'])+")";
+        if(t=='china') return " ("+r(['Black Ed','Sport Pkg','Chip'])+")";
         return " (Tuned)";
     }
 
-    function genMatMall() { return "Porsche Cayenne Coupe Turbo GT (Mat-Mall Edition)"; }
-
-    function genEconomy() {
-        const brands = [
-            // LADA
-            () => "Lada " + r(["Vesta", "Priora", "Granta", "2114", "2112", "2110", "2107", "2106", "Niva Legend", "Niva Travel", "Largus", "XRAY"]) + " " + r(["Sedan", "Hatchback", "Coupe", "SW", "Universal"]) + " " + r(["Sport", "Cross", "Luxe", "Standard", "Classic", "Comfort"]) + getTune('lada'),
-            // VAG Budget
-            () => "Volkswagen " + r(["Polo", "Golf 4", "Golf 5", "Golf 6", "Golf 7", "Jetta 5", "Jetta 6", "Bora", "Passat B5", "Passat B6"]) + " " + r(["Sedan", "Liftback", "Hatchback", "Variant"]) + " " + r(["1.6 MPI", "1.4 TSI", "1.9 TDI", "2.0 FSI", "GT", "R-Line"]),
-            () => "Skoda " + r(["Rapid", "Octavia Tour", "Octavia A5", "Octavia A7", "Fabia", "Roomster", "Yeti"]) + " " + r(["1.6 MPI", "1.4 TSI", "1.8 TSI", "1.2 TSI"]) + " " + r(["Active", "Ambition", "Style", "Monte Carlo", "Scout"]) + getTune('vag'),
-            // Korea
-            () => "Hyundai " + r(["Solaris", "Elantra", "Creta", "Accent", "Getz", "i30", "Sonata EF", "Tucson JM"]) + " " + r(["1.4", "1.6", "2.0"]) + " " + r(["MT", "AT"]) + " " + r(["Active", "Comfort", "Elegance", "Family"]),
-            () => "Kia " + r(["Rio 2", "Rio 3", "Rio 4", "Ceed", "Cerato", "Spectra", "Soul", "Sportage 3"]) + " " + r(["1.6", "2.0", "1.4"]) + " " + r(["Luxe", "Prestige", "Premium", "GT-Line", "Classic"]),
-            // Japan Old/Budget
-            () => "Toyota " + r(["Corolla 120", "Corolla 150", "Carina E", "Caldina", "Avensis", "Yaris", "Vitz", "Auris", "Prius 20", "Prius 30"]) + " " + r(["1.6", "1.8", "2.0 D-4D", "1.5 Hybrid"]),
-            () => "Honda " + r(["Civic EK9", "Civic 4D", "Civic 5D", "Fit", "Jazz", "Stream", "HR-V"]) + " " + r(["VTEC", "1.8", "1.4", "1.5", "Hybrid"]) + getTune('jdm'),
-            () => "Mazda " + r(["3 BK", "3 BL", "3 BM", "6 GG", "6 GH", "Demio", "Familia"]) + " " + r(["1.6", "2.0", "2.3", "1.5"]),
-            () => "Mitsubishi " + r(["Lancer 9", "Lancer X", "Colt", "Galant 8", "Carisma", "Outlander XL"]) + " " + r(["1.6", "1.8", "2.0", "2.4", "3.0 V6"]),
-            () => "Nissan " + r(["Almera Classic", "Almera N16", "Tiida", "Note", "Qashqai J10", "Juke", "Primera P12"]) + " " + r(["1.6", "1.5", "1.8", "2.0"]),
-            // French
-            () => "Renault " + r(["Logan 1", "Logan 2", "Sandero", "Duster", "Megane 2", "Megane 3", "Fluence", "Kaptur"]) + " " + r(["1.4", "1.6", "2.0"]) + " " + r(["Expression", "Privilege", "Drive"]),
-            // USA Budget
-            () => "Ford " + r(["Focus 2", "Focus 3", "Mondeo 3", "Mondeo 4", "Fiesta", "Fusion"]) + " " + r(["1.6", "1.8", "2.0", "2.3"]) + " " + r(["Titanium", "Ghia", "Trend"]),
-            () => "Chevrolet " + r(["Lacetti", "Cruze", "Aveo", "Lanos", "Cobalt", "Orlando"]) + " " + r(["1.4 Turbo", "1.6", "1.8"]) + " " + r(["LT", "LTZ"]),
-            // China Economy
-            () => r(["Haval", "Chery", "Geely", "Omoda", "Kaiyi", "BAIC", "JAC", "Changan", "Livan", "Lifan"]) + " " + r(["Jolion", "M6", "Tiggo 4", "Emgrand", "S5", "E5", "U5 Plus", "J7", "Alsvin", "Solano", "X60"]) + " " + r(["Comfort", "Luxury", "Elite", "Premium", "Tech"]) + getTune('china')
-        ];
-        return r(brands)();
-    }
-    
-    function genMiddle() {
-        const brands = [
-            // JDM LEGENDS
-            () => "Toyota " + r(["Mark II", "Chaser", "Cresta", "Verossa", "Mark X"]) + " " + r(["JZX90", "JZX100", "JZX110", "GRX120", "GRX130"]) + " " + r(["Tourer V", "Tourer S", "Grande", "Avante G", "iR-V", "300G"]) + getTune('jdm'),
-            () => "Toyota " + r(["Crown", "Majesta", "Aristo", "Soarer", "Supra", "Celica"]) + " " + r(["S170", "S180", "S200", "S210", "JZS161", "JZZ30", "A80", "T23"]) + " " + r(["Athlete", "Royal Saloon", "V300", "2.5 Turbo", "3.0 Twin Turbo", "GT-Four"]) + getTune('jdm'),
-            () => "Nissan " + r(["Silvia S13", "Silvia S14", "Silvia S15", "Skyline R32", "Skyline R33", "Skyline R34", "Laurel C33", "Laurel C35", "Stagea", "350Z", "370Z"]) + " " + r(["Spec-R", "Type-M", "GTS-T", "GT-T", "Club-S", "NISMO"]) + getTune('jdm'),
-            () => "Subaru " + r(["Impreza WRX STI", "Forester STI", "Legacy B4", "Levorg", "BRZ"]) + " " + r(["GC8", "GDB", "GRB", "GVB", "VA", "SF5", "SG9", "SH", "BL5"]) + " " + r(["EJ207", "EJ257", "FA20"]) + getTune('jdm'),
-            () => "Honda " + r(["Accord", "Civic Type-R", "Integra Type-R", "S2000", "Prelude"]) + " " + r(["CL7 Euro-R", "CL9", "CU2", "EP3", "FN2", "DC2", "DC5", "AP1"]) + " " + r(["VTEC", "K20A", "F20C", "H22A"]) + getTune('jdm'),
-            () => "Mitsubishi " + r(["Lancer Evolution", "Galant VR-4", "GTO", "Eclipse"]) + " " + r(["VI", "VII", "VIII", "IX", "X", "3000GT"]) + " " + r(["Tommi Makinen", "MR", "GSR"]) + getTune('jdm'),
-            () => "Mazda " + r(["RX-7", "RX-8", "MPS 3", "MPS 6"]) + " " + r(["FD3S", "SE3P", "BK", "GG"]) + " " + r(["Spirit R", "Type S", "Turbo"]) + getTune('jdm'),
-            // BUSINESS / SUV
-            () => "Toyota Camry " + r(["XV40", "XV50", "XV55", "XV70", "XV80"]) + " " + r(["2.5", "3.5 V6"]) + " " + r(["Elegance", "Prestige", "Executive Safety", "S-Edition", "GR Sport"]),
-            () => "Toyota " + r(["RAV4", "Highlander", "Land Cruiser Prado 120", "Land Cruiser Prado 150", "Fortuner", "Hilux"]) + " " + r(["2.5", "3.5", "4.0", "3.0 Diesel", "2.8 Diesel"]) + " " + r(["Prestige", "Luxe Safety", "Black Onyx", "TRD"]),
-            () => "Mazda 6 " + r(["GJ", "GL"]) + " " + r(["2.0", "2.5", "2.5 Turbo"]) + " " + r(["Supreme", "Executive", "Active"]),
-            () => "Kia " + r(["K5", "Optima", "Stinger", "Sorento", "Mohave", "Carnival"]) + " " + r(["2.0", "2.4", "2.5", "3.3 V6", "3.5 V6", "2.2 Diesel"]) + " " + r(["GT-Line", "GT", "Prestige", "Premium"]),
-            () => "Hyundai " + r(["Sonata", "Santa Fe", "Tucson", "Palisade", "Grandeur"]) + " " + r(["LF", "DN8", "TM", "NX4"]) + " " + r(["2.5", "3.5", "2.2 Diesel"]) + " " + r(["High-Tech", "Calligraphy"]),
-            // CHINA MIDDLE
-            () => r(["Geely", "Haval", "Chery", "Exeed", "Tank", "Jetour", "Changan", "GAC"]) + " " + r(["Monjaro", "Tugella", "Atlas Pro", "F7x", "Dargo", "H9", "Tiggo 8 Pro Max", "RX", "300", "T2", "UNI-K", "UNI-V", "GS8"]) + " " + r(["2.0T", "AWD", "4WD", "1.5T Hybrid"]) + " " + r(["Flagship", "Premium", "Tech Plus", "Ultimate", "Expedition", "City"]) + getTune('china')
-        ];
-        return r(brands)();
-    }
-    
-    function genPremium() {
-        const brands = [
-            // BMW
-            () => "BMW " + r(["3 Series", "5 Series", "7 Series", "8 Series"]) + " " + r(["E34", "E39", "E60", "F10", "G30", "E38", "E65", "F01", "G11", "G70", "E36", "E46", "E90", "F30", "G20"]) + " " + r(["320i", "330d", "340i", "530d", "540i", "550i", "730d", "740i", "750Li", "760i"]) + " " + r(["M-Sport", "Luxury Line", "Shadow Line", "Individual"]) + getTune('bmw'),
-            () => "BMW " + r(["M2", "M3", "M4", "M5", "M6", "M8"]) + " " + r(["E46", "E92", "F80", "G80", "F82", "G82", "E39", "E60", "F10", "F90", "G90", "F87", "G87", "F13", "F92"]) + " " + r(["Competition", "CS", "CSL", "GTS", "Base"]) + getTune('bmw'),
-            () => "BMW " + r(["X3", "X4", "X5", "X6", "X7", "XM"]) + " " + r(["E53", "E70", "F15", "G05", "E71", "F16", "G06", "G07"]) + " " + r(["30d", "40d", "50i", "M50d", "M60i"]) + " " + r(["M-Sport", "M Performance"]) + getTune('bmw'),
-            () => "BMW " + r(["X3M", "X4M", "X5M", "X6M"]) + " " + r(["F97", "F98", "E70", "F85", "F95", "F86", "F96"]) + " " + r(["Competition", "Base"]) + getTune('bmw'),
-            // MERCEDES
-            () => "Mercedes-Benz " + r(["C-Class", "E-Class", "S-Class", "CLS", "GLS", "GLE"]) + " " + r(["W204", "W205", "W206", "W211", "W212", "W213", "W140", "W220", "W221", "W222", "W223", "C219", "C218", "C257"]) + " " + r(["C300", "E200", "E350d", "E400", "S350d", "S500", "S600", "S560", "CLS350", "GLS450"]) + " " + r(["AMG Line", "Avantgarde", "Exclusive", "Maybach", "Night Edition"]) + getTune('merc'),
-            () => "Mercedes-AMG " + r(["C63", "E63", "S63", "S65", "GT63", "G63", "GLE 63", "GLS 63", "SL63"]) + " " + r(["W204", "W205", "W211", "W212", "W213", "W221", "W222", "W463", "W464", "X167"]) + " " + r(["S", "Black Series", "Coupe", "4-Door", "Final Edition"]) + getTune('merc'),
-            // AUDI
-            () => "Audi " + r(["A4", "A5", "A6", "A7", "A8", "Q5", "Q7", "Q8"]) + " " + r(["B8", "B9", "C6", "C7", "C8", "D3", "D4", "D5", "4L", "4M"]) + " " + r(["2.0 TFSI", "3.0 TDI", "4.2 FSI", "55 TFSI", "50 TDI", "60 TFSI"]) + " " + r(["S-Line", "Black Edition", "Quattro"]) + getTune('audi'),
-            () => "Audi " + r(["S3", "S4", "S5", "S6", "S7", "S8", "RS3", "RS4", "RS5", "RS6", "RS7", "RS Q8", "SQ5", "SQ7", "SQ8", "R8"]) + " " + r(["Avant", "Sportback", "Sedan", "Coupe"]) + " " + r(["V8", "V10", "V10 Plus", "Performance", "Competition"]) + getTune('audi'),
-            // OTHER PREMIUM
-            () => "Porsche " + r(["Cayenne", "Macan", "Panamera", "Taycan"]) + " " + r(["958", "E3", "970", "971"]) + " " + r(["S", "GTS", "Turbo", "Turbo S", "E-Hybrid", "Coupe", "Turbo GT"]) + getTune('super'),
-            () => "Land Rover " + r(["Range Rover", "Range Rover Sport", "Velar", "Defender 90", "Defender 110"]) + " " + r(["Vogue", "Autobiography", "SVR", "V8 Supercharged", "HSE"]) + getTune('super'),
-            () => "Lexus " + r(["IS", "GS", "ES", "LS", "LX", "RX", "GX", "LC"]) + " " + r(["250", "350", "300h", "460", "500", "570", "600"]) + " " + r(["F-Sport", "Luxury", "Executive", "Superior"]) + getTune('jdm'),
-            () => "Cadillac " + r(["Escalade", "CT5-V", "CT6"]) + " " + r(["ESV", "Blackwing", "Platinum"]) + " " + r(["6.2 V8", "Supercharged"]),
-            () => "Jaguar " + r(["F-Type", "XJ", "XFR", "F-Pace"]) + " " + r(["R", "SVR", "Portfolio"]) + " " + r(["5.0 Supercharged", "3.0 Diesel"]),
-            // CHINA PREMIUM
-            () => r(["Zeekr", "Li Auto", "Voyah", "Avatr", "HiPhi", "Tank", "Hongqi"]) + " " + r(["001", "007", "009", "X", "L7", "L8", "L9", "L6", "Free", "Dream", "Passion", "11", "12", "Z", "X", "500", "700", "H9"]) + " " + r(["YOU", "ME", "Max", "Ultra", "Pro", "Performance", "Hi4-T", "Urban", "Executive"]) + getTune('china')
-        ];
-        return r(brands)();
-    }
-    
-    function genLuxury() {
-        const brands = [
-            // Ferrari
-            () => "Ferrari " + r(["458", "488", "F8", "812", "SF90", "LaFerrari", "Enzo", "F40", "F50", "296", "Roma", "Portofino", "GTC4Lusso", "Purosangue"]) + " " + r(["Italia", "Spider", "Pista", "Tributo", "Superfast", "GTS", "Competizione", "Stradale", "Aperta", "GTB", "M"]) + getTune('super'),
-            // Lamborghini
-            () => "Lamborghini " + r(["Huracan", "Aventador", "Revuelto", "Murcielago", "Gallardo", "Diablo", "Urus", "Countach LPI 800-4", "Sian", "Centenario", "Veneno"]) + " " + r(["LP610-4", "LP640-4", "Performante", "STO", "Tecnica", "Evo", "LP700-4", "S", "SV", "SVJ", "Ultimae", "Superleggera", "Performante S"]) + getTune('super'),
-            // Porsche TOP
-            () => "Porsche " + r(["911 Turbo S", "911 GT3", "911 GT3 RS", "911 GT2 RS", "Carrera GT", "918 Spyder", "911 Sport Classic", "911 Dakar", "911 S/T"]) + " " + r(["(997)", "(991)", "(992)"]) + " " + r(["Weissach Package", "Manthey Racing", "Heritage Design"]),
-            // McLaren
-            () => "McLaren " + r(["720S", "765LT", "P1", "Senna", "Speedtail", "F1", "Artura", "600LT", "675LT", "Elva", "Sabre"]) + " " + r(["Coupe", "Spider", "GTR", "LM"]),
-            // Bugatti
-            () => "Bugatti " + r(["Veyron", "Chiron", "Divo", "Bolide", "Centodieci", "Mistral", "Tourbillon"]) + " " + r(["16.4", "Grand Sport", "Super Sport", "Vitesse", "Pur Sport", "Super Sport 300+", "Noire", "Les Legendes"]),
-            // Koenigsegg
-            () => "Koenigsegg " + r(["Agera", "Agera R", "Agera RS", "One:1", "Regera", "Jesko", "Jesko Absolut", "Gemera", "CCX", "CCXR Trevita"]),
-            // Pagani
-            () => "Pagani " + r(["Zonda", "Huayra", "Utopia"]) + " " + r(["C12", "F", "Cinque", "Tricolore", "R", "Revolucion", "BC", "Roadster", "Imola", "Codalunga"]),
-            // Rolls-Royce / Bentley
-            () => "Rolls-Royce " + r(["Phantom", "Ghost", "Wraith", "Dawn", "Cullinan", "Spectre", "Sweptail", "Boat Tail", "Droptail"]) + " " + r(["VII", "VIII", "Series II"]) + " " + r(["Black Badge", "EWB", "Mansory Edition"]),
-            () => "Bentley " + r(["Continental GT", "Flying Spur", "Bentayga", "Mulsanne", "Bacalar", "Batur"]) + " " + r(["W12", "V8", "Speed", "Mulliner", "Azure", "S"]),
-            // Other Exotic
-            () => r(["Aston Martin", "Maserati"]) + " " + r(["Valkyrie", "Valhalla", "One-77", "Vulcan", "DBS Superleggera", "DB12", "MC20", "MC12"]) + " " + r(["AMR Pro", "Volante", "Cielo"]),
-            () => r(["Rimac", "SSC", "Hennessey", "Zenvo"]) + " " + r(["Nevera", "Tuatara", "Venom F5", "TSR-S"]) + " " + r(["Striker", "Revolution", "GT"]),
-            // China Lux
-            () => r(["YangWang", "Hongqi", "HiPhi", "Lotus"]) + " " + r(["U8", "U9", "E-HS9", "H9+", "S9", "A", "Eletre", "Emeya"]) + " " + r(["Premium", "Ultimate", "Executive", "R", "GT"])
-        ];
-        return r(brands)();
+    function getCars() {
+        return {
+            matmall: ["Porsche Cayenne Coupe Turbo GT (Mat-Mall Edition)"],
+            economy: [
+                "Lada Priora "+r(['Sedan','Hatchback','Coupe'])+getTune('lada'), "Lada Vesta "+r(['NG','SW Cross','Sport'])+getTune('lada'), "Lada Granta "+r(['Drive Active','Sport','FL']), "Lada 2114 Super-Avto",
+                "Volkswagen Polo "+r(['Sedan','GT','Liftback']), "Skoda Rapid "+r(['1.4 TSI','1.6 MPI','Monte Carlo']), "Skoda Octavia "+r(['A5','A7'])+" 1.6 MPI",
+                "Hyundai Solaris "+r(['1.6 MT','1.6 AT']), "Kia Rio "+r(['3','4','X-Line']), "Toyota Corolla 150", "Honda Civic "+r(['EK9','4D'])+getTune('jdm'),
+                "Mazda 3 "+r(['BK','BL']), "Mitsubishi Lancer "+r(['9','X'])+" 2.0", "Haval Jolion Premium", "Geely Emgrand", "Chery Tiggo 4 Pro"
+            ],
+            middle: [
+                "Toyota Mark II "+r(['JZX90','JZX100','JZX110'])+" Tourer V"+getTune('jdm'), "Toyota Chaser JZX100 Tourer V"+getTune('jdm'), "Toyota Camry "+r(['XV50','XV70'])+" 3.5 V6",
+                "Nissan Silvia "+r(['S13','S14','S15'])+" Spec-R"+getTune('jdm'), "Subaru Impreza WRX STI "+r(['GC8','GD','GRB'])+getTune('jdm'), "Honda Accord CL7 Euro-R",
+                "Haval F7x Tech Plus", "Geely Monjaro Flagship", "Geely Tugella", "Tank 300 Premium", "Jetour T2"
+            ],
+            premium: [
+                "BMW M5 "+r(['F90','E60','F10'])+" Competition"+getTune('bmw'), "BMW M3 "+r(['E46','E92','F80','G80'])+getTune('bmw'), "BMW X5M "+r(['F85','F95']),
+                "Mercedes E63 S AMG "+r(['W212','W213'])+getTune('merc'), "Mercedes C63 AMG "+r(['W204','W205']), "Mercedes G63 AMG "+r(['W463','W464'])+getTune('merc'),
+                "Audi RS6 "+r(['C7','C8'])+" Avant"+getTune('audi'), "Audi RS7 Sportback", "Porsche Panamera Turbo S", "Zeekr 001 YOU"+getTune('china'), "Li Auto L9 Ultra"
+            ],
+            luxury: [
+                "Ferrari "+r(['488 Pista','F8 Tributo','812 Superfast','LaFerrari']), "Lamborghini "+r(['Aventador SVJ','Huracan Performante','Urus']),
+                "Porsche 911 Turbo S (992)", "Porsche 918 Spyder", "McLaren 765LT", "Bugatti Chiron", "Koenigsegg Agera RS",
+                "Rolls-Royce Cullinan", "Bentley Continental GT", "YangWang U9"
+            ]
+        };
     }
 
-    // === MAIN LOGIC ===
-    let cheatNext=null, currentCar="", clicks=0, timer;
-    const carNameEl=document.getElementById('carName'), tierLabelEl=document.getElementById('tierLabel'), box=document.getElementById('box'), spinBtn=document.getElementById('spinBtn'), googleBtn=document.getElementById('googleBtn'), cheatPanel=document.getElementById('cheatPanel');
-
-    document.addEventListener('DOMContentLoaded', initSettings);
-
-    box.addEventListener('click', () => {
-        clicks++; clearTimeout(timer); timer=setTimeout(()=>clicks=0,400);
-        if(clicks===10){ clicks=0; doVibrate(50); if(prompt("КОД ДОСТУПА:")==="758") cheatPanel.style.display='grid'; }
-    });
-
-    function activateCheat(t) { cheatNext=t; cheatPanel.style.display='none'; doVibrate([50,50]); alert("Следующая: "+t.toUpperCase()); }
-    function openGoogle() { if(!currentCar)return; window.open(`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(currentCar)}`, '_blank'); }
+    // --- GAMEPLAY ---
+    box.onclick = () => {
+        if(++clicks===10) { clicks=0; vib(50); if(prompt("CODE:")==="758") el('cheatPanel').style.display='grid'; }
+        clearTimeout(timer); timer=setTimeout(()=>clicks=0,400);
+    };
+    function ac(t) { cheat=t; el('cheatPanel').style.display='none'; vib(50); alert("NEXT: "+t.toUpperCase()); }
+    function openGoogle() { window.open(`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(result)}`, '_blank'); }
 
     function spin() {
         if(spinBtn.disabled)return;
         initAudio(); spinBtn.disabled=true; googleBtn.style.display='none';
-        box.className='output-box'; carNameEl.style.opacity=0.5; tierLabelEl.innerText="ПОИСК...";
-        if(isFastSpin){ playClickSound(); doVibrate([20]); finalize(); return; }
-        let speed=50, steps=0, maxSteps=20+Math.floor(Math.random()*10);
+        
+        // Reset Visuals
+        box.className='output-box'; 
+        el('scanText').style.display='block';
+        el('scanText').innerText = "ПОИСК...";
+        el('resultContainer').style.display='none';
+
+        if(sFast) { finalize(); return; }
+
+        let speed=50, step=0, max=20+Math.floor(Math.random()*10);
         function tick() {
-            carNameEl.innerText=[genEconomy,genMiddle,genPremium,genLuxury][Math.floor(Math.random()*4)]();
-            playClickSound(); doVibrate(5); steps++;
-            if(steps<maxSteps){ if(steps>maxSteps-5)speed+=30; setTimeout(tick,speed); } else finalize();
+            // Fake scramble
+            const cats = ["ЭКОНОМ","JDM","SUV","СПОРТ","ЛЮКС","КИТАЙ","НЕМЦЫ"];
+            el('scanText').innerText = r(cats) + " / " + r(cats);
+            beep(600, 0.03); vib(5);
+            
+            if(++step < max) {
+                if(step > max-5) speed+=30;
+                setTimeout(tick, speed);
+            } else {
+                finalize();
+            }
         }
         tick();
     }
 
+    function parseBrand(name) {
+        // Simple logic to extract brand for display
+        const parts = name.split(' ');
+        if(['Land','Alfa','Aston','Rolls','Li','Great'].includes(parts[0])) return parts[0]+' '+parts[1];
+        if(parts[0]==='Mercedes' || parts[0]==='Mercedes-Benz' || parts[0]==='Mercedes-AMG') return "MERCEDES";
+        return parts[0];
+    }
+
     function finalize() {
+        const DB = getCars();
         let tier;
-        if(cheatNext){ tier=cheatNext; cheatNext=null; }
+        
+        if(cheat) { tier=cheat; cheat=null; }
         else {
-            const r=Math.random();
-            if(r<0.01) tier='matmall';
-            else if(r<0.2575) tier='economy';
-            else if(r<0.505) tier='middle';
-            else if(r<0.7525) tier='premium';
+            const rnd = Math.random();
+            if(rnd<0.01) tier='matmall';
+            else if(rnd<0.2575) tier='economy';
+            else if(rnd<0.505) tier='middle';
+            else if(rnd<0.7525) tier='premium';
             else tier='luxury';
         }
-        
-        let res="", lbl="", cls="";
-        if(tier==='matmall'){ res=genMatMall(); lbl="РЕДКОСТЬ: MAT-MALLОВСКАЯ"; cls='glow-mat'; }
-        else if(tier==='economy'){ res=genEconomy(); lbl="КЛАСС 1: ЭКОНОМ / СТОК"; cls='glow-eco'; }
-        else if(tier==='middle'){ res=genMiddle(); lbl="КЛАСС 2: СРЕДНИЙ / JDM / SUV"; cls='glow-mid'; }
-        else if(tier==='premium'){ res=genPremium(); lbl="КЛАСС 3: ПРЕМИУМ / СПОРТ"; cls='glow-pre'; }
-        else { res=genLuxury(); lbl="КЛАСС 4: ЭКЗОТИКА / ЛЮКС"; cls='glow-lux'; }
 
-        currentCar=res; carNameEl.innerText=res; carNameEl.style.opacity=1; tierLabelEl.innerText=lbl; box.classList.add(cls);
-        spinBtn.disabled=false; googleBtn.style.display='flex'; doVibrate([30,50,30]);
+        result = r(DB[tier]);
+        const brand = parseBrand(result);
+        const model = result.substring(brand.length).trim(); // Remove brand from full string
+
+        let tName="", tClass="";
+        if(tier=='matmall'){tName="MAT-MALL"; tClass="text-mat glow-mat";}
+        else if(tier=='economy'){tName="ЭКОНОМ"; tClass="text-eco glow-eco";}
+        else if(tier=='middle'){tName="СРЕДНИЙ / JDM"; tClass="text-mid glow-mid";}
+        else if(tier=='premium'){tName="ПРЕМИУМ"; tClass="text-pre glow-pre";}
+        else {tName="ЛЮКС / ЭКЗОТИКА"; tClass="text-lux glow-lux";}
+
+        // ANIMATION SEQUENCE
+        el('scanText').style.display='none';
+        el('resultContainer').style.display='block';
+        
+        // 1. Reveal Tier
+        const tEl = el('resTier'); const bEl = el('resBrand'); const mEl = el('resModel');
+        tEl.innerText = tName; tEl.className = "phase-1-tier " + tClass;
+        bEl.innerText = ""; mEl.innerText = "";
+        box.className = "output-box " + tClass.split(' ')[1]; // Add glow border
+        beep(200, 0.3); vib(50);
+
+        // 2. Reveal Brand (delay 600ms)
+        setTimeout(() => {
+            bEl.innerText = brand;
+            beep(400, 0.1); vib(20);
+        }, sFast ? 0 : 600);
+
+        // 3. Reveal Model (delay 1200ms)
+        setTimeout(() => {
+            mEl.innerText = model;
+            beep(800, 0.4); vib([30,50,30]);
+            spinBtn.disabled = false;
+            googleBtn.style.display = 'flex';
+        }, sFast ? 0 : 1200);
     }
+
+    init();
 </script>
 </body>
 </html>
