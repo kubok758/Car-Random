@@ -27,7 +27,7 @@
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             color: var(--text);
             overflow: hidden;
-            user-select: none; /* Чтобы текст не выделялся при быстром клике */
+            user-select: none;
         }
 
         .container {
@@ -59,10 +59,9 @@
             justify-content: center;
             flex-direction: column;
             transition: all 0.3s;
-            cursor: pointer; /* Показываем, что можно кликать */
+            cursor: pointer;
         }
 
-        /* Эффект нажатия для названия */
         .display-box:active {
             transform: scale(0.98);
         }
@@ -101,20 +100,11 @@
             box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
         }
 
-        .spin-btn:hover {
-            transform: translateY(-2px);
-            filter: brightness(1.1);
-        }
+        .spin-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
         .spin-btn:active { transform: translateY(1px); }
-        .spin-btn:disabled {
-            background: #444;
-            color: #777;
-            cursor: default;
-            box-shadow: none;
-            transform: none;
-        }
+        .spin-btn:disabled { background: #444; color: #777; cursor: default; box-shadow: none; transform: none; }
 
-        /* Цветовые стили */
+        /* Цвета классов */
         .tier-economy #carName { color: var(--economy); }
         .tier-middle #carName { color: var(--middle); text-shadow: 0 0 10px rgba(0, 217, 255, 0.3); }
         .tier-premium #carName { color: var(--premium); text-shadow: 0 0 15px rgba(212, 0, 255, 0.4); }
@@ -125,43 +115,48 @@
         .tier-premium #carTier { color: var(--premium); border: 1px solid var(--premium); background: rgba(212, 0, 255, 0.1); }
         .tier-luxury #carTier { color: var(--luxury); border: 1px solid var(--luxury); background: rgba(255, 204, 0, 0.1); }
 
-        /* --- АДМИН ПАНЕЛЬ --- */
+        /* --- СКРЫТАЯ АДМИН ПАНЕЛЬ --- */
         #adminPanel {
-            display: none; /* Скрыто по умолчанию */
-            margin-top: 10px;
-            padding: 10px;
-            border: 1px dashed #ff0000;
-            border-radius: 10px;
-            background: rgba(50, 0, 0, 0.8);
+            display: none; /* Всегда скрыто */
+            position: absolute;
+            top: 60px; /* Поверх заголовка */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            padding: 15px;
+            border: 2px solid #ff0000;
+            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 100;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
         }
         .admin-title {
             color: #ff5555;
-            font-size: 0.8rem;
-            margin-bottom: 5px;
+            font-size: 1rem;
+            margin-bottom: 10px;
             font-weight: bold;
+            text-transform: uppercase;
         }
         .cheat-btns {
-            display: flex;
-            gap: 5px;
-            justify-content: center;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
         }
         .cheat-btn {
-            padding: 5px 10px;
+            padding: 10px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 0.7rem;
+            font-size: 0.9rem;
             font-weight: bold;
-            opacity: 0.7;
+            transition: 0.2s;
         }
-        .cheat-btn:hover { opacity: 1; }
-        .cheat-btn.active { border: 2px solid white; opacity: 1; transform: scale(1.1); }
+        .cheat-btn:hover { transform: scale(1.05); }
         
         .c-eco { background: var(--economy); color: black; }
         .c-mid { background: var(--middle); color: black; }
         .c-pre { background: var(--premium); color: white; }
-        .c-lux { background: var(--luxury); color: black; }
+        .c-lux { background: var(--luxury); color: black; border: 2px solid gold; }
 
     </style>
 </head>
@@ -170,19 +165,19 @@
     <div class="container">
         <h1>Car Randomizer v3.0</h1>
         
+        <div id="adminPanel">
+            <div class="admin-title">ВЫБЕРИ, ЧТО ВЫПАДЕТ:</div>
+            <div class="cheat-btns">
+                <button class="cheat-btn c-eco" onclick="setCheat('economy')">ЭКОНОМ</button>
+                <button class="cheat-btn c-mid" onclick="setCheat('middle')">СРЕДНИЙ</button>
+                <button class="cheat-btn c-pre" onclick="setCheat('premium')">ПРЕМИУМ</button>
+                <button class="cheat-btn c-lux" onclick="setCheat('luxury')">👑 ЛЮКС</button>
+            </div>
+        </div>
+
         <div class="display-box" id="resultBox">
             <div id="carName">Жми кнопку</div>
             <div id="carTier">Равные шансы 25%</div>
-        </div>
-
-        <div id="adminPanel">
-            <div class="admin-title">ADMIN MODE: SET NEXT SPIN</div>
-            <div class="cheat-btns">
-                <button class="cheat-btn c-eco" onclick="setCheat('economy')">Force ECO</button>
-                <button class="cheat-btn c-mid" onclick="setCheat('middle')">Force MID</button>
-                <button class="cheat-btn c-pre" onclick="setCheat('premium')">Force PREM</button>
-                <button class="cheat-btn c-lux" onclick="setCheat('luxury')">Force LUX</button>
-            </div>
         </div>
 
         <button class="spin-btn" id="spinBtn" onclick="startSpin()">КРУТИТЬ</button>
@@ -236,69 +231,49 @@
         const adminPanel = document.getElementById('adminPanel');
         
         let isSpinning = false;
-        let forcedTier = null; // Переменная для подкрутки
+        let forcedTier = null; // Здесь хранится подкрутка
 
-        // --- ЛОГИКА АДМИНКИ ---
+        // --- ЛОГИКА ВХОДА В АДМИНКУ ---
         let clickCount = 0;
         let clickTimer;
 
-        // Обработчик клика по названию
         carNameEl.addEventListener('click', () => {
             clickCount++;
-            
-            // Сброс счетчика если пауза больше 500мс
             clearTimeout(clickTimer);
-            clickTimer = setTimeout(() => {
-                clickCount = 0;
-            }, 500);
+            clickTimer = setTimeout(() => { clickCount = 0; }, 500); // Сброс, если пауза
 
             if (clickCount === 10) {
-                clickCount = 0; // Сброс
-                activateAdmin();
+                clickCount = 0;
+                const code = prompt("Admin Pass:");
+                if (code === "758") {
+                    adminPanel.style.display = "block"; // Показываем панель
+                }
             }
         });
 
-        function activateAdmin() {
-            const code = prompt("🔒 ВВЕДИ КОД ДОСТУПА:");
-            if (code === "758") {
-                alert("ACCESS GRANTED. Выберите класс для следующей прокрутки.");
-                adminPanel.style.display = "block";
-            } else if (code !== null) {
-                alert("WRONG CODE");
-            }
-        }
-
+        // --- ЛОГИКА ВЫБОРА ПОДКРУТКИ ---
         function setCheat(tier) {
-            forcedTier = tier;
-            // Визуально подсвечиваем выбор в админке
-            document.querySelectorAll('.cheat-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            forcedTier = tier; // Запоминаем выбор
+            adminPanel.style.display = 'none'; // МГНОВЕННО СКРЫВАЕМ ПАНЕЛЬ
+            alert("Готово."); // Маленькое подтверждение
         }
 
-        // --- ЛОГИКА РАНДОМА ---
+        // --- ЛОГИКА РАНДОМАЙЗЕРА ---
         const visualPool = [...db.economy, ...db.middle, ...db.premium, ...db.luxury];
 
         function getWinner() {
             let selectedTierKey;
 
-            // ПРОВЕРКА НА ПОДКРУТКУ
             if (forcedTier) {
+                // Если есть подкрутка - используем её
                 selectedTierKey = forcedTier;
-                // Сбрасываем чит после использования (или оставь, если хочешь навсегда)
-                // forcedTier = null; 
-                // Если хочешь чтобы чит работал ТОЛЬКО на 1 раз, раскомментируй строку выше
-                // И скрой панель:
-                adminPanel.style.display = 'none'; 
-                document.querySelectorAll('.cheat-btn').forEach(btn => btn.classList.remove('active'));
+                forcedTier = null; // СБРАСЫВАЕМ ПОДКРУТКУ СРАЗУ ПОСЛЕ ИСПОЛЬЗОВАНИЯ
             } else {
-                // Честный рандом (25% шанс)
+                // Иначе честный рандом
                 const tiers = ['economy', 'middle', 'premium', 'luxury'];
                 selectedTierKey = tiers[Math.floor(Math.random() * tiers.length)];
             }
             
-            // Сброс переменной после использования (чтобы следующая была случайной)
-            forcedTier = null;
-
             const tierList = db[selectedTierKey];
             const winnerCar = tierList[Math.floor(Math.random() * tierList.length)];
 
