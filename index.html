@@ -5,77 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#0b0b0b">
     <meta name="description" content="Ultimate Car Randomizer App">
-    
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
-    
     <title>ULTIMATE CAR RANDOMIZER</title>
     <style>
-        :root {
-            --bg-color: #0b0b0b;
-            --card: #141414;
-            --text: #e0e0e0;
-            --eco: #00ff9d;
-            --mid: #00eaff;
-            --pre: #d600ff;
-            --lux: #ffbd00;
-            --mat: #ff0040;
-        }
-
+        :root { --bg-color: #0b0b0b; --card: #141414; --text: #e0e0e0; --eco: #00ff9d; --mid: #00eaff; --pre: #d600ff; --lux: #ffbd00; --mat: #ff0040; }
         html { height: 100%; width: 100%; overflow: hidden; }
-        body {
-            background-color: var(--bg-color);
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: scroll;
-            color: var(--text);
-            font-family: 'Arial Black', 'Impact', sans-serif;
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            height: 100%; width: 100%;
-            display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            margin: 0; padding: 0;
-            overflow: hidden; overscroll-behavior: none;
-            touch-action: none; user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            transition: background-color 0.5s ease;
-        }
-        body::before {
-            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.4); z-index: -1; pointer-events: none;
-        }
-
-        .wrapper {
-            width: 90%; max-width: 600px; padding: 20px;
-            display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            position: relative; z-index: 10;
-        }
-
+        body { background-color: var(--bg-color); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: scroll; color: var(--text); font-family: 'Arial Black', 'Impact', sans-serif; position: fixed; top: 0; left: 0; right: 0; bottom: 0; height: 100%; width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; margin: 0; padding: 0; overflow: hidden; overscroll-behavior: none; touch-action: none; user-select: none; -webkit-tap-highlight-color: transparent; transition: background-color 0.5s ease; }
+        body::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.4); z-index: -1; pointer-events: none; }
+        .wrapper { width: 90%; max-width: 600px; padding: 20px; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; z-index: 10; }
         .settings-bar { position: absolute; top: 20px; right: 20px; display: flex; gap: 10px; z-index: 1000; }
         @supports (padding-top: env(safe-area-inset-top)) { .settings-bar { top: calc(20px + env(safe-area-inset-top)); } }
-
-        .icon-btn {
-            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #fff; width: 45px; height: 45px; border-radius: 50%;
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            backdrop-filter: blur(10px); padding: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            transition: all 0.2s ease;
-        }
+        .icon-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); padding: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: all 0.2s ease; }
         .icon-btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
         .icon-btn:active { transform: scale(0.95); background: rgba(255,255,255,0.2); }
         .icon-btn.off { opacity: 0.5; border-color: #444; color: #888; background: rgba(0,0,0,0.8); }
         .icon-btn.active { background: rgba(255, 255, 255, 0.9); color: #000; box-shadow: 0 0 15px rgba(255, 255, 255, 0.5); }
-        .slash { display: none; }
-        .icon-btn.off .slash { display: block; }
-
-        #bgMenu {
-            display: none; position: absolute; top: 80px; right: 20px; width: 260px;
-            background: rgba(20, 20, 20, 0.95); border: 1px solid #444; border-radius: 15px;
-            padding: 15px; z-index: 1001; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
-            backdrop-filter: blur(10px); text-align: left;
-        }
+        .slash { display: none; } .icon-btn.off .slash { display: block; }
+        #bgMenu { display: none; position: absolute; top: 80px; right: 20px; width: 260px; background: rgba(20, 20, 20, 0.95); border: 1px solid #444; border-radius: 15px; padding: 15px; z-index: 1001; box-shadow: 0 10px 40px rgba(0,0,0,0.8); backdrop-filter: blur(10px); text-align: left; }
         @supports (padding-top: env(safe-area-inset-top)) { #bgMenu { top: calc(80px + env(safe-area-inset-top)); } }
         #bgMenu h3 { margin: 0 0 10px 0; font-size: 0.9rem; color: #888; text-transform: uppercase; font-family: 'Segoe UI', sans-serif; letter-spacing: 1px; border-bottom: 1px solid #333; padding-bottom: 5px; }
         .bg-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; }
@@ -83,57 +30,24 @@
         .bg-btn:hover { border-color: #fff; } .bg-btn:active { transform: scale(0.9); }
         .c-black { background: #0b0b0b; } .c-gray { background: #2d2d2d; } .c-blue { background: #0f1c2e; } .c-red { background: #2e0f0f; }
         .img-merc { background: url('mercedes.jpg') center/cover; } .img-bmw { background: url('bmw.jpg') center/cover; } .img-porsche { background: url('porsche.jpg') center/cover; }
-        .mobile-wallpapers { display: none; }
-        @media (max-width: 768px) { .mobile-wallpapers { display: block; } }
-
-        h1 {
-            font-size: 1.8rem; text-transform: uppercase; letter-spacing: 4px;
-            color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-            margin-bottom: 30px; line-height: 1.2; width: 100%;
-        }
-        .output-box {
-            background: rgba(20, 20, 20, 0.85); border: 2px solid rgba(255,255,255,0.1);
-            border-radius: 16px; padding: 20px; width: 100%; position: relative;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5); transition: 0.1s transform, 0.3s border-color, 0.3s box-shadow;
-            cursor: pointer; min-height: 180px; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; backdrop-filter: blur(10px);
-        }
+        .mobile-wallpapers { display: none; } @media (max-width: 768px) { .mobile-wallpapers { display: block; } }
+        h1 { font-size: 1.8rem; text-transform: uppercase; letter-spacing: 4px; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5); margin-bottom: 30px; line-height: 1.2; width: 100%; }
+        .output-box { background: rgba(20, 20, 20, 0.85); border: 2px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 20px; width: 100%; position: relative; box-shadow: 0 0 50px rgba(0,0,0,0.5); transition: 0.1s transform, 0.3s border-color, 0.3s box-shadow; cursor: pointer; min-height: 180px; display: flex; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
         .output-box:active { transform: scale(0.98); }
-        #carName {
-            font-size: 1.8rem; line-height: 1.2; text-transform: uppercase;
-            background: -webkit-linear-gradient(#fff, #aaa); -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
-            margin-bottom: 10px; word-break: break-word;
-        }
+        #carName { font-size: 1.8rem; line-height: 1.2; text-transform: uppercase; background: -webkit-linear-gradient(#fff, #aaa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 10px rgba(255,255,255,0.1)); margin-bottom: 10px; word-break: break-word; }
         #tierLabel { font-family: 'Segoe UI', sans-serif; font-size: 0.8rem; letter-spacing: 3px; color: #999; font-weight: 700; text-transform: uppercase; }
         .controls { width: 100%; display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
-        .btn {
-            background: #fff; color: #000; border: none; padding: 20px 0; width: 100%;
-            font-size: 1.4rem; font-weight: 900; text-transform: uppercase; border-radius: 12px;
-            cursor: pointer; transition: 0.1s; box-shadow: 0 0 20px rgba(255,255,255,0.1);
-        }
+        .btn { background: #fff; color: #000; border: none; padding: 20px 0; width: 100%; font-size: 1.4rem; font-weight: 900; text-transform: uppercase; border-radius: 12px; cursor: pointer; transition: 0.1s; box-shadow: 0 0 20px rgba(255,255,255,0.1); }
         .btn:active { transform: translateY(2px); background: #ddd; } .btn:disabled { background: #333; color: #555; box-shadow: none; }
-        #googleBtn {
-            display: none; background: rgba(0,0,0,0.6); color: #aaa; border: 2px solid rgba(255,255,255,0.2);
-            padding: 15px 0; width: 100%; font-size: 1rem; font-weight: 700; text-transform: uppercase;
-            border-radius: 8px; cursor: pointer; transition: 0.2s; font-family: 'Segoe UI', sans-serif;
-            letter-spacing: 1px; align-items: center; justify-content: center; gap: 10px;
-        }
+        #googleBtn { display: none; background: rgba(0,0,0,0.6); color: #aaa; border: 2px solid rgba(255,255,255,0.2); padding: 15px 0; width: 100%; font-size: 1rem; font-weight: 700; text-transform: uppercase; border-radius: 8px; cursor: pointer; transition: 0.2s; font-family: 'Segoe UI', sans-serif; letter-spacing: 1px; align-items: center; justify-content: center; gap: 10px; }
         #googleBtn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; }
         #googleBtn:hover { border-color: #fff; color: #fff; background: rgba(0,0,0,0.8); }
         #googleBtn:active { transform: scale(0.98); }
-
-        .glow-eco { border-color: var(--eco); box-shadow: 0 0 40px rgba(0,255,157,0.15); }
-        .glow-eco #carName { background: -webkit-linear-gradient(#fff, var(--eco)); -webkit-background-clip: text; }
-        .glow-mid { border-color: var(--mid); box-shadow: 0 0 50px rgba(0,234,255,0.2); }
-        .glow-mid #carName { background: -webkit-linear-gradient(#fff, var(--mid)); -webkit-background-clip: text; }
-        .glow-pre { border-color: var(--pre); box-shadow: 0 0 60px rgba(214,0,255,0.25); }
-        .glow-pre #carName { background: -webkit-linear-gradient(#fff, var(--pre)); -webkit-background-clip: text; }
-        .glow-lux { border-color: var(--lux); box-shadow: 0 0 80px rgba(255,189,0,0.3); }
-        .glow-lux #carName { background: -webkit-linear-gradient(#fff, var(--lux)); -webkit-background-clip: text; }
-        .glow-mat { border-color: var(--mat); box-shadow: 0 0 80px rgba(255, 0, 64, 0.6); }
-        .glow-mat #carName { background: -webkit-linear-gradient(#fff, var(--mat)); -webkit-background-clip: text; }
-
+        .glow-eco { border-color: var(--eco); box-shadow: 0 0 40px rgba(0,255,157,0.15); } .glow-eco #carName { background: -webkit-linear-gradient(#fff, var(--eco)); -webkit-background-clip: text; }
+        .glow-mid { border-color: var(--mid); box-shadow: 0 0 50px rgba(0,234,255,0.2); } .glow-mid #carName { background: -webkit-linear-gradient(#fff, var(--mid)); -webkit-background-clip: text; }
+        .glow-pre { border-color: var(--pre); box-shadow: 0 0 60px rgba(214,0,255,0.25); } .glow-pre #carName { background: -webkit-linear-gradient(#fff, var(--pre)); -webkit-background-clip: text; }
+        .glow-lux { border-color: var(--lux); box-shadow: 0 0 80px rgba(255,189,0,0.3); } .glow-lux #carName { background: -webkit-linear-gradient(#fff, var(--lux)); -webkit-background-clip: text; }
+        .glow-mat { border-color: var(--mat); box-shadow: 0 0 80px rgba(255, 0, 64, 0.6); } .glow-mat #carName { background: -webkit-linear-gradient(#fff, var(--mat)); -webkit-background-clip: text; }
         #cheatPanel { display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #000; border: 2px solid red; padding: 10px; z-index: 2000; box-shadow: 0 0 30px rgba(255,0,0,0.5); width: 80%; max-width: 400px; text-align: center; border-radius: 10px; }
         .cheat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 5px; }
         .cheat-btn { padding: 10px; cursor: pointer; font-weight: bold; border:none; font-size: 0.8rem; border-radius: 5px; }
@@ -215,7 +129,6 @@
     function toggleVibro() { isVibroOn=!isVibroOn; document.getElementById('vibroToggle').classList.toggle('off',!isVibroOn); localStorage.setItem('carApp_vibro',isVibroOn); }
     function toggleFast() { isFastSpin=!isFastSpin; document.getElementById('fastToggle').classList.toggle('active',isFastSpin); localStorage.setItem('carApp_fast',isFastSpin); }
     function doVibrate(p) { if(isVibroOn&&navigator.vibrate) try{navigator.vibrate(p);}catch(e){} }
-    
     function initSettings() {
         if(localStorage.getItem('carApp_sound')==='false'){ isSoundOn=false; document.getElementById('soundToggle').classList.add('off'); }
         if(localStorage.getItem('carApp_vibro')==='false'){ isVibroOn=false; document.getElementById('vibroToggle').classList.add('off'); }
@@ -225,322 +138,177 @@
         else if(t==='image'&&v){ document.body.style.backgroundColor='#0b0b0b'; document.body.style.backgroundImage=`url('${v}')`; }
     }
 
-    // === GENERATOR: MASSIVE DATABASE ===
+    // === GENERATOR ENGINE ===
     const r = (arr) => arr[Math.floor(Math.random() * arr.length)];
-    
-    function genMatMall() { return "Porsche Cayenne Coupe Turbo GT"; }
+    const chance = (p) => Math.random() < p;
+
+    // Tuning Generator
+    function getTune(type) {
+        if (!chance(0.15)) return ""; // 85% Stock
+        if (type === 'bmw') return " (" + r(['Manhart', 'G-Power', 'Alpina', 'Hamann', 'AC Schnitzer', 'Dinan', 'Stage 2', 'Stage 3', 'Drift Spec']) + ")";
+        if (type === 'merc') return " (" + r(['Brabus', 'Mansory', 'Renntech', 'Lorinser', 'Carlsson', 'Wald', 'Stage 2', 'Rocket 900']) + ")";
+        if (type === 'audi') return " (" + r(['ABT Sportsline', 'MTM', 'Mansory', 'Prior Design', 'Stage 2', 'Stage 3', 'RS6-R']) + ")";
+        if (type === 'jdm') return " (" + r(['HKS', 'VeilSide', 'Liberty Walk', 'Rocket Bunny', 'BN Sports', 'Top Secret', 'Spoon', 'Mugen', 'NISMO', 'TRD']) + ")";
+        if (type === 'lada') return " (" + r(['Stinger Exhaust', 'Stage 2', 'Turbo Kit 300hp', 'Na Pnevme', 'Bunker', 'Opera Style', 'Boevaya Klassika']) + ")";
+        if (type === 'china') return " (" + r(['Black Edition', 'Sport Package', 'Chip Tuning', 'Wrap', 'Offroad Kit']) + ")";
+        if (type === 'super') return " (" + r(['Mansory', 'Novitec', 'Liberty Walk', 'Underground Racing', 'DMC', 'Vorsteiner', '1016 Industries']) + ")";
+        return " (Tuned)";
+    }
+
+    function genMatMall() { return "Porsche Cayenne Coupe Turbo GT (Mat-Mall Edition)"; }
 
     function genEconomy() {
-        const pool = [
-            "Lada Priora Sedan", 
-            "Lada Priora Hatchback", 
-            "Lada Priora Coupe", 
-            "Lada Priora 2",
-            "Lada Vesta NG", 
-            "Lada Vesta SW Cross", 
-            "Lada Vesta Sport", 
-            "Lada Vesta 1.8",
-            "Lada Granta Drive Active", 
-            "Lada Granta Sport", 
-            "Lada Granta FL", 
-            "Lada Granta Cross",
-            "Lada 2114 Super-Avto", 
-            "Lada 2114 1.6", 
-            "Lada 2113", 
-            "Lada 2112 Coupe", 
-            "Lada 2107", 
-            "Lada 2106", 
-            "Lada 4x4 Niva Legend",
-            "Volkswagen Polo Sedan", 
-            "Volkswagen Polo GT", 
-            "Volkswagen Polo Liftback", 
-            "Skoda Rapid 1.4 TSI", 
-            "Skoda Rapid 1.6 MPI", 
-            "Skoda Rapid Monte Carlo",
-            "Skoda Octavia A5 1.6 MPI", 
-            "Skoda Octavia A7 1.6 MPI", 
-            "Skoda Fabia RS",
-            "Hyundai Solaris 1.6 MT", 
-            "Hyundai Solaris 1.6 AT", 
-            "Hyundai Solaris Restyling",
-            "Kia Rio 3", 
-            "Kia Rio 4", 
-            "Kia Rio X-Line", 
-            "Kia Cerato 2", 
-            "Hyundai Elantra HD",
-            "Toyota Corolla 120", 
-            "Toyota Corolla 150", 
-            "Toyota Carina E", 
-            "Toyota Caldina",
-            "Honda Civic EK3", 
-            "Honda Civic EK9", 
-            "Honda Civic ES", 
-            "Honda Civic 4D", 
-            "Honda Civic 5D", 
-            "Honda Fit RS",
-            "Mazda 3 BK", 
-            "Mazda 3 BL", 
-            "Mazda 3 BM", 
-            "Mazda 6 GG",
-            "Mitsubishi Lancer 9", 
-            "Mitsubishi Lancer X 1.8", 
-            "Mitsubishi Lancer X 2.0",
-            "Haval M6", 
-            "Haval Jolion Comfort", 
-            "Haval Jolion Elite", 
-            "Haval Jolion Premium",
-            "Chery Tiggo 4 Pro", 
-            "Chery Tiggo 4",
-            "Geely Emgrand", 
-            "Geely Coolray Comfort",
-            "Omoda S5", 
-            "Omoda S5 GT",
-            "Kaiyi E5", 
-            "BAIC U5 Plus", 
-            "JAC J7",
-            "Changan Alsvin", 
-            "Changan Eado Plus",
-            "Livan X3 Pro", 
-            "Moskvich 3"
+        const brands = [
+            // LADA
+            () => "Lada " + r(["Vesta", "Priora", "Granta", "2114", "2112", "2110", "2107", "2106", "Niva Legend", "Niva Travel", "Largus", "XRAY"]) + " " + r(["Sedan", "Hatchback", "Coupe", "SW", "Universal"]) + " " + r(["Sport", "Cross", "Luxe", "Standard", "Classic", "Comfort"]) + getTune('lada'),
+            // VAG Budget
+            () => "Volkswagen " + r(["Polo", "Golf 4", "Golf 5", "Golf 6", "Golf 7", "Jetta 5", "Jetta 6", "Bora", "Passat B5", "Passat B6"]) + " " + r(["Sedan", "Liftback", "Hatchback", "Variant"]) + " " + r(["1.6 MPI", "1.4 TSI", "1.9 TDI", "2.0 FSI", "GT", "R-Line"]),
+            () => "Skoda " + r(["Rapid", "Octavia Tour", "Octavia A5", "Octavia A7", "Fabia", "Roomster", "Yeti"]) + " " + r(["1.6 MPI", "1.4 TSI", "1.8 TSI", "1.2 TSI"]) + " " + r(["Active", "Ambition", "Style", "Monte Carlo", "Scout"]) + getTune('vag'),
+            // Korea
+            () => "Hyundai " + r(["Solaris", "Elantra", "Creta", "Accent", "Getz", "i30", "Sonata EF", "Tucson JM"]) + " " + r(["1.4", "1.6", "2.0"]) + " " + r(["MT", "AT"]) + " " + r(["Active", "Comfort", "Elegance", "Family"]),
+            () => "Kia " + r(["Rio 2", "Rio 3", "Rio 4", "Ceed", "Cerato", "Spectra", "Soul", "Sportage 3"]) + " " + r(["1.6", "2.0", "1.4"]) + " " + r(["Luxe", "Prestige", "Premium", "GT-Line", "Classic"]),
+            // Japan Old/Budget
+            () => "Toyota " + r(["Corolla 120", "Corolla 150", "Carina E", "Caldina", "Avensis", "Yaris", "Vitz", "Auris", "Prius 20", "Prius 30"]) + " " + r(["1.6", "1.8", "2.0 D-4D", "1.5 Hybrid"]),
+            () => "Honda " + r(["Civic EK9", "Civic 4D", "Civic 5D", "Fit", "Jazz", "Stream", "HR-V"]) + " " + r(["VTEC", "1.8", "1.4", "1.5", "Hybrid"]) + getTune('jdm'),
+            () => "Mazda " + r(["3 BK", "3 BL", "3 BM", "6 GG", "6 GH", "Demio", "Familia"]) + " " + r(["1.6", "2.0", "2.3", "1.5"]),
+            () => "Mitsubishi " + r(["Lancer 9", "Lancer X", "Colt", "Galant 8", "Carisma", "Outlander XL"]) + " " + r(["1.6", "1.8", "2.0", "2.4", "3.0 V6"]),
+            () => "Nissan " + r(["Almera Classic", "Almera N16", "Tiida", "Note", "Qashqai J10", "Juke", "Primera P12"]) + " " + r(["1.6", "1.5", "1.8", "2.0"]),
+            // French
+            () => "Renault " + r(["Logan 1", "Logan 2", "Sandero", "Duster", "Megane 2", "Megane 3", "Fluence", "Kaptur"]) + " " + r(["1.4", "1.6", "2.0"]) + " " + r(["Expression", "Privilege", "Drive"]),
+            // USA Budget
+            () => "Ford " + r(["Focus 2", "Focus 3", "Mondeo 3", "Mondeo 4", "Fiesta", "Fusion"]) + " " + r(["1.6", "1.8", "2.0", "2.3"]) + " " + r(["Titanium", "Ghia", "Trend"]),
+            () => "Chevrolet " + r(["Lacetti", "Cruze", "Aveo", "Lanos", "Cobalt", "Orlando"]) + " " + r(["1.4 Turbo", "1.6", "1.8"]) + " " + r(["LT", "LTZ"]),
+            // China Economy
+            () => r(["Haval", "Chery", "Geely", "Omoda", "Kaiyi", "BAIC", "JAC", "Changan", "Livan", "Lifan"]) + " " + r(["Jolion", "M6", "Tiggo 4", "Emgrand", "S5", "E5", "U5 Plus", "J7", "Alsvin", "Solano", "X60"]) + " " + r(["Comfort", "Luxury", "Elite", "Premium", "Tech"]) + getTune('china')
         ];
-        return r(pool);
+        return r(brands)();
     }
     
     function genMiddle() {
-        const pool = [
-            "Toyota Mark II JZX90 Grande", "Toyota Mark II JZX90 Tourer V", "Toyota Mark II JZX100 Tourer V", "Toyota Mark II JZX110 iR-V",
-            "Toyota Chaser JZX100 Tourer V", "Toyota Chaser JZX100 Avante G", 
-            "Toyota Cresta JZX90", "Toyota Cresta JZX100 Roulant G",
-            "Toyota Crown S170 Athlete", "Toyota Crown S170 Majesta", "Toyota Crown S180 Athlete", "Toyota Crown S200 Royal Saloon", "Toyota Crown S210 Athlete",
-            "Toyota Camry XV40 3.5", "Toyota Camry XV50 3.5", "Toyota Camry XV55 2.5", "Toyota Camry XV70 3.5 V6",
-            "Toyota Altezza RS200", "Toyota Aristo V300", "Toyota Soarer JZZ30",
-            "Toyota RAV4 XA50 Hybrid", "Toyota Land Cruiser Prado 150",
-            "Nissan Silvia S13", "Nissan Silvia S14", "Nissan Silvia S15 Spec-R",
-            "Nissan Skyline R32 GTS-T", "Nissan Skyline R33 GTS-T", "Nissan Skyline R34 GT-T",
-            "Nissan Laurel C33", "Nissan Laurel C34", "Nissan Laurel C35 Club-S",
-            "Nissan Teana J31", "Nissan Teana J32 3.5", "Nissan Fuga",
-            "Subaru Impreza WRX STI GC8", "Subaru Impreza WRX STI GDB Peanut", "Subaru Impreza WRX STI GDB Blobeye", "Subaru Impreza WRX STI GDB Hawkeye", "Subaru Impreza WRX STI GRB",
-            "Subaru Forester SF5 STI", "Subaru Forester SG9 STI", "Subaru Legacy B4",
-            "Honda Accord CL7 Euro-R", "Honda Accord CL9", "Honda Accord CU2 Type-S", 
-            "Honda Civic Type-R EP3", "Honda Civic Type-R FN2", "Honda Civic Type-R FD2", "Honda Integra DC5 Type-R",
-            "Haval F7x Tech Plus", "Haval F7 Premium", "Haval Dargo Tech Plus", "Haval Dargo X", "Haval H9 Premium", "Haval H3",
-            "Geely Coolray Flagship Sport", "Geely Atlas Pro 4WD", "Geely Tugella Flagship Sport", "Geely Preface",
-            "Chery Tiggo 7 Pro Max AWD", "Chery Tiggo 8 Pro Max New", "Chery Arrizo 8 Ultimate",
-            "Omoda C5 AWD Supreme", "Jaecoo J7 Supreme",
-            "Tank 300 City Premium", "Tank 300 Offroad",
-            "Jetour Dashing Luxury", "Jetour T2 Expedition"
+        const brands = [
+            // JDM LEGENDS
+            () => "Toyota " + r(["Mark II", "Chaser", "Cresta", "Verossa", "Mark X"]) + " " + r(["JZX90", "JZX100", "JZX110", "GRX120", "GRX130"]) + " " + r(["Tourer V", "Tourer S", "Grande", "Avante G", "iR-V", "300G"]) + getTune('jdm'),
+            () => "Toyota " + r(["Crown", "Majesta", "Aristo", "Soarer", "Supra", "Celica"]) + " " + r(["S170", "S180", "S200", "S210", "JZS161", "JZZ30", "A80", "T23"]) + " " + r(["Athlete", "Royal Saloon", "V300", "2.5 Turbo", "3.0 Twin Turbo", "GT-Four"]) + getTune('jdm'),
+            () => "Nissan " + r(["Silvia S13", "Silvia S14", "Silvia S15", "Skyline R32", "Skyline R33", "Skyline R34", "Laurel C33", "Laurel C35", "Stagea", "350Z", "370Z"]) + " " + r(["Spec-R", "Type-M", "GTS-T", "GT-T", "Club-S", "NISMO"]) + getTune('jdm'),
+            () => "Subaru " + r(["Impreza WRX STI", "Forester STI", "Legacy B4", "Levorg", "BRZ"]) + " " + r(["GC8", "GDB", "GRB", "GVB", "VA", "SF5", "SG9", "SH", "BL5"]) + " " + r(["EJ207", "EJ257", "FA20"]) + getTune('jdm'),
+            () => "Honda " + r(["Accord", "Civic Type-R", "Integra Type-R", "S2000", "Prelude"]) + " " + r(["CL7 Euro-R", "CL9", "CU2", "EP3", "FN2", "DC2", "DC5", "AP1"]) + " " + r(["VTEC", "K20A", "F20C", "H22A"]) + getTune('jdm'),
+            () => "Mitsubishi " + r(["Lancer Evolution", "Galant VR-4", "GTO", "Eclipse"]) + " " + r(["VI", "VII", "VIII", "IX", "X", "3000GT"]) + " " + r(["Tommi Makinen", "MR", "GSR"]) + getTune('jdm'),
+            () => "Mazda " + r(["RX-7", "RX-8", "MPS 3", "MPS 6"]) + " " + r(["FD3S", "SE3P", "BK", "GG"]) + " " + r(["Spirit R", "Type S", "Turbo"]) + getTune('jdm'),
+            // BUSINESS / SUV
+            () => "Toyota Camry " + r(["XV40", "XV50", "XV55", "XV70", "XV80"]) + " " + r(["2.5", "3.5 V6"]) + " " + r(["Elegance", "Prestige", "Executive Safety", "S-Edition", "GR Sport"]),
+            () => "Toyota " + r(["RAV4", "Highlander", "Land Cruiser Prado 120", "Land Cruiser Prado 150", "Fortuner", "Hilux"]) + " " + r(["2.5", "3.5", "4.0", "3.0 Diesel", "2.8 Diesel"]) + " " + r(["Prestige", "Luxe Safety", "Black Onyx", "TRD"]),
+            () => "Mazda 6 " + r(["GJ", "GL"]) + " " + r(["2.0", "2.5", "2.5 Turbo"]) + " " + r(["Supreme", "Executive", "Active"]),
+            () => "Kia " + r(["K5", "Optima", "Stinger", "Sorento", "Mohave", "Carnival"]) + " " + r(["2.0", "2.4", "2.5", "3.3 V6", "3.5 V6", "2.2 Diesel"]) + " " + r(["GT-Line", "GT", "Prestige", "Premium"]),
+            () => "Hyundai " + r(["Sonata", "Santa Fe", "Tucson", "Palisade", "Grandeur"]) + " " + r(["LF", "DN8", "TM", "NX4"]) + " " + r(["2.5", "3.5", "2.2 Diesel"]) + " " + r(["High-Tech", "Calligraphy"]),
+            // CHINA MIDDLE
+            () => r(["Geely", "Haval", "Chery", "Exeed", "Tank", "Jetour", "Changan", "GAC"]) + " " + r(["Monjaro", "Tugella", "Atlas Pro", "F7x", "Dargo", "H9", "Tiggo 8 Pro Max", "RX", "300", "T2", "UNI-K", "UNI-V", "GS8"]) + " " + r(["2.0T", "AWD", "4WD", "1.5T Hybrid"]) + " " + r(["Flagship", "Premium", "Tech Plus", "Ultimate", "Expedition", "City"]) + getTune('china')
         ];
-        return r(pool);
+        return r(brands)();
     }
     
     function genPremium() {
-        const pool = [
-            "BMW E30 325i", "BMW E34 525i", "BMW E34 540i", "BMW E34 M5 3.8",
-            "BMW E36 328i", "BMW E36 M3", "BMW E38 740i", "BMW E38 750iL",
-            "BMW E39 530d", "BMW E39 540i", "BMW E39 M5",
-            "BMW E46 330Ci", "BMW E46 M3", "BMW E46 M3 CSL",
-            "BMW E53 X5 4.4i", "BMW E53 X5 4.8is",
-            "BMW E60 530d", "BMW E60 535d", "BMW E60 550i", "BMW E60 M5",
-            "BMW E92 335i", "BMW E92 M3",
-            "BMW F10 530d", "BMW F10 550i", "BMW F10 M5", "BMW F10 M550d",
-            "BMW F30 340i", "BMW F80 M3", "BMW F82 M4",
-            "BMW F90 M5", "BMW F90 M5 Competition", "BMW F90 M5 CS",
-            "BMW G20 M340i", "BMW G80 M3 Competition", "BMW G82 M4 CSL",
-            "BMW G30 540i", "BMW G11 740d", "BMW G12 M760Li",
-            "BMW X5 M50d (F15)", "BMW X5M (F85)", "BMW X5 G05 40i", "BMW X5M Competition (F95)", "BMW X7 M60i", "BMW XM",
-            "Mercedes 190E Evo II", "Mercedes W124 E500", 
-            "Mercedes W140 S500", "Mercedes W140 S600",
-            "Mercedes W210 E55 AMG", "Mercedes W211 E55 AMG", "Mercedes W211 E63 AMG",
-            "Mercedes W204 C63 AMG", "Mercedes W204 C63 AMG Black Series",
-            "Mercedes W205 C63 S AMG", "Mercedes W212 E63 AMG S", "Mercedes W213 E63 S AMG",
-            "Mercedes W222 S500", "Mercedes W222 S63 AMG", "Mercedes W222 Maybach",
-            "Mercedes W223 S580", "Mercedes GT63 S AMG 4-Door",
-            "Mercedes G55 AMG", "Mercedes G63 AMG (W463)", "Mercedes G63 AMG (W464)",
-            "Mercedes GLE 63 S AMG Coupe", "Mercedes GLS 600 Maybach",
-            "Audi S2 Coupe", "Audi RS2 Avant",
-            "Audi RS4 B5", "Audi RS4 B7", "Audi RS4 B9 Avant",
-            "Audi RS5 Coupe", "Audi RS6 C5", "Audi RS6 C6 V10", "Audi RS6 C7 Performance", "Audi RS6 C8 Avant",
-            "Audi RS7 Sportback C7", "Audi RS7 C8",
-            "Audi S8 D2", "Audi S8 D4", "Audi S8 D5",
-            "Audi R8 V8", "Audi R8 V10 Plus", "Audi R8 V10 Performance",
-            "Audi Q7 V12 TDI", "Audi SQ8", "Audi RS Q8",
-            "Porsche Cayenne Turbo GT", "Porsche Cayenne Coupe", "Porsche Macan GTS", "Porsche Panamera Turbo S",
-            "Range Rover Autobiography", "Range Rover Sport SVR",
-            "Lexus IS-F", "Lexus GS-F", "Lexus LC500", "Lexus LX570", "Lexus LX600",
-            "Zeekr 001 YOU", "Zeekr 001 ME", "Zeekr 001 FR", "Zeekr 009", "Zeekr X", "Zeekr 007",
-            "Li Auto L7 Ultra", "Li Auto L9 Ultra", "Li Auto L9 Max", "Li Auto L6",
-            "Geely Monjaro Exclusive", "Voyah Free EVR", "Voyah Dream", "Voyah Passion",
-            "Tank 500 Urban", "Tank 500 Premium", "Tank 700 Hi4-T",
-            "Exeed VX President", "Exeed RX", "Avatr 11", "Avatr 12", "HiPhi Z", "HiPhi X",
-            "Lotus Eletre R", "YangWang U8"
+        const brands = [
+            // BMW
+            () => "BMW " + r(["3 Series", "5 Series", "7 Series", "8 Series"]) + " " + r(["E34", "E39", "E60", "F10", "G30", "E38", "E65", "F01", "G11", "G70", "E36", "E46", "E90", "F30", "G20"]) + " " + r(["320i", "330d", "340i", "530d", "540i", "550i", "730d", "740i", "750Li", "760i"]) + " " + r(["M-Sport", "Luxury Line", "Shadow Line", "Individual"]) + getTune('bmw'),
+            () => "BMW " + r(["M2", "M3", "M4", "M5", "M6", "M8"]) + " " + r(["E46", "E92", "F80", "G80", "F82", "G82", "E39", "E60", "F10", "F90", "G90", "F87", "G87", "F13", "F92"]) + " " + r(["Competition", "CS", "CSL", "GTS", "Base"]) + getTune('bmw'),
+            () => "BMW " + r(["X3", "X4", "X5", "X6", "X7", "XM"]) + " " + r(["E53", "E70", "F15", "G05", "E71", "F16", "G06", "G07"]) + " " + r(["30d", "40d", "50i", "M50d", "M60i"]) + " " + r(["M-Sport", "M Performance"]) + getTune('bmw'),
+            () => "BMW " + r(["X3M", "X4M", "X5M", "X6M"]) + " " + r(["F97", "F98", "E70", "F85", "F95", "F86", "F96"]) + " " + r(["Competition", "Base"]) + getTune('bmw'),
+            // MERCEDES
+            () => "Mercedes-Benz " + r(["C-Class", "E-Class", "S-Class", "CLS", "GLS", "GLE"]) + " " + r(["W204", "W205", "W206", "W211", "W212", "W213", "W140", "W220", "W221", "W222", "W223", "C219", "C218", "C257"]) + " " + r(["C300", "E200", "E350d", "E400", "S350d", "S500", "S600", "S560", "CLS350", "GLS450"]) + " " + r(["AMG Line", "Avantgarde", "Exclusive", "Maybach", "Night Edition"]) + getTune('merc'),
+            () => "Mercedes-AMG " + r(["C63", "E63", "S63", "S65", "GT63", "G63", "GLE 63", "GLS 63", "SL63"]) + " " + r(["W204", "W205", "W211", "W212", "W213", "W221", "W222", "W463", "W464", "X167"]) + " " + r(["S", "Black Series", "Coupe", "4-Door", "Final Edition"]) + getTune('merc'),
+            // AUDI
+            () => "Audi " + r(["A4", "A5", "A6", "A7", "A8", "Q5", "Q7", "Q8"]) + " " + r(["B8", "B9", "C6", "C7", "C8", "D3", "D4", "D5", "4L", "4M"]) + " " + r(["2.0 TFSI", "3.0 TDI", "4.2 FSI", "55 TFSI", "50 TDI", "60 TFSI"]) + " " + r(["S-Line", "Black Edition", "Quattro"]) + getTune('audi'),
+            () => "Audi " + r(["S3", "S4", "S5", "S6", "S7", "S8", "RS3", "RS4", "RS5", "RS6", "RS7", "RS Q8", "SQ5", "SQ7", "SQ8", "R8"]) + " " + r(["Avant", "Sportback", "Sedan", "Coupe"]) + " " + r(["V8", "V10", "V10 Plus", "Performance", "Competition"]) + getTune('audi'),
+            // OTHER PREMIUM
+            () => "Porsche " + r(["Cayenne", "Macan", "Panamera", "Taycan"]) + " " + r(["958", "E3", "970", "971"]) + " " + r(["S", "GTS", "Turbo", "Turbo S", "E-Hybrid", "Coupe", "Turbo GT"]) + getTune('super'),
+            () => "Land Rover " + r(["Range Rover", "Range Rover Sport", "Velar", "Defender 90", "Defender 110"]) + " " + r(["Vogue", "Autobiography", "SVR", "V8 Supercharged", "HSE"]) + getTune('super'),
+            () => "Lexus " + r(["IS", "GS", "ES", "LS", "LX", "RX", "GX", "LC"]) + " " + r(["250", "350", "300h", "460", "500", "570", "600"]) + " " + r(["F-Sport", "Luxury", "Executive", "Superior"]) + getTune('jdm'),
+            () => "Cadillac " + r(["Escalade", "CT5-V", "CT6"]) + " " + r(["ESV", "Blackwing", "Platinum"]) + " " + r(["6.2 V8", "Supercharged"]),
+            () => "Jaguar " + r(["F-Type", "XJ", "XFR", "F-Pace"]) + " " + r(["R", "SVR", "Portfolio"]) + " " + r(["5.0 Supercharged", "3.0 Diesel"]),
+            // CHINA PREMIUM
+            () => r(["Zeekr", "Li Auto", "Voyah", "Avatr", "HiPhi", "Tank", "Hongqi"]) + " " + r(["001", "007", "009", "X", "L7", "L8", "L9", "L6", "Free", "Dream", "Passion", "11", "12", "Z", "X", "500", "700", "H9"]) + " " + r(["YOU", "ME", "Max", "Ultra", "Pro", "Performance", "Hi4-T", "Urban", "Executive"]) + getTune('china')
         ];
-        return r(pool);
+        return r(brands)();
     }
     
     function genLuxury() {
-        const pool = [
-            "Ferrari F40", "Ferrari Enzo", "Ferrari LaFerrari", "Ferrari 458 Italia", "Ferrari 488 Pista", 
-            "Ferrari F8 Tributo", "Ferrari 812 Superfast", "Ferrari 812 Competizione", "Ferrari SF90 Stradale", 
-            "Ferrari 296 GTB", "Ferrari Daytona SP3", "Ferrari Purosangue",
-            "Lamborghini Diablo VT", "Lamborghini Murcielago SV", "Lamborghini Aventador LP700-4", "Lamborghini Aventador SVJ", 
-            "Lamborghini Huracan Performante", "Lamborghini Huracan STO", "Lamborghini Revuelto", 
-            "Lamborghini Urus", "Lamborghini Urus Performante", "Lamborghini Sesto Elemento", "Lamborghini Veneno",
-            "Porsche Carrera GT", "Porsche 918 Spyder", 
-            "Porsche 911 Turbo S (992)", "Porsche 911 GT3 RS (992)", "Porsche 911 GT2 RS (991)",
-            "Bugatti Veyron 16.4", "Bugatti Veyron Super Sport", "Bugatti Chiron", "Bugatti Chiron Super Sport 300+", 
-            "Bugatti Divo", "Bugatti Bolide", "Bugatti Mistral", "Bugatti Tourbillon",
-            "McLaren F1", "McLaren P1", "McLaren Senna", "McLaren 720S", "McLaren 765LT", "McLaren Speedtail",
-            "Koenigsegg Agera RS", "Koenigsegg One:1", "Koenigsegg Jesko Absolut", "Koenigsegg Gemera",
-            "Pagani Zonda Cinque", "Pagani Huayra BC", "Pagani Utopia",
-            "Rimac Nevera", "SSC Tuatara", "Hennessey Venom F5",
-            "Rolls-Royce Phantom", "Rolls-Royce Ghost", "Rolls-Royce Wraith", "Rolls-Royce Cullinan", "Rolls-Royce Spectre", "Rolls-Royce Boat Tail",
-            "Bentley Continental GT Speed", "Bentley Flying Spur Mulliner", "Bentley Bentayga Speed", "Bentley Bacalar",
-            "YangWang U9", "Hongqi E-HS9 Executive", "Hongqi H9+", "HiPhi A"
+        const brands = [
+            // Ferrari
+            () => "Ferrari " + r(["458", "488", "F8", "812", "SF90", "LaFerrari", "Enzo", "F40", "F50", "296", "Roma", "Portofino", "GTC4Lusso", "Purosangue"]) + " " + r(["Italia", "Spider", "Pista", "Tributo", "Superfast", "GTS", "Competizione", "Stradale", "Aperta", "GTB", "M"]) + getTune('super'),
+            // Lamborghini
+            () => "Lamborghini " + r(["Huracan", "Aventador", "Revuelto", "Murcielago", "Gallardo", "Diablo", "Urus", "Countach LPI 800-4", "Sian", "Centenario", "Veneno"]) + " " + r(["LP610-4", "LP640-4", "Performante", "STO", "Tecnica", "Evo", "LP700-4", "S", "SV", "SVJ", "Ultimae", "Superleggera", "Performante S"]) + getTune('super'),
+            // Porsche TOP
+            () => "Porsche " + r(["911 Turbo S", "911 GT3", "911 GT3 RS", "911 GT2 RS", "Carrera GT", "918 Spyder", "911 Sport Classic", "911 Dakar", "911 S/T"]) + " " + r(["(997)", "(991)", "(992)"]) + " " + r(["Weissach Package", "Manthey Racing", "Heritage Design"]),
+            // McLaren
+            () => "McLaren " + r(["720S", "765LT", "P1", "Senna", "Speedtail", "F1", "Artura", "600LT", "675LT", "Elva", "Sabre"]) + " " + r(["Coupe", "Spider", "GTR", "LM"]),
+            // Bugatti
+            () => "Bugatti " + r(["Veyron", "Chiron", "Divo", "Bolide", "Centodieci", "Mistral", "Tourbillon"]) + " " + r(["16.4", "Grand Sport", "Super Sport", "Vitesse", "Pur Sport", "Super Sport 300+", "Noire", "Les Legendes"]),
+            // Koenigsegg
+            () => "Koenigsegg " + r(["Agera", "Agera R", "Agera RS", "One:1", "Regera", "Jesko", "Jesko Absolut", "Gemera", "CCX", "CCXR Trevita"]),
+            // Pagani
+            () => "Pagani " + r(["Zonda", "Huayra", "Utopia"]) + " " + r(["C12", "F", "Cinque", "Tricolore", "R", "Revolucion", "BC", "Roadster", "Imola", "Codalunga"]),
+            // Rolls-Royce / Bentley
+            () => "Rolls-Royce " + r(["Phantom", "Ghost", "Wraith", "Dawn", "Cullinan", "Spectre", "Sweptail", "Boat Tail", "Droptail"]) + " " + r(["VII", "VIII", "Series II"]) + " " + r(["Black Badge", "EWB", "Mansory Edition"]),
+            () => "Bentley " + r(["Continental GT", "Flying Spur", "Bentayga", "Mulsanne", "Bacalar", "Batur"]) + " " + r(["W12", "V8", "Speed", "Mulliner", "Azure", "S"]),
+            // Other Exotic
+            () => r(["Aston Martin", "Maserati"]) + " " + r(["Valkyrie", "Valhalla", "One-77", "Vulcan", "DBS Superleggera", "DB12", "MC20", "MC12"]) + " " + r(["AMR Pro", "Volante", "Cielo"]),
+            () => r(["Rimac", "SSC", "Hennessey", "Zenvo"]) + " " + r(["Nevera", "Tuatara", "Venom F5", "TSR-S"]) + " " + r(["Striker", "Revolution", "GT"]),
+            // China Lux
+            () => r(["YangWang", "Hongqi", "HiPhi", "Lotus"]) + " " + r(["U8", "U9", "E-HS9", "H9+", "S9", "A", "Eletre", "Emeya"]) + " " + r(["Premium", "Ultimate", "Executive", "R", "GT"])
         ];
-        return r(pool);
+        return r(brands)();
     }
 
     // === MAIN LOGIC ===
-    let cheatNext = null;
-    let currentCar = "";
-    let clicks = 0;
-    let timer;
-
-    const carNameEl = document.getElementById('carName');
-    const tierLabelEl = document.getElementById('tierLabel');
-    const box = document.getElementById('box');
-    const spinBtn = document.getElementById('spinBtn');
-    const googleBtn = document.getElementById('googleBtn');
-    const cheatPanel = document.getElementById('cheatPanel');
+    let cheatNext=null, currentCar="", clicks=0, timer;
+    const carNameEl=document.getElementById('carName'), tierLabelEl=document.getElementById('tierLabel'), box=document.getElementById('box'), spinBtn=document.getElementById('spinBtn'), googleBtn=document.getElementById('googleBtn'), cheatPanel=document.getElementById('cheatPanel');
 
     document.addEventListener('DOMContentLoaded', initSettings);
 
     box.addEventListener('click', () => {
-        clicks++;
-        clearTimeout(timer);
-        timer = setTimeout(() => clicks = 0, 400);
-        if (clicks === 10) {
-            clicks = 0;
-            doVibrate(50);
-            if (prompt("КОД ДОСТУПА:") === "758") cheatPanel.style.display = 'grid';
-        }
+        clicks++; clearTimeout(timer); timer=setTimeout(()=>clicks=0,400);
+        if(clicks===10){ clicks=0; doVibrate(50); if(prompt("КОД ДОСТУПА:")==="758") cheatPanel.style.display='grid'; }
     });
 
-    function activateCheat(tier) {
-        cheatNext = tier;
-        cheatPanel.style.display = 'none';
-        doVibrate([50, 50]);
-        alert("Следующая: " + tier.toUpperCase());
-    }
-
-    function openGoogle() {
-        if (!currentCar) return;
-        const query = encodeURIComponent(currentCar);
-        window.open(`https://www.google.com/search?tbm=isch&q=${query}`, '_blank');
-    }
+    function activateCheat(t) { cheatNext=t; cheatPanel.style.display='none'; doVibrate([50,50]); alert("Следующая: "+t.toUpperCase()); }
+    function openGoogle() { if(!currentCar)return; window.open(`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(currentCar)}`, '_blank'); }
 
     function spin() {
-        if (spinBtn.disabled) return;
-        
-        initAudio();
-        spinBtn.disabled = true;
-        googleBtn.style.display = 'none';
-        
-        box.className = 'output-box'; 
-        carNameEl.style.opacity = 0.5;
-        tierLabelEl.innerText = "ПОИСК...";
-
-        if (isFastSpin) {
-            playClickSound();
-            doVibrate([20]);
-            finalize();
-            return;
-        }
-
-        let speed = 50;
-        let steps = 0;
-        const maxSteps = 20 + Math.floor(Math.random() * 10);
-
+        if(spinBtn.disabled)return;
+        initAudio(); spinBtn.disabled=true; googleBtn.style.display='none';
+        box.className='output-box'; carNameEl.style.opacity=0.5; tierLabelEl.innerText="ПОИСК...";
+        if(isFastSpin){ playClickSound(); doVibrate([20]); finalize(); return; }
+        let speed=50, steps=0, maxSteps=20+Math.floor(Math.random()*10);
         function tick() {
-            const funcs = [genEconomy, genMiddle, genPremium, genLuxury];
-            carNameEl.innerText = funcs[Math.floor(Math.random()*funcs.length)]();
-            
-            playClickSound();
-            doVibrate(5); 
-
-            steps++;
-            if (steps < maxSteps) {
-                if(steps > maxSteps - 5) speed += 30;
-                setTimeout(tick, speed);
-            } else {
-                finalize();
-            }
+            carNameEl.innerText=[genEconomy,genMiddle,genPremium,genLuxury][Math.floor(Math.random()*4)]();
+            playClickSound(); doVibrate(5); steps++;
+            if(steps<maxSteps){ if(steps>maxSteps-5)speed+=30; setTimeout(tick,speed); } else finalize();
         }
         tick();
     }
 
     function finalize() {
         let tier;
-        if (cheatNext) {
-            tier = cheatNext;
-            cheatNext = null;
-        } else {
-            // Шансы:
-            // 1% - Mat-Mall
-            // 99% / 4 = 24.75% на остальные
-            const rand = Math.random();
-            
-            if (rand < 0.01) {
-                tier = 'matmall';
-            } else if (rand < 0.2575) {
-                tier = 'economy';
-            } else if (rand < 0.505) {
-                tier = 'middle';
-            } else if (rand < 0.7525) {
-                tier = 'premium';
-            } else {
-                tier = 'luxury';
-            }
+        if(cheatNext){ tier=cheatNext; cheatNext=null; }
+        else {
+            const r=Math.random();
+            if(r<0.01) tier='matmall';
+            else if(r<0.2575) tier='economy';
+            else if(r<0.505) tier='middle';
+            else if(r<0.7525) tier='premium';
+            else tier='luxury';
         }
-
-        let resultName = "";
-        let label = "";
-        let glowClass = "";
-
-        if (tier === 'matmall') {
-            resultName = genMatMall();
-            label = "РЕДКОСТЬ: MAT-MALLОВСКАЯ";
-            glowClass = 'glow-mat';
-        } else if (tier === 'economy') {
-            resultName = genEconomy();
-            label = "КЛАСС 1: ЭКОНОМ / СТОК";
-            glowClass = 'glow-eco';
-        } else if (tier === 'middle') {
-            resultName = genMiddle();
-            label = "КЛАСС 2: СРЕДНИЙ / JDM / SUV"; // Исправленное название
-            glowClass = 'glow-mid';
-        } else if (tier === 'premium') {
-            resultName = genPremium();
-            label = "КЛАСС 3: ПРЕМИУМ / СПОРТ";
-            glowClass = 'glow-pre';
-        } else {
-            resultName = genLuxury();
-            label = "КЛАСС 4: ЭКЗОТИКА / ЛЮКС";
-            glowClass = 'glow-lux';
-        }
-
-        currentCar = resultName;
-        carNameEl.innerText = resultName;
-        carNameEl.style.opacity = 1;
-        tierLabelEl.innerText = label;
-        box.classList.add(glowClass);
-        spinBtn.disabled = false;
         
-        googleBtn.style.display = 'flex'; 
+        let res="", lbl="", cls="";
+        if(tier==='matmall'){ res=genMatMall(); lbl="РЕДКОСТЬ: MAT-MALLОВСКАЯ"; cls='glow-mat'; }
+        else if(tier==='economy'){ res=genEconomy(); lbl="КЛАСС 1: ЭКОНОМ / СТОК"; cls='glow-eco'; }
+        else if(tier==='middle'){ res=genMiddle(); lbl="КЛАСС 2: СРЕДНИЙ / JDM / SUV"; cls='glow-mid'; }
+        else if(tier==='premium'){ res=genPremium(); lbl="КЛАСС 3: ПРЕМИУМ / СПОРТ"; cls='glow-pre'; }
+        else { res=genLuxury(); lbl="КЛАСС 4: ЭКЗОТИКА / ЛЮКС"; cls='glow-lux'; }
 
-        doVibrate([30, 50, 30]); 
+        currentCar=res; carNameEl.innerText=res; carNameEl.style.opacity=1; tierLabelEl.innerText=lbl; box.classList.add(cls);
+        spinBtn.disabled=false; googleBtn.style.display='flex'; doVibrate([30,50,30]);
     }
 </script>
-
 </body>
 </html>
