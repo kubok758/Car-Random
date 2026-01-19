@@ -19,97 +19,51 @@
             --mid: #00eaff;
             --pre: #d600ff;
             --lux: #ffbd00;
+            --mat: #ff0040; /* Цвет Mat-Mall (Ярко-красный неон) */
         }
 
         /* === ГЛОБАЛЬНАЯ БЛОКИРОВКА СКРОЛЛА === */
-        html {
-            height: 100%;
-            width: 100%;
-            overflow: hidden;
-        }
-
+        html { height: 100%; width: 100%; overflow: hidden; }
         body {
             background-color: var(--bg-color);
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             background-attachment: scroll;
-            
             color: var(--text);
             font-family: 'Arial Black', 'Impact', sans-serif;
-            
-            /* Жесткая фиксация экрана */
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            height: 100%;
-            width: 100%;
-            
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            overscroll-behavior: none;
-            touch-action: none;
-            user-select: none;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            height: 100%; width: 100%;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            margin: 0; padding: 0;
+            overflow: hidden; overscroll-behavior: none;
+            touch-action: none; user-select: none;
             -webkit-tap-highlight-color: transparent;
             transition: background-color 0.5s ease;
         }
-
         body::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            z-index: -1;
-            pointer-events: none;
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4); z-index: -1; pointer-events: none;
         }
 
         .wrapper {
-            width: 90%;
-            max-width: 600px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            z-index: 10;
+            width: 90%; max-width: 600px; padding: 20px;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            position: relative; z-index: 10;
         }
 
-        /* === ВЕРХНИЕ КНОПКИ === */
-        .settings-bar {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 10px;
-            z-index: 1000;
-        }
-
-        @supports (padding-top: env(safe-area-inset-top)) {
-            .settings-bar { top: calc(20px + env(safe-area-inset-top)); }
-        }
+        /* === КНОПКИ === */
+        .settings-bar { position: absolute; top: 20px; right: 20px; display: flex; gap: 10px; z-index: 1000; }
+        @supports (padding-top: env(safe-area-inset-top)) { .settings-bar { top: calc(20px + env(safe-area-inset-top)); } }
 
         .icon-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #fff;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(10px);
-            padding: 0;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff; width: 45px; height: 45px; border-radius: 50%;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(10px); padding: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-
         .icon-btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
         .icon-btn:active { transform: scale(0.95); background: rgba(255,255,255,0.2); }
         .icon-btn.off { opacity: 0.5; border-color: #444; color: #888; background: rgba(0,0,0,0.8); }
@@ -118,140 +72,60 @@
 
         /* === МЕНЮ ФОНА === */
         #bgMenu {
-            display: none;
-            position: absolute;
-            top: 80px; right: 20px; width: 260px;
-            background: rgba(20, 20, 20, 0.95);
-            border: 1px solid #444;
-            border-radius: 15px;
-            padding: 15px;
-            z-index: 1001;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
-            backdrop-filter: blur(10px);
-            text-align: left;
+            display: none; position: absolute; top: 80px; right: 20px; width: 260px;
+            background: rgba(20, 20, 20, 0.95); border: 1px solid #444; border-radius: 15px;
+            padding: 15px; z-index: 1001; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px); text-align: left;
         }
-        @supports (padding-top: env(safe-area-inset-top)) {
-            #bgMenu { top: calc(80px + env(safe-area-inset-top)); }
-        }
-
+        @supports (padding-top: env(safe-area-inset-top)) { #bgMenu { top: calc(80px + env(safe-area-inset-top)); } }
         #bgMenu h3 { margin: 0 0 10px 0; font-size: 0.9rem; color: #888; text-transform: uppercase; font-family: 'Segoe UI', sans-serif; letter-spacing: 1px; border-bottom: 1px solid #333; padding-bottom: 5px; }
         .bg-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; }
         .bg-btn { width: 100%; aspect-ratio: 1; border-radius: 8px; border: 2px solid rgba(255,255,255,0.1); cursor: pointer; transition: transform 0.2s; position: relative; overflow: hidden; }
         .bg-btn:hover { border-color: #fff; }
         .bg-btn:active { transform: scale(0.9); }
-
-        .c-black { background: #0b0b0b; }
-        .c-gray { background: #2d2d2d; }
-        .c-blue { background: #0f1c2e; }
-        .c-red { background: #2e0f0f; }
-        .img-merc { background: url('mercedes.jpg') center/cover; }
-        .img-bmw { background: url('bmw.jpg') center/cover; }
-        .img-porsche { background: url('porsche.jpg') center/cover; }
-
+        .c-black { background: #0b0b0b; } .c-gray { background: #2d2d2d; } .c-blue { background: #0f1c2e; } .c-red { background: #2e0f0f; }
+        .img-merc { background: url('mercedes.jpg') center/cover; } .img-bmw { background: url('bmw.jpg') center/cover; } .img-porsche { background: url('porsche.jpg') center/cover; }
         .mobile-wallpapers { display: none; }
         @media (max-width: 768px) { .mobile-wallpapers { display: block; } }
 
         /* === ИНТЕРФЕЙС === */
         h1 {
-            font-size: 1.8rem;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            color: #fff;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-            margin-bottom: 30px;
-            line-height: 1.2;
-            width: 100%;
+            font-size: 1.8rem; text-transform: uppercase; letter-spacing: 4px;
+            color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            margin-bottom: 30px; line-height: 1.2; width: 100%;
         }
-
         .output-box {
-            background: rgba(20, 20, 20, 0.85);
-            border: 2px solid rgba(255,255,255,0.1);
-            border-radius: 16px;
-            padding: 20px;
-            width: 100%;
-            position: relative;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
-            transition: 0.1s transform, 0.3s border-color, 0.3s box-shadow;
-            cursor: pointer;
-            min-height: 180px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(10px);
+            background: rgba(20, 20, 20, 0.85); border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 16px; padding: 20px; width: 100%; position: relative;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5); transition: 0.1s transform, 0.3s border-color, 0.3s box-shadow;
+            cursor: pointer; min-height: 180px; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; backdrop-filter: blur(10px);
         }
         .output-box:active { transform: scale(0.98); }
-
         #carName {
-            font-size: 1.8rem;
-            line-height: 1.2;
-            text-transform: uppercase;
-            background: -webkit-linear-gradient(#fff, #aaa);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
-            margin-bottom: 10px;
-            word-break: break-word;
+            font-size: 1.8rem; line-height: 1.2; text-transform: uppercase;
+            background: -webkit-linear-gradient(#fff, #aaa); -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
+            margin-bottom: 10px; word-break: break-word;
         }
-
-        #tierLabel {
-            font-family: 'Segoe UI', sans-serif;
-            font-size: 0.8rem;
-            letter-spacing: 3px;
-            color: #999;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .controls { 
-            width: 100%; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 15px; 
-            margin-top: 20px; 
-        }
-
+        #tierLabel { font-family: 'Segoe UI', sans-serif; font-size: 0.8rem; letter-spacing: 3px; color: #999; font-weight: 700; text-transform: uppercase; }
+        .controls { width: 100%; display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
         .btn {
-            background: #fff;
-            color: #000;
-            border: none;
-            padding: 20px 0;
-            width: 100%;
-            font-size: 1.4rem;
-            font-weight: 900;
-            text-transform: uppercase;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: 0.1s;
-            box-shadow: 0 0 20px rgba(255,255,255,0.1);
+            background: #fff; color: #000; border: none; padding: 20px 0; width: 100%;
+            font-size: 1.4rem; font-weight: 900; text-transform: uppercase; border-radius: 12px;
+            cursor: pointer; transition: 0.1s; box-shadow: 0 0 20px rgba(255,255,255,0.1);
         }
-        .btn:active { transform: translateY(2px); background: #ddd; }
-        .btn:disabled { background: #333; color: #555; transform: none; box-shadow: none;}
-
+        .btn:active { transform: translateY(2px); background: #ddd; } .btn:disabled { background: #333; color: #555; box-shadow: none; }
         #googleBtn {
-            display: none;
-            background: rgba(0,0,0,0.6);
-            color: #aaa;
-            border: 2px solid rgba(255,255,255,0.2);
-            padding: 15px 0;
-            width: 100%;
-            font-size: 1rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.2s;
-            font-family: 'Segoe UI', sans-serif;
-            letter-spacing: 1px;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            display: none; background: rgba(0,0,0,0.6); color: #aaa; border: 2px solid rgba(255,255,255,0.2);
+            padding: 15px 0; width: 100%; font-size: 1rem; font-weight: 700; text-transform: uppercase;
+            border-radius: 8px; cursor: pointer; transition: 0.2s; font-family: 'Segoe UI', sans-serif;
+            letter-spacing: 1px; align-items: center; justify-content: center; gap: 10px;
         }
         #googleBtn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; }
         #googleBtn:hover { border-color: #fff; color: #fff; background: rgba(0,0,0,0.8); }
         #googleBtn:active { transform: scale(0.98); }
 
-        /* Подсветка */
         .glow-eco { border-color: var(--eco); box-shadow: 0 0 40px rgba(0,255,157,0.15); }
         .glow-eco #carName { background: -webkit-linear-gradient(#fff, var(--eco)); -webkit-background-clip: text; }
         .glow-mid { border-color: var(--mid); box-shadow: 0 0 50px rgba(0,234,255,0.2); }
@@ -260,8 +134,11 @@
         .glow-pre #carName { background: -webkit-linear-gradient(#fff, var(--pre)); -webkit-background-clip: text; }
         .glow-lux { border-color: var(--lux); box-shadow: 0 0 80px rgba(255,189,0,0.3); }
         .glow-lux #carName { background: -webkit-linear-gradient(#fff, var(--lux)); -webkit-background-clip: text; }
+        
+        /* СТИЛЬ MAT-MALL */
+        .glow-mat { border-color: var(--mat); box-shadow: 0 0 80px rgba(255, 0, 64, 0.6); }
+        .glow-mat #carName { background: -webkit-linear-gradient(#fff, var(--mat)); -webkit-background-clip: text; }
 
-        /* Админка */
         #cheatPanel {
             display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
             background: #000; border: 2px solid red; padding: 10px; z-index: 2000;
@@ -315,11 +192,12 @@
 
 <div id="cheatPanel">
     <div style="color:red; font-size:10px; font-weight:bold">АДМИН ПАНЕЛЬ</div>
-    <div class="cheat-grid">
+    <div class="cheat-grid" style="grid-template-columns: 1fr 1fr;">
         <button class="cheat-btn" style="background:var(--eco)" onclick="activateCheat('economy')">ЭКО</button>
         <button class="cheat-btn" style="background:var(--mid)" onclick="activateCheat('middle')">СРЕД</button>
         <button class="cheat-btn" style="background:var(--pre); color:white" onclick="activateCheat('premium')">ПРЕМ</button>
         <button class="cheat-btn" style="background:var(--lux)" onclick="activateCheat('luxury')">ЛЮКС</button>
+        <button class="cheat-btn" style="background:var(--mat); color:white; grid-column: span 2" onclick="activateCheat('matmall')">MAT-MALL</button>
     </div>
 </div>
 
@@ -426,7 +304,7 @@
         }
     }
 
-    // === INIT ===
+    // === RESTORE SETTINGS ===
     function initSettings() {
         const savedSound = localStorage.getItem('carApp_sound');
         if (savedSound === 'false') {
@@ -449,11 +327,14 @@
         }
     }
 
-    // === GENERATOR (РАЗВЕРНУТЫЕ СПИСКИ) ===
+    // === GENERATOR ===
     const r = (arr) => arr[Math.floor(Math.random() * arr.length)];
     
+    function genMatMall() {
+        return "Porsche Cayenne Coupe Turbo GT";
+    }
+
     function genEconomy() {
-        // БЮДЖЕТ (Включая Китай)
         const pool = [
             () => `Lada Priora ${r(['Sedan', 'Hatchback', 'Coupe'])}`,
             () => `Lada Vesta ${r(['NG', 'SW Cross', 'Sport', '1.8'])}`,
@@ -483,7 +364,6 @@
     }
     
     function genMiddle() {
-        // СРЕДНИЙ КЛАСС (Включая Китай)
         const brands = {
             toyota: [
                 { model: "Mark II", chassis: ["JZX90", "JZX100", "JZX110"], trims: ["Grande", "Tourer S", "Tourer V", "iR-V"] },
@@ -527,7 +407,6 @@
             jetour: [ { model: "Dashing", chassis: ["1.6T"], trims: ["Luxury"] }, { model: "T2", chassis: ["4WD"], trims: ["Expedition"] } ]
         };
         const k=r(Object.keys(brands)), c=r(brands[k]); 
-        // Формируем строку
         let res = `${k.charAt(0).toUpperCase()+k.slice(1)} ${c.model}`;
         if (c.chassis && c.chassis[0] !== "") res += ` ${r(c.chassis)}`;
         if (c.trims && c.trims[0] !== "") res += ` ${r(c.trims)}`;
@@ -535,7 +414,6 @@
     }
     
     function genPremium() {
-        // ПРЕМИУМ (Включая Китай)
         const g=[
             // BMW
             {b:"BMW",c:[{h:"E36",e:["318is","320i","325i","328i","M3"]},{h:"E46",e:["320i","325i","330Ci","330d","M3","M3 CSL"]},{h:"E92",e:["320i","325i","330d","335i","M3"]},{h:"F30",e:["320d","328i","330i","335i","340i"]},{h:"F80",e:["M3","M3 Competition","M3 CS"]},{h:"G20",e:["320d","330i","M340i"]},{h:"G80",e:["M3","M3 Competition"]},{h:"E34",e:["525i","530i","540i","M5 3.8"]},{h:"E39",e:["525i","530d","540i","M5"]},{h:"E60",e:["525i","530d","535d","545i","550i","M5"]},{h:"F10",e:["520d","528i","530d","535i","550i","M550d","M5"]},{h:"F90",e:["M5","M5 Competition","M5 CS"]},{h:"G30",e:["530d","540i","M550i"]},{h:"E38",e:["730d","740i","750iL"]},{h:"G12",e:["740d","750Li","M760Li"]},{h:"E53",e:["X5 3.0d","X5 4.4i","X5 4.8is"]},{h:"E70",e:["X5 3.0d","X5 4.8i","X5M"]},{h:"F15",e:["X5 40d","X5 M50d"]},{h:"F85",e:["X5M"]},{h:"G05",e:["X5 30d","X5 40i","X5 M50d"]},{h:"F95",e:["X5M Competition"]},{h:"G07",e:["X7 M50d","X7 M60i"]}]},
@@ -549,7 +427,7 @@
             {b:"Geely",c:[{h:"",e:["Monjaro Exclusive","Prefecture L"]}]},
             {b:"Exeed",c:[{h:"",e:["VX President","RX"]}]},
             {b:"Voyah",c:[{h:"",e:["Free EVR","Dream","Passion"]}]},
-            {b:"Tank",c:[{h:"",e:["500 Urban","500 Premium"]}]},
+            {b:"Tank",c:[{h:"",e:["500 Urban","500 Premium", "700 Hi4-T"]}]},
             {b:"Avatr",c:[{h:"",e:["11","12"]}]},
             {b:"HiPhi",c:[{h:"",e:["Z","X"]}]}
         ];
@@ -560,52 +438,22 @@
     }
     
     function genLuxury() {
-        // ЛЮКС (Включая Китай)
         return r([
-            "Ferrari 488 Pista",
-            "Ferrari F8 Tributo",
-            "Ferrari 812 Superfast",
-            "Ferrari SF90 Stradale",
-            "Ferrari LaFerrari",
-            "Ferrari Enzo",
-            "Ferrari F40",
-            "Lamborghini Aventador SVJ",
-            "Lamborghini Huracan Performante",
-            "Lamborghini Urus",
-            "Lamborghini Revuelto",
-            "Lamborghini Murcielago SV",
-            "Lamborghini Diablo VT",
-            "Porsche 911 Turbo S (992)",
-            "Porsche 911 GT3 RS (992)",
-            "Porsche 911 GT2 RS (991)",
-            "Porsche Carrera GT",
-            "Porsche 918 Spyder",
-            "Bugatti Chiron",
-            "Bugatti Chiron Super Sport",
-            "Bugatti Divo",
-            "Bugatti Veyron Super Sport",
-            "McLaren 720S",
-            "McLaren 765LT",
-            "McLaren P1",
-            "McLaren Senna",
-            "Rolls-Royce Phantom",
-            "Rolls-Royce Cullinan",
-            "Rolls-Royce Wraith",
-            "Bentley Continental GT Speed",
-            "Bentley Bentayga",
-            "Koenigsegg Agera RS",
-            "Koenigsegg Jesko",
+            "Ferrari 488 Pista", "Ferrari F8 Tributo", "Ferrari 812 Superfast", "Ferrari SF90 Stradale", "Ferrari LaFerrari", "Ferrari Enzo", "Ferrari F40", "Ferrari Purosangue",
+            "Lamborghini Aventador SVJ", "Lamborghini Huracan Performante", "Lamborghini Urus", "Lamborghini Revuelto", "Lamborghini Murcielago SV", "Lamborghini Diablo VT",
+            "Porsche 911 Turbo S (992)", "Porsche 911 GT3 RS (992)", "Porsche 911 GT2 RS (991)", "Porsche Carrera GT", "Porsche 918 Spyder",
+            "Bugatti Chiron", "Bugatti Chiron Super Sport", "Bugatti Divo", "Bugatti Veyron Super Sport",
+            "McLaren 720S", "McLaren 765LT", "McLaren P1", "McLaren Senna",
+            "Rolls-Royce Phantom", "Rolls-Royce Cullinan", "Rolls-Royce Wraith",
+            "Bentley Continental GT Speed", "Bentley Bentayga",
+            "Koenigsegg Agera RS", "Koenigsegg Jesko",
             "Pagani Huayra BC",
             // Китай Люкс
-            "YangWang U8 Premium",
-            "YangWang U9",
-            "Lotus Eletre R",
-            "Lotus Emeya",
-            "Hongqi E-HS9 Executive",
-            "Hongqi H9+", 
+            "YangWang U8 Premium", "YangWang U9",
+            "Lotus Eletre R", "Lotus Emeya",
+            "Hongqi E-HS9 Executive", "Hongqi H9+", 
             "Zeekr 001 FR",
-            "HiPhi A",
-            "Tank 700 Hi4-T"
+            "HiPhi A"
         ]);
     }
 
@@ -687,18 +535,33 @@
             tier = cheatNext;
             cheatNext = null;
         } else {
+            // МАТЕМАТИКА ШАНСОВ
+            // Mat-Mall: 1% (0.01)
+            // Остальные 99% делим на 4 класса = по 24.75%
             const rand = Math.random();
-            if (rand < 0.25) tier = 'economy';
-            else if (rand < 0.50) tier = 'middle';
-            else if (rand < 0.75) tier = 'premium';
-            else tier = 'luxury';
+            
+            if (rand < 0.01) {
+                tier = 'matmall';
+            } else if (rand < 0.2575) { // 0.01 + 0.2475
+                tier = 'economy';
+            } else if (rand < 0.505) { // 0.2575 + 0.2475
+                tier = 'middle';
+            } else if (rand < 0.7525) { // 0.505 + 0.2475
+                tier = 'premium';
+            } else {
+                tier = 'luxury';
+            }
         }
 
         let resultName = "";
         let label = "";
         let glowClass = "";
 
-        if (tier === 'economy') {
+        if (tier === 'matmall') {
+            resultName = genMatMall();
+            label = "РЕДКОСТЬ: MAT-MALLОВСКАЯ";
+            glowClass = 'glow-mat';
+        } else if (tier === 'economy') {
             resultName = genEconomy();
             label = "КЛАСС 1: ЭКОНОМ / СТОК";
             glowClass = 'glow-eco';
@@ -708,11 +571,11 @@
             glowClass = 'glow-mid';
         } else if (tier === 'premium') {
             resultName = genPremium();
-            label = "КЛАСС 3: НЕМЕЦКАЯ МОЩЬ";
+            label = "КЛАСС 3: ПРЕМИУМ / СПОРТ";
             glowClass = 'glow-pre';
         } else {
             resultName = genLuxury();
-            label = "КЛАСС 4: ЭКЗОТИКА / ГИПЕРКАРЫ";
+            label = "КЛАСС 4: ЭКЗОТИКА / ЛЮКС";
             glowClass = 'glow-lux';
         }
 
