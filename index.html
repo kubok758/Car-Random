@@ -9,10 +9,10 @@
             --bg: #0b0b0b;
             --card: #141414;
             --text: #e0e0e0;
-            --eco: #00ff9d;   /* Ядовито-зеленый */
-            --mid: #00eaff;   /* Кибер-голубой */
-            --pre: #d600ff;   /* Неон-фиолетовый */
-            --lux: #ffbd00;   /* Золотой */
+            --eco: #00ff9d;
+            --mid: #00eaff;
+            --pre: #d600ff;
+            --lux: #ffbd00;
         }
 
         body {
@@ -22,11 +22,9 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
             user-select: none;
-            overflow: hidden;
-            /* Техническая строка: отключает задержку клика на мобилках */
             touch-action: manipulation; 
             -webkit-tap-highlight-color: transparent;
         }
@@ -36,63 +34,73 @@
             max-width: 700px;
             text-align: center;
             position: relative;
-            padding: 10px;
+            padding: 20px;
+            box-sizing: border-box;
         }
 
         h1 {
-            font-size: 2rem;
+            font-size: 1.8rem;
             text-transform: uppercase;
             letter-spacing: 4px;
             color: #333;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
+            margin-top: 0;
         }
 
-        /* Окно выдачи - Тот самый массивный дизайн */
+        /* Окно выдачи */
         .output-box {
             background: var(--card);
             border: 2px solid #333;
             border-radius: 12px;
-            padding: 50px 20px;
-            margin-bottom: 40px;
+            padding: 40px 15px;
+            margin-bottom: 20px;
             position: relative;
             box-shadow: 0 0 50px rgba(0,0,0,0.5);
-            transition: 0.1s transform;
+            transition: 0.1s transform, 0.3s border-color, 0.3s box-shadow;
             cursor: pointer;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
         .output-box:active { transform: scale(0.98); }
 
         #carName {
-            font-size: 2.2rem; /* Крупный шрифт вернулся */
+            font-size: 2rem;
             line-height: 1.1;
             text-transform: uppercase;
             background: -webkit-linear-gradient(#fff, #aaa);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
-            min-height: 2.4em;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            margin-bottom: 10px;
         }
 
         #tierLabel {
             font-family: 'Segoe UI', sans-serif;
-            font-size: 0.9rem;
-            margin-top: 15px;
+            font-size: 0.8rem;
             letter-spacing: 3px;
             color: #555;
             font-weight: 700;
         }
 
-        /* Кнопка - Массивная */
+        /* Группа кнопок */
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Главная кнопка */
         .btn {
             background: #fff;
             color: #000;
             border: none;
-            padding: 25px 0;
+            padding: 20px 0;
             width: 100%;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             font-weight: 900;
             text-transform: uppercase;
             border-radius: 8px;
@@ -100,9 +108,36 @@
             transition: 0.1s;
             box-shadow: 0 0 20px rgba(255,255,255,0.1);
         }
-        .btn:hover { transform: translateY(-3px); box-shadow: 0 0 40px rgba(255,255,255,0.3); }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(255,255,255,0.2); }
         .btn:active { transform: translateY(2px); background: #ddd; }
         .btn:disabled { background: #333; color: #555; transform: none; box-shadow: none;}
+
+        /* Кнопка Google (скрыта по умолчанию) */
+        #googleBtn {
+            display: none; /* Скрыта пока нет результата */
+            background: transparent;
+            color: #aaa;
+            border: 2px solid #333;
+            padding: 15px 0;
+            width: 100%;
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: 'Segoe UI', sans-serif;
+            letter-spacing: 1px;
+        }
+        #googleBtn:hover {
+            border-color: #fff;
+            color: #fff;
+            background: rgba(255,255,255,0.05);
+        }
+        #googleBtn:active { transform: scale(0.98); }
+
+        /* Иконка Google */
+        .g-icon { margin-right: 8px; font-style: normal; }
 
         /* Свечение */
         .glow-eco { border-color: var(--eco); box-shadow: 0 0 40px rgba(0,255,157,0.15); }
@@ -117,7 +152,7 @@
         .glow-lux { border-color: var(--lux); box-shadow: 0 0 80px rgba(255,189,0,0.3); }
         .glow-lux #carName { background: -webkit-linear-gradient(#fff, var(--lux)); -webkit-background-clip: text; }
 
-        /* Админка (Скрытая) */
+        /* Админка */
         #cheatPanel {
             display: none;
             position: fixed;
@@ -150,18 +185,23 @@
         </div>
     </div>
 
-    <h1>Car Randomizer <span style="font-size:0.5em; color:#555">Infinite Ed.</span></h1>
+    <h1>Car Randomizer</h1>
 
     <div class="output-box" id="box">
         <div id="carName">READY</div>
         <div id="tierLabel">PRESS BUTTON</div>
     </div>
 
-    <button class="btn" id="spinBtn" onclick="spin()">GENERATE</button>
+    <div class="controls">
+        <button class="btn" id="spinBtn" onclick="spin()">GENERATE</button>
+        <button id="googleBtn" onclick="openGoogle()">
+            <span class="g-icon">📷</span> ПОСМОТРЕТЬ ФОТО
+        </button>
+    </div>
 </div>
 
 <script>
-    // === ГЕНЕРАТОР БАЗЫ ДАННЫХ ===
+    // === ГЕНЕРАТОР ===
     const r = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
     // 1. ECONOMY
@@ -299,13 +339,16 @@
 
     // === ЛОГИКА ===
     let cheatNext = null;
+    let currentCar = ""; // Для сохранения названия машины
+
     const carNameEl = document.getElementById('carName');
     const tierLabelEl = document.getElementById('tierLabel');
     const box = document.getElementById('box');
     const spinBtn = document.getElementById('spinBtn');
+    const googleBtn = document.getElementById('googleBtn');
     const cheatPanel = document.getElementById('cheatPanel');
 
-    // Админка (С защитой от зума)
+    // Админка
     let clicks = 0;
     let timer;
     box.addEventListener('click', () => {
@@ -326,9 +369,18 @@
         alert("Next: " + tier.toUpperCase());
     }
 
+    function openGoogle() {
+        if (!currentCar) return;
+        // Открываем Google Картинки в новой вкладке
+        const query = encodeURIComponent(currentCar);
+        const url = `https://www.google.com/search?tbm=isch&q=${query}`;
+        window.open(url, '_blank');
+    }
+
     function spin() {
         if (spinBtn.disabled) return;
         spinBtn.disabled = true;
+        googleBtn.style.display = 'none'; // Прячем кнопку Google при старте
         
         box.className = 'output-box'; 
         carNameEl.style.opacity = 0.5;
@@ -387,10 +439,15 @@
             box.classList.add('glow-lux');
         }
 
+        currentCar = resultName; // Сохраняем для Google поиска
         carNameEl.innerText = resultName;
         carNameEl.style.opacity = 1;
         tierLabelEl.innerText = label;
         spinBtn.disabled = false;
+        
+        // Показываем кнопку Google
+        googleBtn.style.display = 'block';
+
         if (navigator.vibrate) navigator.vibrate(20);
     }
 </script>
