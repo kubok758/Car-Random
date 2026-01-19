@@ -22,111 +22,239 @@
             --mat: #ff0040;
         }
 
-        html { height: 100%; width: 100%; overflow: hidden; }
+        html {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+
         body {
             background-color: var(--bg-color);
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             background-attachment: scroll;
+            
             color: var(--text);
             font-family: 'Arial Black', 'Impact', sans-serif;
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            height: 100%; width: 100%;
-            display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            margin: 0; padding: 0;
-            overflow: hidden; overscroll-behavior: none;
-            touch-action: none; user-select: none;
+            
+            /* Фиксация */
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            height: 100%;
+            width: 100%;
+            
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            overscroll-behavior: none;
+            touch-action: none;
+            user-select: none;
             -webkit-tap-highlight-color: transparent;
             transition: background-color 0.5s ease;
         }
+
         body::before {
-            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.4); z-index: -1; pointer-events: none;
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+            pointer-events: none;
         }
 
         .wrapper {
-            width: 90%; max-width: 600px; padding: 20px;
-            display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            position: relative; z-index: 10;
+            width: 90%;
+            max-width: 600px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            z-index: 10;
         }
 
         /* Настройки */
-        .settings-bar { position: absolute; top: 20px; right: 20px; display: flex; gap: 10px; z-index: 1000; }
-        @supports (padding-top: env(safe-area-inset-top)) { .settings-bar { top: calc(20px + env(safe-area-inset-top)); } }
+        .settings-bar {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        @supports (padding-top: env(safe-area-inset-top)) {
+            .settings-bar { top: calc(20px + env(safe-area-inset-top)); }
+        }
 
         .icon-btn {
-            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #fff; width: 45px; height: 45px; border-radius: 50%;
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            backdrop-filter: blur(10px); padding: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            padding: 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             transition: all 0.2s ease;
         }
+
         .icon-btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
         .icon-btn:active { transform: scale(0.95); background: rgba(255,255,255,0.2); }
-        
-        /* Состояние ВЫКЛ (для звука и вибро) */
         .icon-btn.off { opacity: 0.5; border-color: #444; color: #888; background: rgba(0,0,0,0.8); }
-        .slash { display: none; }
-        .icon-btn.off .slash { display: block; }
-
-        /* Состояние ВКЛ (для кнопки скорости) */
+        
         .icon-btn.active {
             background: rgba(255, 255, 255, 0.9);
             color: #000;
             box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
         }
 
+        .slash { display: none; }
+        .icon-btn.off .slash { display: block; }
+
+        /* Меню фона */
         #bgMenu {
-            display: none; position: absolute; top: 80px; right: 20px; width: 260px;
-            background: rgba(20, 20, 20, 0.95); border: 1px solid #444; border-radius: 15px;
-            padding: 15px; z-index: 1001; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
-            backdrop-filter: blur(10px); text-align: left;
+            display: none;
+            position: absolute;
+            top: 80px; right: 20px; width: 260px;
+            background: rgba(20, 20, 20, 0.95);
+            border: 1px solid #444;
+            border-radius: 15px;
+            padding: 15px;
+            z-index: 1001;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            text-align: left;
         }
-        @supports (padding-top: env(safe-area-inset-top)) { #bgMenu { top: calc(80px + env(safe-area-inset-top)); } }
+        
+        @supports (padding-top: env(safe-area-inset-top)) {
+            #bgMenu { top: calc(80px + env(safe-area-inset-top)); }
+        }
+
         #bgMenu h3 { margin: 0 0 10px 0; font-size: 0.9rem; color: #888; text-transform: uppercase; font-family: 'Segoe UI', sans-serif; letter-spacing: 1px; border-bottom: 1px solid #333; padding-bottom: 5px; }
         .bg-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; }
         .bg-btn { width: 100%; aspect-ratio: 1; border-radius: 8px; border: 2px solid rgba(255,255,255,0.1); cursor: pointer; transition: transform 0.2s; position: relative; overflow: hidden; }
-        .bg-btn:hover { border-color: #fff; } .bg-btn:active { transform: scale(0.9); }
-        .c-black { background: #0b0b0b; } .c-gray { background: #2d2d2d; } .c-blue { background: #0f1c2e; } .c-red { background: #2e0f0f; }
-        .img-merc { background: url('mercedes.jpg') center/cover; } .img-bmw { background: url('bmw.jpg') center/cover; } .img-porsche { background: url('porsche.jpg') center/cover; }
+        .bg-btn:hover { border-color: #fff; }
+        .bg-btn:active { transform: scale(0.9); }
+
+        .c-black { background: #0b0b0b; }
+        .c-gray { background: #2d2d2d; }
+        .c-blue { background: #0f1c2e; }
+        .c-red { background: #2e0f0f; }
+        .img-merc { background: url('mercedes.jpg') center/cover; }
+        .img-bmw { background: url('bmw.jpg') center/cover; }
+        .img-porsche { background: url('porsche.jpg') center/cover; }
+
         .mobile-wallpapers { display: none; }
         @media (max-width: 768px) { .mobile-wallpapers { display: block; } }
 
+        /* Интерфейс */
         h1 {
-            font-size: 1.8rem; text-transform: uppercase; letter-spacing: 4px;
-            color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-            margin-bottom: 30px; line-height: 1.2; width: 100%;
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #fff;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            margin-bottom: 30px;
+            line-height: 1.2;
+            width: 100%;
         }
+
         .output-box {
-            background: rgba(20, 20, 20, 0.85); border: 2px solid rgba(255,255,255,0.1);
-            border-radius: 16px; padding: 20px; width: 100%; position: relative;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5); transition: 0.1s transform, 0.3s border-color, 0.3s box-shadow;
-            cursor: pointer; min-height: 180px; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; backdrop-filter: blur(10px);
+            background: rgba(20, 20, 20, 0.85);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 20px;
+            width: 100%;
+            position: relative;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            transition: 0.1s transform, 0.3s border-color, 0.3s box-shadow;
+            cursor: pointer;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(10px);
         }
         .output-box:active { transform: scale(0.98); }
+
         #carName {
-            font-size: 1.8rem; line-height: 1.2; text-transform: uppercase;
-            background: -webkit-linear-gradient(#fff, #aaa); -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
-            margin-bottom: 10px; word-break: break-word;
+            font-size: 1.8rem;
+            line-height: 1.2;
+            text-transform: uppercase;
+            background: -webkit-linear-gradient(#fff, #aaa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
+            margin-bottom: 10px;
+            word-break: break-word;
         }
-        #tierLabel { font-family: 'Segoe UI', sans-serif; font-size: 0.8rem; letter-spacing: 3px; color: #999; font-weight: 700; text-transform: uppercase; }
-        .controls { width: 100%; display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
+
+        #tierLabel {
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            color: #999;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .controls { 
+            width: 100%; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            margin-top: 20px; 
+        }
+
         .btn {
-            background: #fff; color: #000; border: none; padding: 20px 0; width: 100%;
-            font-size: 1.4rem; font-weight: 900; text-transform: uppercase; border-radius: 12px;
-            cursor: pointer; transition: 0.1s; box-shadow: 0 0 20px rgba(255,255,255,0.1);
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 20px 0;
+            width: 100%;
+            font-size: 1.4rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.1s;
+            box-shadow: 0 0 20px rgba(255,255,255,0.1);
         }
-        .btn:active { transform: translateY(2px); background: #ddd; } .btn:disabled { background: #333; color: #555; box-shadow: none; }
+        .btn:active { transform: translateY(2px); background: #ddd; }
+        .btn:disabled { background: #333; color: #555; box-shadow: none; }
+
         #googleBtn {
-            display: none; background: rgba(0,0,0,0.6); color: #aaa; border: 2px solid rgba(255,255,255,0.2);
-            padding: 15px 0; width: 100%; font-size: 1rem; font-weight: 700; text-transform: uppercase;
-            border-radius: 8px; cursor: pointer; transition: 0.2s; font-family: 'Segoe UI', sans-serif;
-            letter-spacing: 1px; align-items: center; justify-content: center; gap: 10px;
+            display: none;
+            background: rgba(0,0,0,0.6);
+            color: #aaa;
+            border: 2px solid rgba(255,255,255,0.2);
+            padding: 15px 0;
+            width: 100%;
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: 'Segoe UI', sans-serif;
+            letter-spacing: 1px;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
         #googleBtn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; }
         #googleBtn:hover { border-color: #fff; color: #fff; background: rgba(0,0,0,0.8); }
@@ -155,29 +283,10 @@
 <body>
 
 <div class="settings-bar">
-    <button class="icon-btn" id="fastToggle" onclick="toggleFast()">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-    </button>
-    
-    <button class="icon-btn" id="bgToggle" onclick="toggleBgMenu()">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
-    </button>
-    <button class="icon-btn" id="vibroToggle" onclick="toggleVibro()">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <rect x="10" y="4" width="4" height="16" rx="2"></rect>
-            <path d="M7 8 L6 8"></path><path d="M7 12 L6 12"></path><path d="M7 16 L6 16"></path>
-            <path d="M17 8 L18 8"></path><path d="M17 12 L18 12"></path><path d="M17 16 L18 16"></path>
-            <line x1="3" y1="3" x2="21" y2="21" class="slash" stroke="#888"></line>
-        </svg>
-    </button>
-    <button class="icon-btn" id="soundToggle" onclick="toggleSound()">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-            <line x1="23" y1="9" x2="17" y2="15" class="slash" stroke="#888"></line>
-            <line x1="17" y1="9" x2="23" y2="15" class="slash" stroke="#888"></line>
-        </svg>
-    </button>
+    <button class="icon-btn" id="fastToggle" onclick="toggleFast()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg></button>
+    <button class="icon-btn" id="bgToggle" onclick="toggleBgMenu()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg></button>
+    <button class="icon-btn" id="vibroToggle" onclick="toggleVibro()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="10" y="4" width="4" height="16" rx="2"></rect><path d="M7 8 L6 8"></path><path d="M7 12 L6 12"></path><path d="M7 16 L6 16"></path><path d="M17 8 L18 8"></path><path d="M17 12 L18 12"></path><path d="M17 16 L18 16"></path><line x1="3" y1="3" x2="21" y2="21" class="slash" stroke="#888"></line></svg></button>
+    <button class="icon-btn" id="soundToggle" onclick="toggleSound()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path><line x1="23" y1="9" x2="17" y2="15" class="slash" stroke="#888"></line><line x1="17" y1="9" x2="23" y2="15" class="slash" stroke="#888"></line></svg></button>
 </div>
 
 <div id="bgMenu">
@@ -211,19 +320,14 @@
 
 <div class="wrapper">
     <h1>Car Randomizer</h1>
-
     <div class="output-box" id="box">
         <div id="carName">ГОТОВО</div>
         <div id="tierLabel">НАЖМИ КНОПКУ</div>
     </div>
-
     <div class="controls">
         <button class="btn" id="spinBtn" onclick="spin()">КРУТИТЬ</button>
         <button id="googleBtn" onclick="openGoogle()">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                <circle cx="12" cy="13" r="4"></circle>
-            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
             ПОСМОТРЕТЬ ФОТО
         </button>
     </div>
@@ -236,7 +340,7 @@
         });
     }
 
-    // === UI LOGIC ===
+    // === UI ===
     function toggleBgMenu() {
         const menu = document.getElementById('bgMenu');
         menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
@@ -261,222 +365,241 @@
         localStorage.setItem('carApp_bgValue', f);
     }
 
-    // === AUDIO & VIBRO ===
-    let audioCtx = null;
-    let isSoundOn = true;
-    let isVibroOn = true;
-    let isFastSpin = false;
+    // === SETTINGS ===
+    let audioCtx=null, isSoundOn=true, isVibroOn=true, isFastSpin=false;
 
     function initAudio() {
-        if (!audioCtx) {
+        if(!audioCtx) {
             const AudioContext = window.AudioContext || window.webkitAudioContext;
             audioCtx = new AudioContext();
         }
-        if (audioCtx.state === 'suspended') {
+        if(audioCtx.state === 'suspended') {
             audioCtx.resume();
         }
     }
 
     function playClickSound() {
-        if (!isSoundOn || !audioCtx) return;
+        if(!isSoundOn || !audioCtx) return;
         const osc = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        osc.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
         osc.type = 'triangle'; 
-        osc.frequency.setValueAtTime(800, audioCtx.currentTime); 
+        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.05);
-        gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
         osc.start();
         osc.stop(audioCtx.currentTime + 0.05);
     }
 
     function toggleSound() {
         isSoundOn = !isSoundOn;
-        const btn = document.getElementById('soundToggle');
-        if(!isSoundOn) btn.classList.add('off'); else btn.classList.remove('off');
+        document.getElementById('soundToggle').classList.toggle('off', !isSoundOn);
         localStorage.setItem('carApp_sound', isSoundOn);
         initAudio();
     }
 
     function toggleVibro() {
         isVibroOn = !isVibroOn;
-        const btn = document.getElementById('vibroToggle');
-        if(!isVibroOn) btn.classList.add('off'); else btn.classList.remove('off');
+        document.getElementById('vibroToggle').classList.toggle('off', !isVibroOn);
         localStorage.setItem('carApp_vibro', isVibroOn);
     }
 
     function toggleFast() {
         isFastSpin = !isFastSpin;
-        const btn = document.getElementById('fastToggle');
-        // Меняем стиль кнопки: белый фон если включено
-        if(isFastSpin) btn.classList.add('active'); else btn.classList.remove('active');
+        document.getElementById('fastToggle').classList.toggle('active', isFastSpin);
         localStorage.setItem('carApp_fast', isFastSpin);
     }
 
     function doVibrate(pattern) {
-        if (isVibroOn && navigator.vibrate) {
+        if(isVibroOn && navigator.vibrate) {
             try { navigator.vibrate(pattern); } catch(e){}
         }
     }
-
-    // === RESTORE SETTINGS ===
+    
     function initSettings() {
-        const savedSound = localStorage.getItem('carApp_sound');
-        if (savedSound === 'false') {
-            isSoundOn = false;
-            document.getElementById('soundToggle').classList.add('off');
-        }
-        const savedVibro = localStorage.getItem('carApp_vibro');
-        if (savedVibro === 'false') {
-            isVibroOn = false;
-            document.getElementById('vibroToggle').classList.add('off');
-        }
-        const savedFast = localStorage.getItem('carApp_fast');
-        if (savedFast === 'true') {
-            isFastSpin = true;
-            document.getElementById('fastToggle').classList.add('active');
-        }
-        const bgType = localStorage.getItem('carApp_bgType');
-        const bgValue = localStorage.getItem('carApp_bgValue');
-        if (bgType === 'color' && bgValue) {
-            document.body.style.backgroundImage = 'none';
-            document.body.style.backgroundColor = bgValue;
-        } else if (bgType === 'image' && bgValue) {
-            document.body.style.backgroundColor = '#0b0b0b';
-            document.body.style.backgroundImage = `url('${bgValue}')`;
-        }
+        if(localStorage.getItem('carApp_sound')==='false'){ isSoundOn=false; document.getElementById('soundToggle').classList.add('off'); }
+        if(localStorage.getItem('carApp_vibro')==='false'){ isVibroOn=false; document.getElementById('vibroToggle').classList.add('off'); }
+        if(localStorage.getItem('carApp_fast')==='true'){ isFastSpin=true; document.getElementById('fastToggle').classList.add('active'); }
+        const t=localStorage.getItem('carApp_bgType'), v=localStorage.getItem('carApp_bgValue');
+        if(t==='color'&&v){ document.body.style.backgroundImage='none'; document.body.style.backgroundColor=v; }
+        else if(t==='image'&&v){ document.body.style.backgroundColor='#0b0b0b'; document.body.style.backgroundImage=`url('${v}')`; }
     }
 
-    // === GENERATOR ===
+    // === GENERATOR: MASSIVE DATABASE ===
     const r = (arr) => arr[Math.floor(Math.random() * arr.length)];
     
-    function genMatMall() {
-        return "Porsche Cayenne Coupe Turbo GT";
-    }
+    function genMatMall() { return "Porsche Cayenne Coupe Turbo GT"; }
 
     function genEconomy() {
         const pool = [
-            () => `Lada Priora ${r(['Sedan', 'Hatchback', 'Coupe'])}`,
-            () => `Lada Vesta ${r(['NG', 'SW Cross', 'Sport', '1.8'])}`,
-            () => `Lada Granta ${r(['Drive Active', 'Sport', 'FL'])}`,
-            () => `Lada 2114 ${r(['Super-Avto', '1.6'])}`,
-            () => `Volkswagen Polo ${r(['Sedan', 'GT', 'Liftback'])}`,
-            () => `Skoda Rapid ${r(['1.4 TSI', '1.6 MPI', 'Monte Carlo'])}`,
-            () => `Skoda Octavia ${r(['A5', 'A7', 'A8'])} 1.6 MPI`,
-            () => `Hyundai Solaris ${r(['1.6 MT', '1.6 AT', 'Restyling'])}`,
-            () => `Kia Rio ${r(['3', '4', 'X-Line'])}`,
-            () => `Toyota Corolla ${r(['120', '150'])}`,
-            () => `Honda Civic ${r(['EK3', 'EK9', 'ES', '4D', '5D'])}`,
-            () => `Mazda 3 ${r(['BK', 'BL', 'BM'])}`,
-            () => `Mitsubishi Lancer ${r(['9', 'X 1.8', 'X 2.0'])}`,
-            // Китай Эконом
-            () => `Haval M6`,
-            () => `Chery Tiggo 4 Pro`,
-            () => `Geely Emgrand`,
-            () => `Omoda S5`,
-            () => `Kaiyi E5`,
-            () => `BAIC U5 Plus`,
-            () => `JAC J7`,
-            () => `Changan Alsvin`,
-            () => `Haval Jolion ${r(['Comfort', 'Elite'])}`
+            "Lada Priora Sedan", 
+            "Lada Priora Hatchback", 
+            "Lada Priora Coupe", 
+            "Lada Priora 2",
+            "Lada Vesta NG", 
+            "Lada Vesta SW Cross", 
+            "Lada Vesta Sport", 
+            "Lada Vesta 1.8",
+            "Lada Granta Drive Active", 
+            "Lada Granta Sport", 
+            "Lada Granta FL", 
+            "Lada Granta Cross",
+            "Lada 2114 Super-Avto", 
+            "Lada 2114 1.6", 
+            "Lada 2113", 
+            "Lada 2112 Coupe", 
+            "Lada 2107", 
+            "Lada 2106", 
+            "Lada 4x4 Niva Legend",
+            "Volkswagen Polo Sedan", 
+            "Volkswagen Polo GT", 
+            "Volkswagen Polo Liftback", 
+            "Skoda Rapid 1.4 TSI", 
+            "Skoda Rapid 1.6 MPI", 
+            "Skoda Rapid Monte Carlo",
+            "Skoda Octavia A5 1.6 MPI", 
+            "Skoda Octavia A7 1.6 MPI", 
+            "Skoda Fabia RS",
+            "Hyundai Solaris 1.6 MT", 
+            "Hyundai Solaris 1.6 AT", 
+            "Hyundai Solaris Restyling",
+            "Kia Rio 3", 
+            "Kia Rio 4", 
+            "Kia Rio X-Line", 
+            "Kia Cerato 2", 
+            "Hyundai Elantra HD",
+            "Toyota Corolla 120", 
+            "Toyota Corolla 150", 
+            "Toyota Carina E", 
+            "Toyota Caldina",
+            "Honda Civic EK3", 
+            "Honda Civic EK9", 
+            "Honda Civic ES", 
+            "Honda Civic 4D", 
+            "Honda Civic 5D", 
+            "Honda Fit RS",
+            "Mazda 3 BK", 
+            "Mazda 3 BL", 
+            "Mazda 3 BM", 
+            "Mazda 6 GG",
+            "Mitsubishi Lancer 9", 
+            "Mitsubishi Lancer X 1.8", 
+            "Mitsubishi Lancer X 2.0",
+            "Haval M6", 
+            "Haval Jolion Comfort", 
+            "Haval Jolion Elite", 
+            "Haval Jolion Premium",
+            "Chery Tiggo 4 Pro", 
+            "Chery Tiggo 4",
+            "Geely Emgrand", 
+            "Geely Coolray Comfort",
+            "Omoda S5", 
+            "Omoda S5 GT",
+            "Kaiyi E5", 
+            "BAIC U5 Plus", 
+            "JAC J7",
+            "Changan Alsvin", 
+            "Changan Eado Plus",
+            "Livan X3 Pro", 
+            "Moskvich 3"
         ];
-        return r(pool)();
+        return r(pool);
     }
     
     function genMiddle() {
-        const brands = {
-            toyota: [
-                { model: "Mark II", chassis: ["JZX90", "JZX100", "JZX110"], trims: ["Grande", "Tourer S", "Tourer V", "iR-V"] },
-                { model: "Chaser", chassis: ["JZX100", "JZX90"], trims: ["Tourer V", "Avante G"] },
-                { model: "Cresta", chassis: ["JZX90", "JZX100"], trims: ["Roulant G", "Super Lucent"] },
-                { model: "Crown", chassis: ["S170", "S180", "S200", "S210"], trims: ["Athlete", "Majesta", "Royal Saloon"] },
-                { model: "Camry", chassis: ["XV40", "XV50", "XV55", "XV70"], trims: ["3.5 V6", "2.5", "Hybrid"] },
-                { model: "Altezza", chassis: ["SXE10"], trims: ["RS200", "AS200"] }
-            ],
-            nissan: [
-                { model: "Silvia", chassis: ["S13", "S14", "S15"], trims: ["Spec-R", "Spec-S", "Q's", "K's"] },
-                { model: "Skyline", chassis: ["R32", "R33", "R34"], trims: ["GTS-T", "GT-T", "Sedan"] },
-                { model: "Laurel", chassis: ["C33", "C34", "C35"], trims: ["Club-S", "Medalist"] },
-                { model: "Teana", chassis: ["J31", "J32"], trims: ["3.5 V6", "2.5"] }
-            ],
-            subaru: [
-                { model: "Impreza WRX STI", chassis: ["GC8", "GDB Peanut", "GDB Blobeye", "GDB Hawkeye", "GRB", "VA"], trims: [""] },
-                { model: "Forester", chassis: ["SF5", "SG5", "SG9", "SH"], trims: ["STI", "Cross Sports", "XT"] }
-            ],
-            honda: [
-                { model: "Accord", chassis: ["CL7", "CL9", "CU2", "CV"], trims: ["Euro-R", "Type-S", "2.4"] },
-                { model: "Civic", chassis: ["Type-R EP3", "Type-R FN2", "Type-R FD2"], trims: [""] }
-            ],
-            // Китай Средний
-            haval: [
-                { model: "F7x", chassis: [""], trims: ["Tech Plus", "Premium"] },
-                { model: "Dargo", chassis: ["X"], trims: ["Tech Plus"] },
-                { model: "H9", chassis: ["Restyling"], trims: ["Premium"] } 
-            ],
-            geely: [
-                { model: "Coolray", chassis: [""], trims: ["Flagship Sport"] },
-                { model: "Atlas Pro", chassis: ["4WD"], trims: ["Flagship"] },
-                { model: "Tugella", chassis: [""], trims: ["Flagship Sport"] }
-            ],
-            chery: [
-                { model: "Tiggo 7 Pro Max", chassis: ["AWD"], trims: ["Ultimate"] },
-                { model: "Tiggo 8 Pro Max", chassis: ["New"], trims: ["Ultimate"] },
-                { model: "Arrizo 8", chassis: ["Highline"], trims: ["Ultimate"] }
-            ],
-            tank: [ { model: "300", chassis: ["City"], trims: ["Premium"] } ],
-            jetour: [ { model: "Dashing", chassis: ["1.6T"], trims: ["Luxury"] }, { model: "T2", chassis: ["4WD"], trims: ["Expedition"] } ]
-        };
-        const k=r(Object.keys(brands)), c=r(brands[k]); 
-        let res = `${k.charAt(0).toUpperCase()+k.slice(1)} ${c.model}`;
-        if (c.chassis && c.chassis[0] !== "") res += ` ${r(c.chassis)}`;
-        if (c.trims && c.trims[0] !== "") res += ` ${r(c.trims)}`;
-        return res;
+        const pool = [
+            "Toyota Mark II JZX90 Grande", "Toyota Mark II JZX90 Tourer V", "Toyota Mark II JZX100 Tourer V", "Toyota Mark II JZX110 iR-V",
+            "Toyota Chaser JZX100 Tourer V", "Toyota Chaser JZX100 Avante G", 
+            "Toyota Cresta JZX90", "Toyota Cresta JZX100 Roulant G",
+            "Toyota Crown S170 Athlete", "Toyota Crown S170 Majesta", "Toyota Crown S180 Athlete", "Toyota Crown S200 Royal Saloon", "Toyota Crown S210 Athlete",
+            "Toyota Camry XV40 3.5", "Toyota Camry XV50 3.5", "Toyota Camry XV55 2.5", "Toyota Camry XV70 3.5 V6",
+            "Toyota Altezza RS200", "Toyota Aristo V300", "Toyota Soarer JZZ30",
+            "Toyota RAV4 XA50 Hybrid", "Toyota Land Cruiser Prado 150",
+            "Nissan Silvia S13", "Nissan Silvia S14", "Nissan Silvia S15 Spec-R",
+            "Nissan Skyline R32 GTS-T", "Nissan Skyline R33 GTS-T", "Nissan Skyline R34 GT-T",
+            "Nissan Laurel C33", "Nissan Laurel C34", "Nissan Laurel C35 Club-S",
+            "Nissan Teana J31", "Nissan Teana J32 3.5", "Nissan Fuga",
+            "Subaru Impreza WRX STI GC8", "Subaru Impreza WRX STI GDB Peanut", "Subaru Impreza WRX STI GDB Blobeye", "Subaru Impreza WRX STI GDB Hawkeye", "Subaru Impreza WRX STI GRB",
+            "Subaru Forester SF5 STI", "Subaru Forester SG9 STI", "Subaru Legacy B4",
+            "Honda Accord CL7 Euro-R", "Honda Accord CL9", "Honda Accord CU2 Type-S", 
+            "Honda Civic Type-R EP3", "Honda Civic Type-R FN2", "Honda Civic Type-R FD2", "Honda Integra DC5 Type-R",
+            "Haval F7x Tech Plus", "Haval F7 Premium", "Haval Dargo Tech Plus", "Haval Dargo X", "Haval H9 Premium", "Haval H3",
+            "Geely Coolray Flagship Sport", "Geely Atlas Pro 4WD", "Geely Tugella Flagship Sport", "Geely Preface",
+            "Chery Tiggo 7 Pro Max AWD", "Chery Tiggo 8 Pro Max New", "Chery Arrizo 8 Ultimate",
+            "Omoda C5 AWD Supreme", "Jaecoo J7 Supreme",
+            "Tank 300 City Premium", "Tank 300 Offroad",
+            "Jetour Dashing Luxury", "Jetour T2 Expedition"
+        ];
+        return r(pool);
     }
     
     function genPremium() {
-        const g=[
-            // BMW
-            {b:"BMW",c:[{h:"E36",e:["318is","320i","325i","328i","M3"]},{h:"E46",e:["320i","325i","330Ci","330d","M3","M3 CSL"]},{h:"E92",e:["320i","325i","330d","335i","M3"]},{h:"F30",e:["320d","328i","330i","335i","340i"]},{h:"F80",e:["M3","M3 Competition","M3 CS"]},{h:"G20",e:["320d","330i","M340i"]},{h:"G80",e:["M3","M3 Competition"]},{h:"E34",e:["525i","530i","540i","M5 3.8"]},{h:"E39",e:["525i","530d","540i","M5"]},{h:"E60",e:["525i","530d","535d","545i","550i","M5"]},{h:"F10",e:["520d","528i","530d","535i","550i","M550d","M5"]},{h:"F90",e:["M5","M5 Competition","M5 CS"]},{h:"G30",e:["530d","540i","M550i"]},{h:"E38",e:["730d","740i","750iL"]},{h:"G12",e:["740d","750Li","M760Li"]},{h:"E53",e:["X5 3.0d","X5 4.4i","X5 4.8is"]},{h:"E70",e:["X5 3.0d","X5 4.8i","X5M"]},{h:"F15",e:["X5 40d","X5 M50d"]},{h:"F85",e:["X5M"]},{h:"G05",e:["X5 30d","X5 40i","X5 M50d"]},{h:"F95",e:["X5M Competition"]},{h:"G07",e:["X7 M50d","X7 M60i"]}]},
-            // Mercedes
-            {b:"Mercedes-Benz",c:[{h:"W204",e:["C180","C200","C250","C300","C350","C63 AMG","C63 AMG Black Series"]},{h:"W205",e:["C180","C200 4Matic","C43 AMG","C63 S AMG"]},{h:"W211",e:["E200 Kompressor","E320 CDI","E500","E55 AMG","E63 AMG"]},{h:"W212",e:["E200","E250 CDI","E300","E350","E400","E63 AMG","E63 S AMG"]},{h:"W213",e:["E200d","E220d","E300","E400d","E53 AMG","E63 S AMG"]},{h:"W140",e:["S500","S600"]},{h:"W222",e:["S350d","S500","S63 AMG","S65 AMG"]},{h:"W223",e:["S450","S580","S680 Maybach"]},{h:"W463",e:["G500","G55 AMG","G63 AMG"]},{h:"W464",e:["G63 AMG","G350d"]}]},
-            // Audi
-            {b:"Audi",c:[{h:"C6",e:["A6 3.0 TDI","S6 V10","RS6 Avant"]},{h:"C7",e:["A6 3.0 TFSI","A7 3.0 TDI","S7","RS6 Performance","RS7"]},{h:"C8",e:["A6 55 TFSI","RS6 Avant","RS7 Sportback"]},{h:"8V",e:["S3 Sedan","RS3 Sportback"]},{h:"B9",e:["A4 2.0 TFSI","A5 Sportback","RS4 Avant","RS5 Coupe"]},{h:"4M",e:["Q7 3.0 TDI","Q8 50 TDI","SQ8","RS Q8"]}]},
-            // Китай Премиум
-            {b:"Zeekr",c:[{h:"",e:["001 YOU","001 ME","007 Performance","X","009"]}]},
-            {b:"Li Auto",c:[{h:"",e:["L7 Max","L7 Ultra","L9 Max","L9 Ultra","L6","One"]}]},
-            {b:"Geely",c:[{h:"",e:["Monjaro Exclusive","Prefecture L"]}]},
-            {b:"Exeed",c:[{h:"",e:["VX President","RX"]}]},
-            {b:"Voyah",c:[{h:"",e:["Free EVR","Dream","Passion"]}]},
-            {b:"Tank",c:[{h:"",e:["500 Urban","500 Premium", "700 Hi4-T"]}]},
-            {b:"Avatr",c:[{h:"",e:["11","12"]}]},
-            {b:"HiPhi",c:[{h:"",e:["Z","X"]}]}
+        const pool = [
+            "BMW E30 325i", "BMW E34 525i", "BMW E34 540i", "BMW E34 M5 3.8",
+            "BMW E36 328i", "BMW E36 M3", "BMW E38 740i", "BMW E38 750iL",
+            "BMW E39 530d", "BMW E39 540i", "BMW E39 M5",
+            "BMW E46 330Ci", "BMW E46 M3", "BMW E46 M3 CSL",
+            "BMW E53 X5 4.4i", "BMW E53 X5 4.8is",
+            "BMW E60 530d", "BMW E60 535d", "BMW E60 550i", "BMW E60 M5",
+            "BMW E92 335i", "BMW E92 M3",
+            "BMW F10 530d", "BMW F10 550i", "BMW F10 M5", "BMW F10 M550d",
+            "BMW F30 340i", "BMW F80 M3", "BMW F82 M4",
+            "BMW F90 M5", "BMW F90 M5 Competition", "BMW F90 M5 CS",
+            "BMW G20 M340i", "BMW G80 M3 Competition", "BMW G82 M4 CSL",
+            "BMW G30 540i", "BMW G11 740d", "BMW G12 M760Li",
+            "BMW X5 M50d (F15)", "BMW X5M (F85)", "BMW X5 G05 40i", "BMW X5M Competition (F95)", "BMW X7 M60i", "BMW XM",
+            "Mercedes 190E Evo II", "Mercedes W124 E500", 
+            "Mercedes W140 S500", "Mercedes W140 S600",
+            "Mercedes W210 E55 AMG", "Mercedes W211 E55 AMG", "Mercedes W211 E63 AMG",
+            "Mercedes W204 C63 AMG", "Mercedes W204 C63 AMG Black Series",
+            "Mercedes W205 C63 S AMG", "Mercedes W212 E63 AMG S", "Mercedes W213 E63 S AMG",
+            "Mercedes W222 S500", "Mercedes W222 S63 AMG", "Mercedes W222 Maybach",
+            "Mercedes W223 S580", "Mercedes GT63 S AMG 4-Door",
+            "Mercedes G55 AMG", "Mercedes G63 AMG (W463)", "Mercedes G63 AMG (W464)",
+            "Mercedes GLE 63 S AMG Coupe", "Mercedes GLS 600 Maybach",
+            "Audi S2 Coupe", "Audi RS2 Avant",
+            "Audi RS4 B5", "Audi RS4 B7", "Audi RS4 B9 Avant",
+            "Audi RS5 Coupe", "Audi RS6 C5", "Audi RS6 C6 V10", "Audi RS6 C7 Performance", "Audi RS6 C8 Avant",
+            "Audi RS7 Sportback C7", "Audi RS7 C8",
+            "Audi S8 D2", "Audi S8 D4", "Audi S8 D5",
+            "Audi R8 V8", "Audi R8 V10 Plus", "Audi R8 V10 Performance",
+            "Audi Q7 V12 TDI", "Audi SQ8", "Audi RS Q8",
+            "Porsche Cayenne Turbo GT", "Porsche Cayenne Coupe", "Porsche Macan GTS", "Porsche Panamera Turbo S",
+            "Range Rover Autobiography", "Range Rover Sport SVR",
+            "Lexus IS-F", "Lexus GS-F", "Lexus LC500", "Lexus LX570", "Lexus LX600",
+            "Zeekr 001 YOU", "Zeekr 001 ME", "Zeekr 001 FR", "Zeekr 009", "Zeekr X", "Zeekr 007",
+            "Li Auto L7 Ultra", "Li Auto L9 Ultra", "Li Auto L9 Max", "Li Auto L6",
+            "Geely Monjaro Exclusive", "Voyah Free EVR", "Voyah Dream", "Voyah Passion",
+            "Tank 500 Urban", "Tank 500 Premium", "Tank 700 Hi4-T",
+            "Exeed VX President", "Exeed RX", "Avatr 11", "Avatr 12", "HiPhi Z", "HiPhi X",
+            "Lotus Eletre R", "YangWang U8"
         ];
-        const s=r(g), f=r(s.c); 
-        let res = `${s.b} ${r(f.e)}`;
-        if(f.h) res += ` ${f.h}`;
-        return res;
+        return r(pool);
     }
     
     function genLuxury() {
-        return r([
-            "Ferrari 488 Pista", "Ferrari F8 Tributo", "Ferrari 812 Superfast", "Ferrari SF90 Stradale", "Ferrari LaFerrari", "Ferrari Enzo", "Ferrari F40", "Ferrari Purosangue",
-            "Lamborghini Aventador SVJ", "Lamborghini Huracan Performante", "Lamborghini Urus", "Lamborghini Revuelto", "Lamborghini Murcielago SV", "Lamborghini Diablo VT",
-            "Porsche 911 Turbo S (992)", "Porsche 911 GT3 RS (992)", "Porsche 911 GT2 RS (991)", "Porsche Carrera GT", "Porsche 918 Spyder",
-            "Bugatti Chiron", "Bugatti Chiron Super Sport", "Bugatti Divo", "Bugatti Veyron Super Sport",
-            "McLaren 720S", "McLaren 765LT", "McLaren P1", "McLaren Senna",
-            "Rolls-Royce Phantom", "Rolls-Royce Cullinan", "Rolls-Royce Wraith",
-            "Bentley Continental GT Speed", "Bentley Bentayga",
-            "Koenigsegg Agera RS", "Koenigsegg Jesko",
-            "Pagani Huayra BC",
-            // Китай Люкс
-            "YangWang U8 Premium", "YangWang U9",
-            "Lotus Eletre R", "Lotus Emeya",
-            "Hongqi E-HS9 Executive", "Hongqi H9+", 
-            "Zeekr 001 FR",
-            "HiPhi A"
-        ]);
+        const pool = [
+            "Ferrari F40", "Ferrari Enzo", "Ferrari LaFerrari", "Ferrari 458 Italia", "Ferrari 488 Pista", 
+            "Ferrari F8 Tributo", "Ferrari 812 Superfast", "Ferrari 812 Competizione", "Ferrari SF90 Stradale", 
+            "Ferrari 296 GTB", "Ferrari Daytona SP3", "Ferrari Purosangue",
+            "Lamborghini Diablo VT", "Lamborghini Murcielago SV", "Lamborghini Aventador LP700-4", "Lamborghini Aventador SVJ", 
+            "Lamborghini Huracan Performante", "Lamborghini Huracan STO", "Lamborghini Revuelto", 
+            "Lamborghini Urus", "Lamborghini Urus Performante", "Lamborghini Sesto Elemento", "Lamborghini Veneno",
+            "Porsche Carrera GT", "Porsche 918 Spyder", 
+            "Porsche 911 Turbo S (992)", "Porsche 911 GT3 RS (992)", "Porsche 911 GT2 RS (991)",
+            "Bugatti Veyron 16.4", "Bugatti Veyron Super Sport", "Bugatti Chiron", "Bugatti Chiron Super Sport 300+", 
+            "Bugatti Divo", "Bugatti Bolide", "Bugatti Mistral", "Bugatti Tourbillon",
+            "McLaren F1", "McLaren P1", "McLaren Senna", "McLaren 720S", "McLaren 765LT", "McLaren Speedtail",
+            "Koenigsegg Agera RS", "Koenigsegg One:1", "Koenigsegg Jesko Absolut", "Koenigsegg Gemera",
+            "Pagani Zonda Cinque", "Pagani Huayra BC", "Pagani Utopia",
+            "Rimac Nevera", "SSC Tuatara", "Hennessey Venom F5",
+            "Rolls-Royce Phantom", "Rolls-Royce Ghost", "Rolls-Royce Wraith", "Rolls-Royce Cullinan", "Rolls-Royce Spectre", "Rolls-Royce Boat Tail",
+            "Bentley Continental GT Speed", "Bentley Flying Spur Mulliner", "Bentley Bentayga Speed", "Bentley Bacalar",
+            "YangWang U9", "Hongqi E-HS9 Executive", "Hongqi H9+", "HiPhi A"
+        ];
+        return r(pool);
     }
 
     // === MAIN LOGIC ===
@@ -529,7 +652,6 @@
         carNameEl.style.opacity = 0.5;
         tierLabelEl.innerText = "ПОИСК...";
 
-        // FAST SPIN CHECK
         if (isFastSpin) {
             playClickSound();
             doVibrate([20]);
