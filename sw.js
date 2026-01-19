@@ -1,5 +1,4 @@
-// ВЕРСИЯ v5 (INTEGRATED CHINA UPDATE)
-const CACHE_NAME = 'car-rando-v5';
+const CACHE_NAME = 'car-rando-v6';
 const ASSETS = [
   '/',
   '/index.html',
