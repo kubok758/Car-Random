@@ -2,334 +2,406 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Авто-Рандомайзер: Равные Шансы</title>
+    <title>ULTIMATE CAR RANDOMIZER</title>
     <style>
         :root {
-            --primary: #00ff88;
-            --economy: #a8a8a8;
-            --middle: #00d9ff;
-            --premium: #d400ff;
-            --luxury: #ffcc00;
-            --bg: #121212;
-            --card-bg: #1e1e1e;
-            --text: #ffffff;
+            --bg: #0b0b0b;
+            --card: #141414;
+            --text: #e0e0e0;
+            --eco: #00ff9d;   /* Ядовито-зеленый */
+            --mid: #00eaff;   /* Кибер-голубой */
+            --pre: #d600ff;   /* Неон-фиолетовый */
+            --lux: #ffbd00;   /* Золотой */
         }
 
         body {
-            margin: 0;
-            padding: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Arial Black', 'Impact', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            background-color: var(--bg);
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            color: var(--text);
-            overflow: hidden;
+            height: 100vh;
+            margin: 0;
             user-select: none;
+            overflow: hidden;
         }
 
-        .container {
-            text-align: center;
+        .wrapper {
             width: 100%;
-            max-width: 500px;
-            padding: 20px;
+            max-width: 700px;
+            text-align: center;
             position: relative;
         }
 
         h1 {
-            font-size: 1.8rem;
-            margin-bottom: 30px;
+            font-size: 2rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #888;
+            letter-spacing: 4px;
+            color: #333;
+            margin-bottom: 40px;
         }
 
-        .display-box {
-            background-color: var(--card-bg);
-            border: 1px solid #333;
-            border-radius: 20px;
-            padding: 30px 15px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-            min-height: 140px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            transition: all 0.3s;
-            cursor: pointer;
+        /* Окно выдачи */
+        .output-box {
+            background: var(--card);
+            border: 2px solid #333;
+            border-radius: 12px;
+            padding: 50px 20px;
+            margin-bottom: 40px;
+            position: relative;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            transition: 0.2s all;
         }
 
-        .display-box:active {
-            transform: scale(0.98);
-        }
+        .output-box:active { transform: scale(0.99); }
 
         #carName {
-            font-size: 2rem;
-            font-weight: 800;
-            color: var(--text);
+            font-size: 2.5rem;
             line-height: 1.1;
-            margin-bottom: 10px;
+            text-transform: uppercase;
+            /* Градиентный текст */
+            background: -webkit-linear-gradient(#fff, #aaa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
         }
 
-        #carTier {
+        #tierLabel {
+            font-family: 'Segoe UI', sans-serif;
             font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            padding: 5px 12px;
-            border-radius: 10px;
-            background: #333;
-            color: #aaa;
-            font-weight: bold;
+            margin-top: 15px;
+            letter-spacing: 3px;
+            color: #555;
+            font-weight: 700;
         }
 
-        .spin-btn {
-            background: linear-gradient(135deg, var(--primary), #00cc6a);
-            border: none;
-            padding: 18px 50px;
-            font-size: 1.3rem;
-            font-weight: bold;
+        /* Кнопка */
+        .btn {
+            background: #fff;
             color: #000;
-            border-radius: 50px;
-            cursor: pointer;
-            width: 100%;
-            max-width: 300px;
-            transition: transform 0.1s;
-            box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
-        }
-
-        .spin-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
-        .spin-btn:active { transform: translateY(1px); }
-        .spin-btn:disabled { background: #444; color: #777; cursor: default; box-shadow: none; transform: none; }
-
-        /* Цвета классов */
-        .tier-economy #carName { color: var(--economy); }
-        .tier-middle #carName { color: var(--middle); text-shadow: 0 0 10px rgba(0, 217, 255, 0.3); }
-        .tier-premium #carName { color: var(--premium); text-shadow: 0 0 15px rgba(212, 0, 255, 0.4); }
-        .tier-luxury #carName { color: var(--luxury); text-shadow: 0 0 20px rgba(255, 204, 0, 0.6); }
-
-        .tier-economy #carTier { color: var(--economy); border: 1px solid var(--economy); background: transparent; }
-        .tier-middle #carTier { color: var(--middle); border: 1px solid var(--middle); background: rgba(0, 217, 255, 0.1); }
-        .tier-premium #carTier { color: var(--premium); border: 1px solid var(--premium); background: rgba(212, 0, 255, 0.1); }
-        .tier-luxury #carTier { color: var(--luxury); border: 1px solid var(--luxury); background: rgba(255, 204, 0, 0.1); }
-
-        /* --- СКРЫТАЯ АДМИН ПАНЕЛЬ --- */
-        #adminPanel {
-            display: none; /* Всегда скрыто */
-            position: absolute;
-            top: 60px; /* Поверх заголовка */
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            padding: 15px;
-            border: 2px solid #ff0000;
-            border-radius: 15px;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 100;
-            box-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
-        }
-        .admin-title {
-            color: #ff5555;
-            font-size: 1rem;
-            margin-bottom: 10px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-        .cheat-btns {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        .cheat-btn {
-            padding: 10px;
             border: none;
+            padding: 25px 0;
+            width: 100%;
+            font-size: 1.5rem;
+            font-weight: 900;
+            text-transform: uppercase;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: bold;
-            transition: 0.2s;
+            transition: 0.1s;
+            box-shadow: 0 0 20px rgba(255,255,255,0.1);
         }
-        .cheat-btn:hover { transform: scale(1.05); }
-        
-        .c-eco { background: var(--economy); color: black; }
-        .c-mid { background: var(--middle); color: black; }
-        .c-pre { background: var(--premium); color: white; }
-        .c-lux { background: var(--luxury); color: black; border: 2px solid gold; }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 0 40px rgba(255,255,255,0.3); }
+        .btn:active { transform: translateY(2px); }
+        .btn:disabled { background: #333; color: #555; transform: none; box-shadow: none;}
 
+        /* Стили классов */
+        .glow-eco { border-color: var(--eco); box-shadow: 0 0 40px rgba(0,255,157,0.15); }
+        .glow-eco #carName { background: -webkit-linear-gradient(#fff, var(--eco)); -webkit-background-clip: text; }
+        
+        .glow-mid { border-color: var(--mid); box-shadow: 0 0 50px rgba(0,234,255,0.2); }
+        .glow-mid #carName { background: -webkit-linear-gradient(#fff, var(--mid)); -webkit-background-clip: text; }
+        
+        .glow-pre { border-color: var(--pre); box-shadow: 0 0 60px rgba(214,0,255,0.25); }
+        .glow-pre #carName { background: -webkit-linear-gradient(#fff, var(--pre)); -webkit-background-clip: text; }
+        
+        .glow-lux { border-color: var(--lux); box-shadow: 0 0 80px rgba(255,189,0,0.3); }
+        .glow-lux #carName { background: -webkit-linear-gradient(#fff, var(--lux)); -webkit-background-clip: text; }
+
+        /* Админка */
+        #cheatPanel {
+            display: none;
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #000;
+            border: 1px solid red;
+            padding: 10px;
+            z-index: 100;
+        }
+        .cheat-btn { padding: 10px; cursor: pointer; font-weight: bold; margin: 2px; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Car Randomizer v3.0</h1>
-        
-        <div id="adminPanel">
-            <div class="admin-title">ВЫБЕРИ, ЧТО ВЫПАДЕТ:</div>
-            <div class="cheat-btns">
-                <button class="cheat-btn c-eco" onclick="setCheat('economy')">ЭКОНОМ</button>
-                <button class="cheat-btn c-mid" onclick="setCheat('middle')">СРЕДНИЙ</button>
-                <button class="cheat-btn c-pre" onclick="setCheat('premium')">ПРЕМИУМ</button>
-                <button class="cheat-btn c-lux" onclick="setCheat('luxury')">👑 ЛЮКС</button>
-            </div>
-        </div>
-
-        <div class="display-box" id="resultBox">
-            <div id="carName">Жми кнопку</div>
-            <div id="carTier">Равные шансы 25%</div>
-        </div>
-
-        <button class="spin-btn" id="spinBtn" onclick="startSpin()">КРУТИТЬ</button>
+<div class="wrapper">
+    <div id="cheatPanel">
+        <div style="color:red; font-size:10px; margin-bottom:5px">DEV MODE</div>
+        <button class="cheat-btn" style="background:var(--eco)" onclick="activateCheat('economy')">ECO</button>
+        <button class="cheat-btn" style="background:var(--mid)" onclick="activateCheat('middle')">MID</button>
+        <button class="cheat-btn" style="background:var(--pre)" onclick="activateCheat('premium')">PREM</button>
+        <button class="cheat-btn" style="background:var(--lux)" onclick="activateCheat('luxury')">LUX</button>
     </div>
 
-    <script>
-        // === БАЗА ДАННЫХ ===
-        const db = {
-            economy: [
-                "Lada Granta", "Lada Vesta", "Lada Priora", "Lada Niva Legend", "Lada Largus",
-                "Hyundai Solaris", "Hyundai Accent", "Hyundai Creta",
-                "Kia Rio", "Kia Rio X", "Kia Picanto", "Kia Ceed (Old)",
-                "Renault Logan", "Renault Sandero", "Renault Duster", "Renault Kaptur",
-                "Volkswagen Polo", "Skoda Rapid", "Daewoo Matiz", "Daewoo Nexia",
-                "Chevrolet Niva", "Chevrolet Cruze", "Ford Focus II", "Ford Fiesta",
-                "Toyota Corolla (Old)", "Nissan Almera", "Nissan Note", "Haval Jolion (Lite)",
-                "Chery Tiggo 4", "Lifan Solano", "Lifan X60", "Geely Emgrand"
+    <h1>Car Randomizer <span style="font-size:0.5em; color:#555">Infinite Ed.</span></h1>
+
+    <div class="output-box" id="box">
+        <div id="carName">READY</div>
+        <div id="tierLabel">PRESS BUTTON</div>
+    </div>
+
+    <button class="btn" id="spinBtn" onclick="spin()">GENERATE</button>
+</div>
+
+<script>
+    // === ГЕНЕРАТОР БАЗЫ ДАННЫХ (CONSTRUCTOR LOGIC) ===
+    
+    // Вспомогательная функция для выбора случайного элемента
+    const r = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+    // 1. ECONOMY / STOCK (Простые)
+    function genEconomy() {
+        const pool = [
+            // ВАЗ
+            () => `Lada Priora ${r(['Sedan', 'Hatchback', 'Coupe'])}`,
+            () => `Lada Vesta ${r(['NG', 'SW Cross', 'Sport', '1.8'])}`,
+            () => `Lada Granta ${r(['Drive Active', 'Sport', 'FL'])}`,
+            () => `Lada 2114 ${r(['Super-Avto', '1.6', 'Chetirka'])}`,
+            // VAG Budget
+            () => `Volkswagen Polo ${r(['Sedan', 'GT', 'Liftback'])}`,
+            () => `Skoda Rapid ${r(['1.4 TSI', '1.6 MPI', 'Monte Carlo'])}`,
+            () => `Skoda Octavia ${r(['A5', 'A7', 'A8'])} 1.6 MPI`,
+            // Korea
+            () => `Hyundai Solaris ${r(['1.6 MT', '1.6 AT', 'Restyling'])}`,
+            () => `Kia Rio ${r(['3', '4', 'X-Line'])}`,
+            // Old JDM Economy
+            () => `Toyota Corolla ${r(['120', '150'])}`,
+            () => `Honda Civic ${r(['EK3', 'EK9', 'ES', '4D', '5D'])}`,
+            () => `Mazda 3 ${r(['BK', 'BL', 'BM'])}`,
+            () => `Mitsubishi Lancer ${r(['9', 'X 1.8', 'X 2.0'])}`
+        ];
+        return r(pool)();
+    }
+
+    // 2. MIDDLE / JDM / STANCE (Средние + Легенды)
+    function genMiddle() {
+        const brands = {
+            toyota: [
+                { model: "Mark II", chassis: ["JZX90", "JZX100", "JZX110"], trims: ["Grande", "Tourer S", "Tourer V", "iR-V"] },
+                { model: "Chaser", chassis: ["JZX100", "JZX90"], trims: ["Tourer V", "Avante G"] },
+                { model: "Cresta", chassis: ["JZX90", "JZX100"], trims: ["Roulant G", "Super Lucent"] },
+                { model: "Crown", chassis: ["S170", "S180", "S200", "S210"], trims: ["Athlete", "Majesta", "Royal Saloon"] },
+                { model: "Camry", chassis: ["XV40", "XV50", "XV55", "XV70"], trims: ["3.5 V6", "2.5", "Hybrid"] },
+                { model: "Altezza", chassis: ["SXE10"], trims: ["RS200", "AS200"] }
             ],
-            middle: [
-                "Toyota Camry", "Toyota RAV4", "Toyota Highlander", "Kia K5", "Kia Sportage", "Kia Sorento",
-                "Hyundai Sonata", "Hyundai Tucson", "Hyundai Santa Fe", "Skoda Octavia", "Skoda Kodiaq",
-                "Volkswagen Tiguan", "Volkswagen Passat", "Mazda 6", "Mazda CX-5",
-                "Nissan X-Trail", "Subaru Forester", "Honda CR-V", "Honda Accord",
-                "Haval F7", "Haval Dargo", "Tank 300", "Geely Monjaro", "Geely Tugella", "Geely Coolray",
-                "Chery Tiggo 8 Pro", "Chery Arrizo 8", "Omoda C5", "Exeed LX", "Jetour Dashing",
-                "Changan UNI-V", "Changan UNI-K"
+            nissan: [
+                { model: "Silvia", chassis: ["S13", "S14", "S15"], trims: ["Spec-R", "Spec-S", "Q's", "K's"] },
+                { model: "Skyline", chassis: ["R32", "R33", "R34"], trims: ["GTS-T", "GT-T", "GTS-25t", "Sedan"] },
+                { model: "Laurel", chassis: ["C33", "C34", "C35"], trims: ["Club-S", "Medalist"] },
+                { model: "Teana", chassis: ["J31", "J32"], trims: ["3.5 V6", "2.5"] }
             ],
-            premium: [
-                "BMW 3 Series", "BMW 5 Series", "BMW X5", "BMW X6", "BMW X7",
-                "Mercedes C-Class", "Mercedes E-Class", "Mercedes GLE", "Mercedes G-Class",
-                "Audi A5", "Audi A6", "Audi Q7", "Audi Q8", "Audi e-tron",
-                "Lexus RX 350", "Lexus NX", "Lexus LX 600",
-                "Volvo XC90", "Volvo XC60", "Land Rover Defender", "Range Rover Sport",
-                "Porsche Cayenne", "Porsche Macan", "Zeekr 001", "Li Auto L9", "Voyah Free",
-                "Tank 500", "Tesla Model Y", "Cadillac Escalade", "Jeep Grand Cherokee"
+            subaru: [
+                { model: "Impreza WRX STI", chassis: ["GC8", "GDB Peanut", "GDB Blobeye", "GDB Hawkeye", "GRB", "VA"], trims: [""] },
+                { model: "Forester", chassis: ["SF5", "SG5", "SG9", "SH"], trims: ["STI", "Cross Sports", "XT"] }
             ],
-            luxury: [
-                "Rolls-Royce Cullinan", "Rolls-Royce Phantom", "Rolls-Royce Ghost",
-                "Bentley Bentayga", "Bentley Continental GT", "Bentley Flying Spur",
-                "Ferrari F8 Tributo", "Ferrari SF90", "Ferrari Roma", "Ferrari 812 Superfast",
-                "Lamborghini Urus", "Lamborghini Huracan", "Lamborghini Aventador", "Lamborghini Revuelto",
-                "Porsche 911 Turbo S", "Bugatti Chiron", "Bugatti Divo", "McLaren 720S",
-                "Aston Martin DBX", "Aston Martin Vantage", "Maybach S-Class", "Koenigsegg Jesko"
+            honda: [
+                { model: "Accord", chassis: ["CL7", "CL9", "CU2", "CV"], trims: ["Euro-R", "Type-S", "2.4"] },
+                { model: "Civic", chassis: ["Type-R EP3", "Type-R FN2", "Type-R FD2"], trims: [""] }
             ]
         };
-
-        const carNameEl = document.getElementById('carName');
-        const carTierEl = document.getElementById('carTier');
-        const resultBox = document.getElementById('resultBox');
-        const spinBtn = document.getElementById('spinBtn');
-        const adminPanel = document.getElementById('adminPanel');
         
-        let isSpinning = false;
-        let forcedTier = null; // Здесь хранится подкрутка
+        // Выбираем марку
+        const brandKey = r(Object.keys(brands));
+        const car = r(brands[brandKey]);
+        const chassis = r(car.chassis);
+        const trim = r(car.trims);
+        
+        // Формат: Toyota Mark II JZX100 Tourer V
+        const brandName = brandKey.charAt(0).toUpperCase() + brandKey.slice(1);
+        return `${brandName} ${car.model} ${chassis} ${trim}`;
+    }
 
-        // --- ЛОГИКА ВХОДА В АДМИНКУ ---
-        let clickCount = 0;
-        let clickTimer;
-
-        carNameEl.addEventListener('click', () => {
-            clickCount++;
-            clearTimeout(clickTimer);
-            clickTimer = setTimeout(() => { clickCount = 0; }, 500); // Сброс, если пауза
-
-            if (clickCount === 10) {
-                clickCount = 0;
-                const code = prompt("Admin Pass:");
-                if (code === "758") {
-                    adminPanel.style.display = "block"; // Показываем панель
-                }
+    // 3. PREMIUM / GERMAN (Немцы, точные модели)
+    function genPremium() {
+        const germans = [
+            // === BMW (Strict Format: Model + Chassis) ===
+            { 
+                brand: "BMW", 
+                configs: [
+                    // 3 Series / M3
+                    { ch: "E36", eng: ["318is", "320i", "325i", "328i", "M3"] },
+                    { ch: "E46", eng: ["320i", "325i", "330Ci", "330d", "M3", "M3 CSL"] },
+                    { ch: "E92", eng: ["320i", "325i", "330d", "335i", "M3"] },
+                    { ch: "F30", eng: ["320d", "328i", "330i", "335i", "340i"] },
+                    { ch: "F80", eng: ["M3", "M3 Competition", "M3 CS"] },
+                    { ch: "G20", eng: ["320d", "330i", "M340i"] },
+                    { ch: "G80", eng: ["M3", "M3 Competition"] },
+                    // 5 Series / M5
+                    { ch: "E34", eng: ["525i", "530i", "540i", "M5 3.8"] },
+                    { ch: "E39", eng: ["525i", "530d", "540i", "M5"] },
+                    { ch: "E60", eng: ["525i", "530d", "535d", "545i", "550i", "M5"] },
+                    { ch: "F10", eng: ["520d", "528i", "530d", "535i", "550i", "M550d", "M5"] },
+                    { ch: "F90", eng: ["M5", "M5 Competition", "M5 CS"] },
+                    { ch: "G30", eng: ["530d", "540i", "M550i"] },
+                    // 7 Series
+                    { ch: "E38", eng: ["730d", "740i", "750iL"] },
+                    { ch: "G12", eng: ["740d", "750Li", "M760Li"] },
+                    // SUV
+                    { ch: "E53", eng: ["X5 3.0d", "X5 4.4i", "X5 4.8is"] },
+                    { ch: "E70", eng: ["X5 3.0d", "X5 4.8i", "X5M"] },
+                    { ch: "F15", eng: ["X5 40d", "X5 M50d"] },
+                    { ch: "F85", eng: ["X5M"] },
+                    { ch: "G05", eng: ["X5 30d", "X5 40i", "X5 M50d"] },
+                    { ch: "F95", eng: ["X5M Competition"] },
+                    { ch: "G07", eng: ["X7 M50d", "X7 M60i"] }
+                ]
+            },
+            // === MERCEDES (Strict Format: Class+Engine + Chassis) ===
+            {
+                brand: "Mercedes-Benz",
+                configs: [
+                    // C-Class
+                    { ch: "W204", eng: ["C180", "C200", "C250", "C300", "C350", "C63 AMG", "C63 AMG Black Series"] },
+                    { ch: "W205", eng: ["C180", "C200 4Matic", "C43 AMG", "C63 S AMG"] },
+                    // E-Class
+                    { ch: "W211", eng: ["E200 Kompressor", "E320 CDI", "E500", "E55 AMG", "E63 AMG"] },
+                    { ch: "W212", eng: ["E200", "E250 CDI", "E300", "E350", "E400", "E63 AMG", "E63 S AMG"] },
+                    { ch: "W213", eng: ["E200d", "E220d", "E300", "E400d", "E53 AMG", "E63 S AMG"] },
+                    // S-Class & G-Class
+                    { ch: "W140", eng: ["S500", "S600"] },
+                    { ch: "W222", eng: ["S350d", "S500", "S63 AMG", "S65 AMG"] },
+                    { ch: "W223", eng: ["S450", "S580", "S680 Maybach"] },
+                    { ch: "W463", eng: ["G500", "G55 AMG", "G63 AMG"] },
+                    { ch: "W464", eng: ["G63 AMG", "G350d"] }
+                ]
+            },
+            // === AUDI ===
+            {
+                brand: "Audi",
+                configs: [
+                    { ch: "C6", eng: ["A6 3.0 TDI", "S6 V10", "RS6 Avant"] },
+                    { ch: "C7", eng: ["A6 3.0 TFSI", "A7 3.0 TDI", "S7", "RS6 Performance", "RS7"] },
+                    { ch: "C8", eng: ["A6 55 TFSI", "RS6 Avant", "RS7 Sportback"] },
+                    { ch: "8V", eng: ["S3 Sedan", "RS3 Sportback"] },
+                    { ch: "B9", eng: ["A4 2.0 TFSI", "A5 Sportback", "RS4 Avant", "RS5 Coupe"] },
+                    { ch: "4M", eng: ["Q7 3.0 TDI", "Q8 50 TDI", "SQ8", "RS Q8"] }
+                ]
             }
-        });
+        ];
 
-        // --- ЛОГИКА ВЫБОРА ПОДКРУТКИ ---
-        function setCheat(tier) {
-            forcedTier = tier; // Запоминаем выбор
-            adminPanel.style.display = 'none'; // МГНОВЕННО СКРЫВАЕМ ПАНЕЛЬ
-            alert("Готово."); // Маленькое подтверждение
+        const selectedBrand = r(germans);
+        const config = r(selectedBrand.configs);
+        const engine = r(config.eng);
+
+        // Для BMW делаем красиво: BMW M5 F90
+        // Если движок уже содержит название (напр X5M), просто добавляем кузов
+        // Если просто цифры (530d), то: BMW 530d F10
+        return `${selectedBrand.brand} ${engine} ${config.ch}`;
+    }
+
+    // 4. LUXURY / EXOTIC (Список + редкие суффиксы)
+    function genLuxury() {
+        const hypers = [
+            "Ferrari 488 Pista", "Ferrari F8 Tributo", "Ferrari 812 Superfast", "Ferrari SF90 Stradale", "Ferrari LaFerrari", "Ferrari Enzo", "Ferrari F40",
+            "Lamborghini Aventador SVJ", "Lamborghini Huracan Performante", "Lamborghini Urus", "Lamborghini Revuelto", "Lamborghini Murcielago SV", "Lamborghini Diablo VT",
+            "Porsche 911 Turbo S (992)", "Porsche 911 GT3 RS (992)", "Porsche 911 GT2 RS (991)", "Porsche Carrera GT", "Porsche 918 Spyder",
+            "Bugatti Chiron", "Bugatti Chiron Super Sport", "Bugatti Divo", "Bugatti Veyron Super Sport",
+            "McLaren 720S", "McLaren 765LT", "McLaren P1", "McLaren Senna",
+            "Rolls-Royce Phantom", "Rolls-Royce Cullinan", "Rolls-Royce Wraith",
+            "Bentley Continental GT Speed", "Bentley Bentayga",
+            "Koenigsegg Agera RS", "Koenigsegg Jesko",
+            "Pagani Huayra BC"
+        ];
+        return r(hypers);
+    }
+
+    // === ЛОГИКА ===
+    let cheatNext = null;
+    const carNameEl = document.getElementById('carName');
+    const tierLabelEl = document.getElementById('tierLabel');
+    const box = document.getElementById('box');
+    const spinBtn = document.getElementById('spinBtn');
+
+    // Админка
+    let clicks = 0;
+    let timer;
+    carNameEl.addEventListener('click', () => {
+        clicks++;
+        clearTimeout(timer);
+        timer = setTimeout(() => clicks = 0, 500);
+        if (clicks === 10) {
+            clicks = 0;
+            if (prompt("CODE:") === "758") document.getElementById('cheatPanel').style.display = 'block';
         }
+    });
 
-        // --- ЛОГИКА РАНДОМАЙЗЕРА ---
-        const visualPool = [...db.economy, ...db.middle, ...db.premium, ...db.luxury];
+    function activateCheat(tier) {
+        cheatNext = tier;
+        document.getElementById('cheatPanel').style.display = 'none';
+        alert("Next spin: " + tier.toUpperCase());
+    }
 
-        function getWinner() {
-            let selectedTierKey;
+    function spin() {
+        spinBtn.disabled = true;
+        
+        // Сброс стиля
+        box.className = 'output-box'; 
+        carNameEl.style.opacity = 0.5;
+        tierLabelEl.innerText = "SEARCHING DATABASE...";
 
-            if (forcedTier) {
-                // Если есть подкрутка - используем её
-                selectedTierKey = forcedTier;
-                forcedTier = null; // СБРАСЫВАЕМ ПОДКРУТКУ СРАЗУ ПОСЛЕ ИСПОЛЬЗОВАНИЯ
+        let speed = 50;
+        let steps = 0;
+        const maxSteps = 20 + Math.floor(Math.random() * 10);
+
+        function tick() {
+            // Мелькание - берем случайное из всех функций
+            const funcs = [genEconomy, genMiddle, genPremium, genLuxury];
+            carNameEl.innerText = funcs[Math.floor(Math.random()*funcs.length)]();
+            
+            steps++;
+            if (steps < maxSteps) {
+                if(steps > maxSteps - 5) speed += 30; // замедление
+                setTimeout(tick, speed);
             } else {
-                // Иначе честный рандом
-                const tiers = ['economy', 'middle', 'premium', 'luxury'];
-                selectedTierKey = tiers[Math.floor(Math.random() * tiers.length)];
+                finalize();
             }
-            
-            const tierList = db[selectedTierKey];
-            const winnerCar = tierList[Math.floor(Math.random() * tierList.length)];
+        }
+        tick();
+    }
 
-            let displayLabel = "";
-            if(selectedTierKey === 'economy') displayLabel = "🚗 Эконом класс";
-            if(selectedTierKey === 'middle') displayLabel = "🚙 Средний класс";
-            if(selectedTierKey === 'premium') displayLabel = "💎 Премиум";
-            if(selectedTierKey === 'luxury') displayLabel = "👑 ЛЮКС / ЭКСКЛЮЗИВ";
-
-            return { name: winnerCar, tier: selectedTierKey, label: displayLabel };
+    function finalize() {
+        // Определение победителя
+        let tier;
+        if (cheatNext) {
+            tier = cheatNext;
+            cheatNext = null;
+        } else {
+            // 25% шанс
+            const rand = Math.random();
+            if (rand < 0.25) tier = 'economy';
+            else if (rand < 0.50) tier = 'middle';
+            else if (rand < 0.75) tier = 'premium';
+            else tier = 'luxury';
         }
 
-        function startSpin() {
-            if (isSpinning) return;
-            isSpinning = true;
-            spinBtn.disabled = true;
-            spinBtn.innerText = "Ищем...";
-            
-            resultBox.className = 'display-box'; 
-            carTierEl.style.opacity = '0'; 
+        let resultName = "";
+        let label = "";
 
-            let counter = 0;
-            let speed = 40; 
-            let maxSteps = 15 + Math.floor(Math.random() * 10); 
-            
-            const spinInterval = () => {
-                const randomVisual = visualPool[Math.floor(Math.random() * visualPool.length)];
-                carNameEl.innerText = randomVisual;
-
-                counter++;
-
-                if (counter < maxSteps) {
-                    if (counter > maxSteps - 5) speed += 30;
-                    else if (counter > maxSteps - 10) speed += 10;
-                    setTimeout(spinInterval, speed);
-                } else {
-                    finishSpin();
-                }
-            };
-
-            spinInterval();
+        if (tier === 'economy') {
+            resultName = genEconomy();
+            label = "TIER 1: ECONOMY / STOCK";
+            box.classList.add('glow-eco');
+        } else if (tier === 'middle') {
+            resultName = genMiddle();
+            label = "TIER 2: JDM / STANCE / TUNING";
+            box.classList.add('glow-mid');
+        } else if (tier === 'premium') {
+            resultName = genPremium();
+            label = "TIER 3: GERMAN POWER / PREMIUM";
+            box.classList.add('glow-pre');
+        } else {
+            resultName = genLuxury();
+            label = "TIER 4: EXOTIC / HYPERCAR";
+            box.classList.add('glow-lux');
         }
 
-        function finishSpin() {
-            const winData = getWinner();
+        carNameEl.innerText = resultName;
+        carNameEl.style.opacity = 1;
+        tierLabelEl.innerText = label;
+        spinBtn.disabled = false;
+    }
+</script>
 
-            carNameEl.innerText = winData.name;
-            carTierEl.innerText = winData.label;
-            
-            resultBox.className = `display-box tier-${winData.tier}`;
-            carTierEl.style.opacity = '1';
-
-            isSpinning = false;
-            spinBtn.disabled = false;
-            spinBtn.innerText = "Крутить еще";
-        }
-    </script>
 </body>
 </html>
