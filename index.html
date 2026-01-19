@@ -11,15 +11,12 @@
     <style>
         :root {
             --bg: #000000;
-            --glass: rgba(255, 255, 255, 0.08);
-            --glass-border: rgba(255, 255, 255, 0.15);
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-strong: rgba(20, 20, 20, 0.85);
+            --border: rgba(255, 255, 255, 0.1);
             --text: #ffffff;
-            --accent: #3b82f6; /* iOS Blue */
-            --eco: #34d399;
-            --mid: #60a5fa;
-            --pre: #a78bfa;
-            --lux: #fbbf24;
-            --mat: #f43f5e;
+            --text-dim: rgba(255, 255, 255, 0.5);
+            --eco: #34d399; --mid: #60a5fa; --pre: #a78bfa; --lux: #fbbf24; --mat: #f43f5e;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
@@ -30,514 +27,521 @@
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
             color: var(--text);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            user-select: none;
-            transition: background 0.5s ease;
+            user-select: none; transition: background 0.5s ease;
+        }
+        body::before { content:''; position:absolute; inset:0; background: radial-gradient(circle at center, rgba(0,0,0,0.3), #000); z-index:0; pointer-events:none; }
+
+        /* --- UI COMPONENTS --- */
+        .glass {
+            background: var(--glass); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--border); box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
 
-        /* Dark Overlay for readability */
-        body::before { content:''; position:absolute; inset:0; background: radial-gradient(circle at center, rgba(0,0,0,0.2), rgba(0,0,0,0.8)); z-index:0; pointer-events:none; }
-
-        /* --- GLASSMORPHISM COMPONENTS --- */
-        .glass-panel {
-            background: var(--glass);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        .icon-btn {
+            width: 44px; height: 44px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.2s; color: #fff;
         }
+        .icon-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.2); }
+        .icon-btn svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2; fill: none; }
+        .icon-btn.off { opacity: 0.4; } .slash { display: none; } .icon-btn.off .slash { display: block; }
 
-        /* --- TOP BAR --- */
-        .top-bar {
-            position: absolute; top: 20px; right: 20px; z-index: 100;
-            display: flex; gap: 12px;
-        }
+        /* Top Bar */
+        .top-bar { position: absolute; top: 20px; right: 20px; display: flex; gap: 10px; z-index: 100; }
         @supports (padding-top: env(safe-area-inset-top)) { .top-bar { top: calc(20px + env(safe-area-inset-top)); } }
 
-        .circle-btn {
-            width: 44px; height: 44px; border-radius: 50%;
-            background: rgba(20, 20, 20, 0.6);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: #fff; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: 0.2s; backdrop-filter: blur(10px);
-        }
-        .circle-btn:active { transform: scale(0.92); background: rgba(255,255,255,0.2); }
-        .circle-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-        .circle-btn.off { opacity: 0.5; color: #999; }
-        .slash { display: none; } .circle-btn.off .slash { display: block; }
-
-        /* --- MAIN WRAPPER --- */
+        /* Main Wrapper */
         .wrapper {
-            position: relative; z-index: 10; width: 90%; max-width: 400px;
-            display: flex; flex-direction: column; gap: 24px;
+            position: relative; z-index: 10; width: 90%; max-width: 420px;
+            display: flex; flex-direction: column; gap: 20px;
+            transition: 0.5s opacity, 0.5s transform;
         }
+        .wrapper.hidden { opacity: 0; transform: scale(0.95); pointer-events: none; }
 
         .app-title {
-            font-size: 14px; text-transform: uppercase; letter-spacing: 4px;
-            text-align: center; opacity: 0.6; font-weight: 600; margin-bottom: -10px;
+            text-align: center; font-size: 12px; letter-spacing: 4px; text-transform: uppercase;
+            opacity: 0.5; font-weight: 700; margin-bottom: -10px;
         }
 
-        /* --- SLOT MACHINE WINDOW --- */
-        .slot-window {
-            height: 240px; 
-            position: relative; overflow: hidden;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 20px; text-align: center;
+        /* Main Card */
+        .main-card {
+            border-radius: 24px; padding: 30px 20px;
+            display: flex; flex-direction: column; align-items: center; text-align: center;
+            min-height: 220px; justify-content: center;
         }
         
-        /* Gradients to fade top/bottom of scroll */
-        .slot-window::after {
-            content: ''; position: absolute; inset: 0; pointer-events: none;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, transparent 20%, transparent 80%, rgba(0,0,0,0.8) 100%);
-            z-index: 2;
+        .res-tier { font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; opacity: 0.7; }
+        .res-name { font-size: 24px; font-weight: 700; line-height: 1.2; margin-bottom: 5px; }
+        .res-spec { font-size: 16px; font-weight: 400; opacity: 0.6; }
+        .res-tune { font-size: 14px; color: var(--mat); margin-top: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Buttons */
+        .controls { display: grid; grid-template-columns: 1fr auto; gap: 12px; }
+        .btn-spin {
+            background: #fff; color: #000; border: none; border-radius: 18px;
+            height: 64px; font-size: 18px; font-weight: 800; letter-spacing: 1px;
+            cursor: pointer; box-shadow: 0 0 30px rgba(255,255,255,0.1); transition: 0.1s;
         }
-
-        .reel-container {
-            position: absolute; top: 0; left: 0; width: 100%;
-            transform: translateY(0); will-change: transform;
-            /* No transition by default, controlled by JS */
+        .btn-spin:active { transform: scale(0.98); background: #e5e5e5; }
+        
+        .btn-garage-main {
+            width: 64px; height: 64px; border-radius: 18px;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
         }
-
-        .reel-item {
-            height: 240px; /* Same as window height for perfect centering */
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            opacity: 0.4; transform: scale(0.9); transition: 0.3s;
-        }
-        /* The item in the middle gets highlighted */
-        .reel-item.winner { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 15px rgba(255,255,255,0.2)); }
-
-        .car-tier { font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; color: #888; }
-        .car-name { font-size: 26px; font-weight: 700; line-height: 1.1; color: #fff; max-width: 90%; }
-
-        /* TIER COLORS */
-        .t-eco { color: var(--eco); text-shadow: 0 0 20px rgba(52, 211, 153, 0.4); }
-        .t-mid { color: var(--mid); text-shadow: 0 0 20px rgba(96, 165, 250, 0.4); }
-        .t-pre { color: var(--pre); text-shadow: 0 0 20px rgba(167, 139, 250, 0.4); }
-        .t-lux { color: var(--lux); text-shadow: 0 0 25px rgba(251, 191, 36, 0.5); }
-        .t-mat { color: var(--mat); text-shadow: 0 0 30px rgba(244, 63, 94, 0.6); }
-
-        /* --- CONTROLS --- */
-        .controls-row { display: grid; grid-template-columns: 1fr auto; gap: 12px; }
-
-        .btn-main {
-            background: #fff; color: #000; border: none; height: 60px;
-            border-radius: 18px; font-size: 18px; font-weight: 800; letter-spacing: 1px;
-            cursor: pointer; box-shadow: 0 4px 20px rgba(255,255,255,0.15);
-            transition: transform 0.1s, box-shadow 0.1s;
-        }
-        .btn-main:active { transform: scale(0.98); box-shadow: 0 2px 10px rgba(255,255,255,0.1); }
-        .btn-main:disabled { background: #444; color: #888; box-shadow: none; }
-
-        .btn-garage {
-            width: 60px; height: 60px; border-radius: 18px;
-            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1);
-            display: flex; align-items: center; justify-content: center; color: #fff;
-            cursor: pointer; transition: 0.2s;
-        }
-        .btn-garage:active { background: rgba(255,255,255,0.2); transform: scale(0.95); }
 
         .btn-google {
-            background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
-            color: #ccc; height: 50px; width: 100%; border-radius: 16px;
-            font-size: 14px; font-weight: 600; cursor: pointer; display: flex;
-            align-items: center; justify-content: center; gap: 8px; transition: 0.2s;
-            display: none; /* Hidden by default */
+            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1);
+            color: #fff; border-radius: 16px; height: 50px;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s;
+            opacity: 0; pointer-events: none;
         }
-        .btn-google:active { background: rgba(0,0,0,0.5); color: #fff; }
-        .btn-google svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; }
+        .btn-google.visible { opacity: 1; pointer-events: auto; }
+        .btn-google:active { background: rgba(255,255,255,0.15); }
 
-        /* --- MODALS (Menus) --- */
-        .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px);
-            z-index: 2000; opacity: 0; pointer-events: none; transition: 0.3s;
-            display: flex; align-items: flex-end; /* Bottom sheet style */
+        /* --- CINEMATIC OVERLAY (The Gacha) --- */
+        #cinematic {
+            position: fixed; inset: 0; background: #000; z-index: 500;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.5s;
         }
-        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        #cinematic.active { opacity: 1; pointer-events: auto; }
 
+        .cine-container { width: 100%; max-width: 400px; padding: 20px; display: flex; flex-direction: column; gap: 15px; text-align: center; }
+        
+        .cine-row {
+            opacity: 0.2; transform: translateY(10px); transition: 0.3s;
+            display: flex; flex-direction: column; align-items: center; min-height: 40px;
+        }
+        .cine-row.spinning { opacity: 0.7; transform: scale(1.05); }
+        .cine-row.done { opacity: 1; transform: scale(1); text-shadow: 0 0 20px rgba(255,255,255,0.3); }
+        
+        .cine-label { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #666; margin-bottom: 2px; }
+        .cine-val { font-size: 20px; font-weight: 700; text-transform: uppercase; }
+        
+        /* Specific Styles for Rows */
+        #cTier .cine-val { font-size: 24px; letter-spacing: 3px; }
+        #cBrand .cine-val { font-size: 28px; }
+        #cModel .cine-val { font-size: 22px; color: #ccc; }
+        #cSpec .cine-val { font-size: 16px; color: #888; }
+        #cTune .cine-val { font-size: 14px; color: var(--mat); }
+
+        #claimBtn {
+            margin-top: 40px; background: #fff; color: #000; border: none;
+            padding: 20px 50px; font-size: 16px; font-weight: 900; letter-spacing: 1px;
+            border-radius: 50px; cursor: pointer;
+            opacity: 0; transform: translateY(20px); transition: 0.5s;
+        }
+        #claimBtn.show { opacity: 1; transform: translateY(0); box-shadow: 0 0 40px rgba(255,255,255,0.4); }
+
+        /* --- GARAGE MODAL --- */
+        .modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(20px);
+            z-index: 1000; opacity: 0; pointer-events: none; transition: 0.3s;
+            display: flex; flex-direction: column; justify-content: flex-end;
+        }
+        .modal.active { opacity: 1; pointer-events: auto; }
         .modal-content {
-            width: 100%; max-width: 500px; margin: 0 auto;
-            background: #1a1a1a; border-radius: 24px 24px 0 0;
-            padding: 24px; border-top: 1px solid #333;
+            background: #111; border-top: 1px solid #333; border-radius: 24px 24px 0 0;
+            padding: 20px; height: 80vh; display: flex; flex-direction: column;
             transform: translateY(100%); transition: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-            max-height: 80vh; display: flex; flex-direction: column;
         }
-        .modal-overlay.active .modal-content { transform: translateY(0); }
+        .modal.active .modal-content { transform: translateY(0); }
 
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .modal-title { font-size: 18px; font-weight: 800; letter-spacing: 1px; color: #fff; }
-        .modal-close { background: #333; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; }
+        .modal-title { font-size: 16px; font-weight: 800; letter-spacing: 1px; }
+        .modal-close { width: 32px; height: 32px; background: #222; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
-        /* Garage Items */
-        .g-list { overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+        .g-filters { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
+        .g-chip { padding: 8px 16px; background: #222; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; cursor: pointer; border: 1px solid transparent; }
+        .g-chip.active { background: #fff; color: #000; }
+
+        .g-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
         .g-item {
-            background: #252525; padding: 12px 16px; border-radius: 12px;
-            display: flex; justify-content: space-between; align-items: center;
-            border-left: 4px solid #444;
+            background: #1a1a1a; border: 1px solid #333; border-radius: 16px; padding: 15px;
+            display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px;
         }
-        .g-item.eco { border-color: var(--eco); }
-        .g-item.mid { border-color: var(--mid); }
-        .g-item.pre { border-color: var(--pre); }
-        .g-item.lux { border-color: var(--lux); }
-        .g-item.mat { border-color: var(--mat); }
-        .g-name { font-size: 14px; color: #fff; font-weight: 500; }
-        .g-count { font-size: 12px; background: #444; padding: 2px 8px; border-radius: 10px; color: #ccc; }
+        .g-info h3 { margin: 0 0 4px 0; font-size: 14px; font-weight: 600; color: #fff; }
+        .g-info p { margin: 0; font-size: 11px; color: #666; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; }
+        .g-badge { background: #333; color: #fff; font-size: 10px; padding: 4px 8px; border-radius: 8px; font-weight: bold; }
 
-        /* Bg Grid */
-        .bg-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-        .bg-opt { aspect-ratio: 1; border-radius: 12px; border: 2px solid rgba(255,255,255,0.1); cursor: pointer; position: relative; overflow: hidden; }
-        .bg-opt.active { border-color: #fff; }
+        /* COLORS */
+        .c-eco { color: var(--eco); } .c-mid { color: var(--mid); } .c-pre { color: var(--pre); } .c-lux { color: var(--lux); } .c-mat { color: var(--mat); }
 
-        /* Cheat Menu (Center Pop) */
-        #cheatModal { align-items: center; justify-content: center; }
-        #cheatModal .modal-content { width: 80%; border-radius: 24px; transform: scale(0.9); opacity: 0; }
-        #cheatModal.active .modal-content { transform: scale(1); opacity: 1; }
+        /* CHEAT */
+        #cheatMenu { position: absolute; top: 80px; left: 50%; transform: translateX(-50%) scale(0.9); background: #111; border: 1px solid #333; padding: 15px; border-radius: 20px; display: none; opacity: 0; transition: 0.2s; z-index: 2000; }
+        #cheatMenu.active { display: block; opacity: 1; transform: translateX(-50%) scale(1); }
         .cheat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .cheat-btn { padding: 12px; background: #333; border: none; border-radius: 8px; color: #fff; font-weight: bold; cursor: pointer; }
-        
+        .cheat-btn { padding: 10px 20px; border-radius: 8px; border: none; background: #222; color: #fff; font-weight: bold; font-size: 12px; cursor: pointer; }
+
+        /* BG MENU */
+        #bgMenu { display: none; } /* Reusing modal structure for simplicity */
+        .bg-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .bg-item { aspect-ratio: 1; border-radius: 12px; border: 2px solid rgba(255,255,255,0.1); cursor: pointer; position: relative; overflow: hidden; }
+        .bg-item.selected { border-color: #fff; }
     </style>
 </head>
 <body>
 
 <div class="top-bar">
-    <div class="circle-btn" id="bgToggle" onclick="openModal('bgModal')">
-        <svg viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" fill="none" stroke="currentColor"/></svg>
-    </div>
-    <div class="circle-btn" id="vibroToggle" onclick="toggleVibro()">
-        <svg viewBox="0 0 24 24"><rect x="10" y="4" width="4" height="16" rx="2"/><path d="M7 8 L6 8 M7 12 L6 12 M7 16 L6 16 M17 8 L18 8 M17 12 L18 12 M17 16 L18 16"/><line class="slash" x1="3" y1="3" x2="21" y2="21"/></svg>
-    </div>
-    <div class="circle-btn" id="soundToggle" onclick="toggleSound()">
-        <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/><line class="slash" x1="23" y1="9" x2="17" y2="15"/></svg>
-    </div>
+    <div class="icon-btn glass" id="bgToggle" onclick="openModal('bgModal')"><svg viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="icon-btn glass" id="vibroToggle" onclick="toggleVibro()"><svg viewBox="0 0 24 24"><path d="M6 9h12v6H6z" stroke-linecap="round"/><path d="M4 11h2m12 0h2" stroke-linecap="round"/><line class="slash" x1="3" y1="3" x2="21" y2="21"/></svg></div>
+    <div class="icon-btn glass" id="soundToggle" onclick="toggleSound()"><svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z" stroke-linecap="round" stroke-linejoin="round"/><line class="slash" x1="23" y1="9" x2="17" y2="15"/></svg></div>
 </div>
 
-<div class="wrapper">
+<div class="wrapper" id="mainWrapper">
     <div class="app-title">Car Randomizer</div>
     
-    <div class="glass-panel slot-window">
-        <div class="reel-container" id="reel">
-            <div class="reel-item winner">
-                <div class="car-tier">ГОТОВ</div>
-                <div class="car-name">НАЖМИ START</div>
-            </div>
-        </div>
+    <div class="main-card glass" id="resultCard">
+        <div class="res-tier" id="mTier">ГОТОВ К ЗАЕЗДУ</div>
+        <div class="res-name" id="mName">НАЖМИ START</div>
+        <div class="res-spec" id="mSpec">ЧТОБЫ ИСПЫТАТЬ УДАЧУ</div>
+        <div class="res-tune" id="mTune"></div>
     </div>
 
-    <div class="controls-row">
-        <button class="btn-main" id="spinBtn" onclick="spinWheel()">КРУТИТЬ</button>
-        <div class="btn-garage glass-panel" onclick="openGarage()">
+    <div class="controls">
+        <button class="btn-spin" onclick="startCinematic()">КРУТИТЬ</button>
+        <div class="btn-garage-main glass" onclick="openModal('garageModal'); renderGarage()">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         </div>
     </div>
 
-    <button class="btn-google" id="googleBtn" onclick="searchGoogle()">
-        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <div class="btn-google" id="googleBtn" onclick="googleSearch()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         ПОСМОТРЕТЬ ФОТО
-    </button>
-</div>
-
-<div class="modal-overlay" id="bgModal" onclick="if(event.target===this) closeModal('bgModal')">
-    <div class="modal-content">
-        <div class="modal-header">
-            <div class="modal-title">ОФОРМЛЕНИЕ</div>
-            <div class="modal-close" onclick="closeModal('bgModal')">&times;</div>
-        </div>
-        <div style="font-size:12px; color:#666; margin-bottom:8px">ЦВЕТА</div>
-        <div class="bg-grid">
-            <div class="bg-opt" style="background:#000" onclick="setBg('c', '#000')"></div>
-            <div class="bg-opt" style="background:#1a1a1a" onclick="setBg('c', '#1a1a1a')"></div>
-            <div class="bg-opt" style="background:#0f172a" onclick="setBg('c', '#0f172a')"></div>
-            <div class="bg-opt" style="background:#2a0f0f" onclick="setBg('c', '#2a0f0f')"></div>
-        </div>
-        <div style="font-size:12px; color:#666; margin:16px 0 8px">ОБОИ</div>
-        <div class="bg-grid">
-            <div class="bg-opt" style="background:url('mercedes.jpg') center/cover" onclick="setBg('i', 'mercedes.jpg')"></div>
-            <div class="bg-opt" style="background:url('bmw.jpg') center/cover" onclick="setBg('i', 'bmw.jpg')"></div>
-            <div class="bg-opt" style="background:url('porsche.jpg') center/cover" onclick="setBg('i', 'porsche.jpg')"></div>
-        </div>
     </div>
 </div>
 
-<div class="modal-overlay" id="garageModal" onclick="if(event.target===this) closeModal('garageModal')">
+<div id="cinematic">
+    <div class="cine-container">
+        <div class="cine-row" id="cTierRow">
+            <div class="cine-label">КЛАСС</div>
+            <div class="cine-val" id="cTierVal">...</div>
+        </div>
+        <div class="cine-row" id="cBrandRow">
+            <div class="cine-label">МАРКА</div>
+            <div class="cine-val" id="cBrandVal">...</div>
+        </div>
+        <div class="cine-row" id="cModelRow">
+            <div class="cine-label">МОДЕЛЬ</div>
+            <div class="cine-val" id="cModelVal">...</div>
+        </div>
+        <div class="cine-row" id="cSpecRow">
+            <div class="cine-label">СПЕК</div>
+            <div class="cine-val" id="cSpecVal">...</div>
+        </div>
+        <div class="cine-row" id="cTuneRow">
+            <div class="cine-label">ТЮНИНГ</div>
+            <div class="cine-val" id="cTuneVal">...</div>
+        </div>
+
+        <button id="claimBtn" onclick="claimCar()">ЗАБРАТЬ</button>
+    </div>
+</div>
+
+<div class="modal" id="garageModal" onclick="if(event.target===this) closeModal('garageModal')">
     <div class="modal-content">
         <div class="modal-header">
             <div class="modal-title">ГАРАЖ</div>
             <div class="modal-close" onclick="closeModal('garageModal')">&times;</div>
         </div>
-        <div class="g-list" id="garageList">
-            <div style="color:#666; text-align:center; padding:20px">Пока пусто...</div>
+        <div class="g-filters">
+            <div class="g-chip active" onclick="filterGarage('all', this)">ВСЕ</div>
+            <div class="g-chip" onclick="filterGarage('matmall', this)">MAT-MALL</div>
+            <div class="g-chip" onclick="filterGarage('luxury', this)">ЛЮКС</div>
+            <div class="g-chip" onclick="filterGarage('premium', this)">ПРЕМИУМ</div>
         </div>
-        <button class="btn-main" style="margin-top:20px; height:50px; font-size:14px; background:#333; color:#fff" onclick="clearGarage()">ОЧИСТИТЬ ИСТОРИЮ</button>
+        <div class="g-list" id="garageList">
+            </div>
+        <div style="padding-top:10px">
+            <button class="btn-spin" style="height:50px; font-size:14px; background:#333; color:#fff; box-shadow:none" onclick="clearGarage()">ОЧИСТИТЬ</button>
+        </div>
     </div>
 </div>
 
-<div class="modal-overlay" id="cheatModal" onclick="if(event.target===this) closeModal('cheatModal')">
-    <div class="modal-content" style="width:300px; margin:auto; border-radius:24px;">
+<div class="modal" id="bgModal" onclick="if(event.target===this) closeModal('bgModal')">
+    <div class="modal-content" style="height:auto; border-radius: 24px 24px 0 0;">
         <div class="modal-header">
-            <div class="modal-title" style="color:var(--mat)">ADMIN PANEL</div>
+            <div class="modal-title">ОФОРМЛЕНИЕ</div>
+            <div class="modal-close" onclick="closeModal('bgModal')">&times;</div>
         </div>
-        <div class="cheat-grid">
-            <button class="cheat-btn" style="color:var(--eco)" onclick="setCheat('economy')">ECO</button>
-            <button class="cheat-btn" style="color:var(--mid)" onclick="setCheat('middle')">MID</button>
-            <button class="cheat-btn" style="color:var(--pre)" onclick="setCheat('premium')">PREM</button>
-            <button class="cheat-btn" style="color:var(--lux)" onclick="setCheat('luxury')">LUX</button>
-            <button class="cheat-btn" style="color:var(--mat); grid-column:span 2" onclick="setCheat('matmall')">MAT-MALL</button>
+        <div style="font-size:12px; color:#666; margin-bottom:10px">ЦВЕТА</div>
+        <div class="bg-grid" style="margin-bottom:20px">
+            <div class="bg-item" style="background:#000" onclick="setBg('c','#000')"></div>
+            <div class="bg-item" style="background:#1a1a1a" onclick="setBg('c','#1a1a1a')"></div>
+            <div class="bg-item" style="background:#0f172a" onclick="setBg('c','#0f172a')"></div>
         </div>
+        <div style="font-size:12px; color:#666; margin-bottom:10px">ОБОИ</div>
+        <div class="bg-grid">
+            <div class="bg-item" style="background:url('mercedes.jpg') center/cover" onclick="setBg('i','mercedes.jpg')"></div>
+            <div class="bg-item" style="background:url('bmw.jpg') center/cover" onclick="setBg('i','bmw.jpg')"></div>
+            <div class="bg-item" style="background:url('porsche.jpg') center/cover" onclick="setBg('i','porsche.jpg')"></div>
+        </div>
+    </div>
+</div>
+
+<div id="cheatMenu">
+    <div class="cheat-grid">
+        <button class="cheat-btn" style="color:var(--eco)" onclick="setCheat('economy')">ECO</button>
+        <button class="cheat-btn" style="color:var(--mid)" onclick="setCheat('middle')">MID</button>
+        <button class="cheat-btn" style="color:var(--pre)" onclick="setCheat('premium')">PREM</button>
+        <button class="cheat-btn" style="color:var(--lux)" onclick="setCheat('luxury')">LUX</button>
+        <button class="cheat-btn" style="color:var(--mat); grid-column:span 2" onclick="setCheat('matmall')">MAT</button>
     </div>
 </div>
 
 <script>
     // --- STATE ---
-    let sound = true, vibro = true, cheat = null, currentCar = null;
-    let garage = JSON.parse(localStorage.getItem('garage_v18') || '[]');
+    let sound=true, vibro=true, cheat=null, generatedCar=null;
+    let garage = JSON.parse(localStorage.getItem('garage_v19')||'[]');
     let audioCtx = null;
 
     // --- INIT ---
     window.onload = () => {
         if(localStorage.getItem('snd')==='0') toggleSound();
         if(localStorage.getItem('vib')==='0') toggleVibro();
-        const bgt = localStorage.getItem('bgt'), bgv = localStorage.getItem('bgv');
-        if(bgt && bgv) applyBg(bgt, bgv);
-        
+        const bt=localStorage.getItem('bt'), bv=localStorage.getItem('bv');
+        if(bt&&bv) applyBg(bt,bv);
+
         // Secret Trigger
         document.querySelector('.app-title').addEventListener('click', (e) => {
-            if(e.detail === 3) { // Triple click
-                if(prompt("Code:") === "758") openModal('cheatModal');
-            }
+            if(e.detail === 3 && prompt("CODE")==="758") document.getElementById('cheatMenu').classList.add('active');
         });
     };
 
-    // --- AUDIO / VIBRO ---
-    function initAudio() { if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); if(audioCtx.state==='suspended') audioCtx.resume(); }
-    
-    function clickSound() {
-        if(!sound || !audioCtx) return;
-        const o = audioCtx.createOscillator(), g = audioCtx.createGain();
-        o.connect(g); g.connect(audioCtx.destination);
-        o.type = 'sine'; o.frequency.setValueAtTime(800, audioCtx.currentTime);
-        g.gain.setValueAtTime(0.1, audioCtx.currentTime); 
-        g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
-        o.start(); o.stop(audioCtx.currentTime + 0.1);
-    }
-
-    function winSound() {
-        if(!sound || !audioCtx) return;
-        const o = audioCtx.createOscillator(), g = audioCtx.createGain();
-        o.connect(g); g.connect(audioCtx.destination);
-        o.type = 'triangle'; o.frequency.setValueAtTime(400, audioCtx.currentTime);
-        o.frequency.linearRampToValueAtTime(1200, audioCtx.currentTime + 0.3);
-        g.gain.setValueAtTime(0.3, audioCtx.currentTime); 
-        g.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
-        o.start(); o.stop(audioCtx.currentTime + 0.5);
-    }
-
-    function toggleSound() { sound = !sound; document.getElementById('soundToggle').classList.toggle('off', !sound); localStorage.setItem('snd', sound?'1':'0'); if(sound) initAudio(); }
-    function toggleVibro() { vibro = !vibro; document.getElementById('vibroToggle').classList.toggle('off', !vibro); localStorage.setItem('vib', vibro?'1':'0'); }
-    function doVibro(ptrn) { if(vibro && navigator.vibrate) navigator.vibrate(ptrn); }
-
-    // --- UI FUNCS ---
-    function openModal(id) { document.getElementById(id).classList.add('active'); }
-    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-    
-    function setBg(t, v) { applyBg(t, v); localStorage.setItem('bgt', t); localStorage.setItem('bgv', v); closeModal('bgModal'); }
-    function applyBg(t, v) { 
-        if(t==='c') document.body.style.background = v;
-        else document.body.style.background = `url('${v}') center/cover fixed`;
-    }
-
-    function setCheat(val) { cheat = val; closeModal('cheatModal'); doVibro(50); }
-
-    // --- DATA ---
-    const r = (a) => a[Math.floor(Math.random() * a.length)];
+    // --- UTILS ---
+    const el = (id) => document.getElementById(id);
+    const r = (a) => a[Math.floor(Math.random()*a.length)];
     const chance = (p) => Math.random() < p;
-    function getTune(t) {
-        if(!chance(0.2)) return ""; // 80% stock
-        const tunes = {
-            'bmw': ['Manhart', 'G-Power', 'Alpina', 'Hamann', 'Stage 2', 'Competition'],
-            'merc': ['Brabus', 'Mansory', 'Renntech', 'Lorinser', 'Rocket 900'],
-            'jdm': ['HKS', 'VeilSide', 'Liberty Walk', 'Rocket Bunny', 'Drift Spec'],
-            'lada': ['Stinger', 'Stage 2', 'Turbo Kit', 'Pneuma', 'Bunker'],
-            'china': ['Black Edition', 'Sport Package', 'Chip Tuning', 'Offroad Kit']
+    function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    // --- AUDIO/VIBRO ---
+    function initAudio() { if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); if(audioCtx.state==='suspended') audioCtx.resume(); }
+    function beep(f=800,t=0.05) {
+        if(!sound||!audioCtx)return; const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+        o.connect(g);g.connect(audioCtx.destination);o.type='sine';o.frequency.value=f;
+        g.gain.setValueAtTime(0.1,audioCtx.currentTime);g.gain.linearRampToValueAtTime(0,audioCtx.currentTime+t);
+        o.start();o.stop(audioCtx.currentTime+t);
+    }
+    function vib(p) { if(vibro&&navigator.vibrate) navigator.vibrate(p); }
+    function toggleSound() { sound=!sound; el('soundToggle').classList.toggle('off',!sound); localStorage.setItem('snd',sound?'1':'0'); if(sound)initAudio(); }
+    function toggleVibro() { vibro=!vibro; el('vibroToggle').classList.toggle('off',!vibro); localStorage.setItem('vib',vibro?'1':'0'); }
+
+    // --- UI ---
+    function openModal(id) { el(id).classList.add('active'); }
+    function closeModal(id) { el(id).classList.remove('active'); }
+    function setCheat(v) { cheat=v; document.getElementById('cheatMenu').classList.remove('active'); vib(50); }
+    function setBg(t,v) { applyBg(t,v); localStorage.setItem('bt',t); localStorage.setItem('bv',v); closeModal('bgModal'); }
+    function applyBg(t,v) { document.body.style.background = t==='c' ? v : `url('${v}') center/cover fixed`; }
+
+    // --- CAR DATA (CONSTRUCTOR) ---
+    function getTune(type) {
+        if(!chance(0.2)) return null; // 80% stock
+        const t = {
+            'bmw': ['Manhart','G-Power','Alpina','Hamann','Stage 2'],
+            'merc': ['Brabus','Mansory','Renntech','Rocket 900'],
+            'jdm': ['HKS','VeilSide','Liberty Walk','Rocket Bunny'],
+            'lada': ['Stinger','Turbo Kit','Pneuma','Opera Style'],
+            'china': ['Black Edition','Chip Tuning','Offroad Kit'],
+            'super': ['Mansory','Novitec','Underground Racing']
         };
-        const list = tunes[t] || ['Tuned', 'Stage 1'];
-        return ` (${r(list)})`;
+        return r(t[type] || ['Stage 1','Custom']);
     }
 
-    function generate(tier) {
-        // Massive constructors
-        if(tier === 'economy') {
-            const brands = [
-                () => `Lada ${r(['Vesta NG','Priora','Granta FL','2114','Niva Legend'])} ${r(['Sport','Cross','Luxe'])}` + getTune('lada'),
-                () => `VW ${r(['Polo','Golf 6','Jetta'])} ${r(['1.6','1.4 TSI'])}`,
-                () => `Skoda ${r(['Rapid','Octavia A7','Fabia'])} ${r(['1.6','1.4 TSI','Monte Carlo'])}`,
-                () => `Hyundai ${r(['Solaris','Elantra','Creta'])} ${r(['1.6','2.0'])}`,
-                () => `Kia ${r(['Rio 4','Ceed','Cerato'])} ${r(['1.6','2.0 GT-Line'])}`,
-                () => `Toyota ${r(['Corolla 150','Carina E'])} ${r(['1.6','1.8'])}`,
-                () => `Honda ${r(['Civic 4D','Fit'])} ${r(['1.8','VTEC'])}`,
-                () => `Haval ${r(['Jolion','M6'])} ${r(['Premium','Elite'])}`,
-                () => `Chery ${r(['Tiggo 4 Pro','Arrizo 8'])}`
+    function generateData() {
+        let t = cheat || (()=>{const x=Math.random();return x<0.01?'matmall':x<0.26?'economy':x<0.51?'middle':x<0.76?'premium':'luxury'})();
+        cheat = null;
+        
+        let res = { tier: '', tierName:'', brand:'', model:'', spec:'', tune: null, css:'' };
+
+        if(t==='economy') {
+            res.tier='economy'; res.tierName='ЭКОНОМ'; res.css='c-eco';
+            const cars = [
+                {b:'Lada', m:'Vesta NG', s:r(['Sport','Cross','SW'])}, {b:'Lada', m:'Priora', s:'Hatchback'},
+                {b:'Volkswagen', m:'Polo', s:r(['1.6','1.4 TSI'])}, {b:'Skoda', m:'Rapid', s:'Monte Carlo'},
+                {b:'Hyundai', m:'Solaris', s:'1.6 AT'}, {b:'Kia', m:'Rio 4', s:'GT-Line'},
+                {b:'Toyota', m:'Corolla', s:'150'}, {b:'Haval', m:'Jolion', s:'Premium'},
+                {b:'Geely', m:'Emgrand', s:'Comfort'}
             ];
-            return { name: r(brands)(), label: 'ЭКОНОМ', cls: 't-eco', id: 'eco' };
-        }
-        if(tier === 'middle') {
-            const brands = [
-                () => `Toyota ${r(['Mark II JZX90','Chaser JZX100','Cresta'])} ${r(['Tourer V','Grande'])}` + getTune('jdm'),
-                () => `Toyota Camry ${r(['XV50','XV70'])} 3.5 V6`,
-                () => `Nissan ${r(['Silvia S15','Skyline R34'])} ${r(['Spec-R','GTS-T'])}` + getTune('jdm'),
-                () => `Subaru Impreza WRX STI ${r(['GC8','GDB','GRB'])}` + getTune('jdm'),
-                () => `Honda Accord ${r(['CL7 Euro-R','CU2 Type-S'])}`,
-                () => `Geely ${r(['Monjaro','Tugella','Coolray'])} ${r(['Flagship','Sport'])}` + getTune('china'),
-                () => `Tank 300 ${r(['City','Offroad'])}`,
-                () => `Kia K5 GT-Line`
+            const c = r(cars); res.brand=c.b; res.model=c.m; res.spec=c.s; res.tune=getTune('lada'); // Simplified tune logic
+        } else if(t==='middle') {
+            res.tier='middle'; res.tierName='СРЕДНИЙ / JDM'; res.css='c-mid';
+            const cars = [
+                {b:'Toyota', m:'Mark II', s:'JZX100 Tourer V'}, {b:'Toyota', m:'Camry', s:'XV70 3.5 V6'},
+                {b:'Nissan', m:'Silvia', s:'S15 Spec-R'}, {b:'Subaru', m:'Impreza', s:'WRX STI GC8'},
+                {b:'Honda', m:'Accord', s:'CL7 Euro-R'}, {b:'Geely', m:'Monjaro', s:'Flagship'},
+                {b:'Tank', m:'300', s:'City Premium'}, {b:'Kia', m:'K5', s:'GT-Line'}
             ];
-            return { name: r(brands)(), label: 'СРЕДНИЙ / JDM', cls: 't-mid', id: 'mid' };
-        }
-        if(tier === 'premium') {
-            const brands = [
-                () => `BMW M5 ${r(['F90','E60','F10'])} ${r(['Competition','CS'])}` + getTune('bmw'),
-                () => `BMW X5M ${r(['F85','F95'])} Competition`,
-                () => `Mercedes E63 S AMG ${r(['W213','W212'])}` + getTune('merc'),
-                () => `Mercedes G63 AMG ${r(['W463','W464'])}` + getTune('merc'),
-                () => `Audi RS6 Avant ${r(['C7','C8'])}`,
-                () => `Zeekr ${r(['001','007','009'])} ${r(['YOU','FR','Performance'])}`,
-                () => `Li Auto L9 Ultra`,
-                () => `Tank 700 Hi4-T`,
-                () => `Porsche Cayenne ${r(['Turbo','GTS'])}`
+            const c = r(cars); res.brand=c.b; res.model=c.m; res.spec=c.s; res.tune=getTune('jdm');
+        } else if(t==='premium') {
+            res.tier='premium'; res.tierName='ПРЕМИУМ'; res.css='c-pre';
+            const cars = [
+                {b:'BMW', m:'M5', s:'F90 Competition'}, {b:'BMW', m:'X5M', s:'Competition'},
+                {b:'Mercedes', m:'E63 S', s:'AMG W213'}, {b:'Mercedes', m:'G63', s:'AMG W463'},
+                {b:'Audi', m:'RS6', s:'Avant C8'}, {b:'Zeekr', m:'001', s:'FR Performance'},
+                {b:'Li Auto', m:'L9', s:'Ultra'}, {b:'Porsche', m:'Cayenne', s:'Turbo'}
             ];
-            return { name: r(brands)(), label: 'ПРЕМИУМ', cls: 't-pre', id: 'pre' };
-        }
-        if(tier === 'luxury') {
-            const brands = [
-                () => `Ferrari ${r(['488 Pista','F8 Tributo','SF90'])}`,
-                () => `Lamborghini ${r(['Urus','Aventador SVJ','Huracan STO'])}`,
-                () => `Porsche 911 Turbo S (992)`,
-                () => `Rolls-Royce Cullinan Black Badge`,
-                () => `Bugatti Chiron Super Sport`,
-                () => `McLaren 765LT`,
-                () => `YangWang U9 Ultimate`
+            const c = r(cars); res.brand=c.b; res.model=c.m; res.spec=c.s; res.tune=getTune('bmw');
+        } else if(t==='luxury') {
+            res.tier='luxury'; res.tierName='ЛЮКС'; res.css='c-lux';
+            const cars = [
+                {b:'Ferrari', m:'SF90', s:'Stradale'}, {b:'Lamborghini', m:'Urus', s:'Performante'},
+                {b:'Porsche', m:'911', s:'Turbo S (992)'}, {b:'Rolls-Royce', m:'Cullinan', s:'Black Badge'},
+                {b:'Bugatti', m:'Chiron', s:'Super Sport'}, {b:'McLaren', m:'765LT', s:'Coupe'}
             ];
-            return { name: r(brands)(), label: 'ЛЮКС / ЭКЗОТИКА', cls: 't-lux', id: 'lux' };
+            const c = r(cars); res.brand=c.b; res.model=c.m; res.spec=c.s; res.tune=getTune('super');
+        } else {
+            res.tier='matmall'; res.tierName='MAT-MALL'; res.css='c-mat';
+            res.brand='Porsche'; res.model='Cayenne Coupe'; res.spec='Turbo GT'; res.tune='Mat-Mall Edition';
         }
-        if(tier === 'matmall') {
-            return { name: 'Porsche Cayenne Coupe Turbo GT (Mat-Mall Edition)', label: 'MAT-MALL', cls: 't-mat', id: 'mat' };
-        }
+        return res;
     }
 
-    // --- SPIN LOGIC (THE SLOT MACHINE) ---
-    const reel = document.getElementById('reel');
-    const spinBtn = document.getElementById('spinBtn');
-    const googleBtn = document.getElementById('googleBtn');
-
-    function spinWheel() {
-        if(spinBtn.disabled) return;
-        spinBtn.disabled = true;
-        googleBtn.style.display = 'none';
+    // --- ANIMATION SEQUENCE ---
+    async function startCinematic() {
         initAudio();
-
-        // 1. Determine Winner
-        let tierId;
-        if(cheat) { tierId = cheat; cheat = null; }
-        else {
-            const x = Math.random();
-            if(x < 0.01) tierId = 'matmall';
-            else if(x < 0.26) tierId = 'economy';
-            else if(x < 0.51) tierId = 'middle';
-            else if(x < 0.76) tierId = 'premium';
-            else tierId = 'luxury';
-        }
+        generatedCar = generateData();
         
-        currentCar = generate(tierId);
-
-        // 2. Build Reel Strip (Current + 30 randoms + Winner)
-        // Note: Slot height is 240px. 
-        reel.style.transition = 'none';
-        reel.style.transform = 'translateY(0)';
+        // UI Reset
+        el('mainWrapper').classList.add('hidden');
+        el('cinematic').classList.add('active');
+        el('claimBtn').classList.remove('show');
+        el('googleBtn').classList.remove('visible');
         
-        let html = '';
-        // Add random filler items
-        for(let i=0; i<30; i++) {
-            const randTier = r(['economy','middle','premium','luxury']);
-            const filler = generate(randTier);
-            html += `<div class="reel-item"><div class="car-tier ${filler.cls}">${filler.label}</div><div class="car-name">${filler.name}</div></div>`;
-        }
-        // Add Winner at the end
-        html += `<div class="reel-item winner"><div class="car-tier ${currentCar.cls}">${currentCar.label}</div><div class="car-name">${currentCar.name}</div></div>`;
-        
-        reel.innerHTML = html;
+        const rows = ['cTier','cBrand','cModel','cSpec','cTune'];
+        rows.forEach(id => {
+            const row = el(id+'Row');
+            const val = el(id+'Val');
+            row.className = 'cine-row'; // reset classes
+            val.innerText = '...';
+            val.className = 'cine-val'; // reset color
+        });
 
-        // 3. Animate
-        // Force reflow
-        reel.offsetHeight; 
+        // SEQUENCE
+        // 1. TIER
+        await spinSlot('cTier', generatedCar.tierName, generatedCar.css);
         
-        // Calculate target Y (30 items * 240px)
-        const targetY = -(30 * 240);
+        // 2. BRAND
+        await spinSlot('cBrand', generatedCar.brand);
         
-        // CSS Transition for the spin
-        reel.style.transition = 'transform 3.5s cubic-bezier(0.15, 0.9, 0.3, 1)';
-        reel.style.transform = `translateY(${targetY}px)`;
+        // 3. MODEL
+        await spinSlot('cModel', generatedCar.model);
+        
+        // 4. SPEC
+        await spinSlot('cSpec', generatedCar.spec);
+        
+        // 5. TUNE
+        let tuneTxt = generatedCar.tune ? generatedCar.tune : "STOCK";
+        await spinSlot('cTune', tuneTxt);
+        
+        if(!generatedCar.tune) el('cTuneRow').style.opacity = 0.3; // Dim if stock
+        else el('cTuneRow').classList.add('spinning'); // Pulse if tuned
 
-        // Sound effects during spin (simulated ticking)
-        let tickCount = 0;
-        const tickInterval = setInterval(() => {
-            tickCount++;
-            if(tickCount > 20) clearInterval(tickInterval); // Stop ticking near end
-            clickSound();
-        }, 150);
-
-        // 4. Finish
-        setTimeout(() => {
-            doVibro([50, 50, 100]);
-            winSound();
-            spinBtn.disabled = false;
-            googleBtn.style.display = 'flex';
-            addToGarage(currentCar);
-        }, 3500); // slightly less than transition to sync impact
+        // Show Claim
+        await wait(200);
+        el('claimBtn').classList.add('show');
+        vib([50,50,100]);
     }
 
-    function searchGoogle() {
-        if(currentCar) window.open(`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(currentCar.name)}`, '_blank');
-    }
-
-    // --- GARAGE LOGIC ---
-    function addToGarage(car) {
-        // Check for duplicate
-        const existing = garage.find(c => c.name === car.name);
-        if(existing) {
-            existing.count = (existing.count || 1) + 1;
-            existing.ts = Date.now(); // update time
-        } else {
-            garage.unshift({ ...car, count: 1, ts: Date.now() });
+    async function spinSlot(id, target, colorClass=null) {
+        const row = el(id+'Row');
+        const val = el(id+'Val');
+        const pool = ["LOADING", "SEARCHING", "...", "SCANNING", "TARGET"];
+        
+        row.classList.add('spinning');
+        
+        // Spin effect
+        for(let i=0; i<10; i++) {
+            val.innerText = r(pool);
+            beep(800, 0.03);
+            await wait(60 + (i*10));
         }
-        localStorage.setItem('garage_v18', JSON.stringify(garage));
+        
+        val.innerText = target;
+        row.classList.remove('spinning');
+        row.classList.add('done');
+        if(colorClass) val.classList.add(colorClass);
+        beep(400, 0.2); vib(30);
+        await wait(300); // pause between steps
     }
 
-    function openGarage() {
-        const list = document.getElementById('garageList');
+    // --- CLAIM & GARAGE ---
+    function claimCar() {
+        el('cinematic').classList.remove('active');
+        el('mainWrapper').classList.remove('hidden');
+        
+        // Update Main Card
+        el('mTier').innerText = generatedCar.tierName;
+        el('mTier').className = "res-tier " + generatedCar.css;
+        el('mName').innerText = `${generatedCar.brand} ${generatedCar.model}`;
+        el('mSpec').innerText = generatedCar.spec;
+        el('mTune').innerText = generatedCar.tune ? `+ ${generatedCar.tune}` : "";
+        el('googleBtn').classList.add('visible');
+
+        // Save
+        const fullName = `${generatedCar.brand} ${generatedCar.model} ${generatedCar.spec}`;
+        const existing = garage.find(c => c.n === fullName && c.t === generatedCar.tune);
+        if(existing) existing.c++;
+        else garage.unshift({
+            n: fullName,
+            tier: generatedCar.tier,
+            tn: generatedCar.tierName,
+            s: generatedCar.spec,
+            t: generatedCar.tune,
+            css: generatedCar.css,
+            c: 1,
+            ts: Date.now()
+        });
+        localStorage.setItem('garage_v19', JSON.stringify(garage));
+    }
+
+    function renderGarage(filter='all') {
+        const list = el('garageList');
         list.innerHTML = '';
-        if(garage.length === 0) {
-            list.innerHTML = '<div style="color:#666; text-align:center; padding:20px">Гараж пуст. Крути рулетку!</div>';
-        } else {
-            garage.forEach(c => {
-                let badge = c.count > 1 ? `<div class="g-count">×${c.count}</div>` : '';
-                list.innerHTML += `
-                    <div class="g-item ${c.id}">
-                        <div>
-                            <div style="font-size:10px; color:#888; font-weight:700">${c.label}</div>
-                            <div class="g-name">${c.name}</div>
-                        </div>
-                        ${badge}
+        
+        // Filter & Sort
+        let items = garage.filter(i => filter==='all' || i.tier===filter);
+        items.sort((a,b) => b.ts - a.ts); // Recent first
+
+        if(items.length === 0) list.innerHTML = `<div style="color:#666;text-align:center;padding:20px">ПУСТО</div>`;
+
+        items.forEach(c => {
+            const tuneHtml = c.t ? `<span style="color:var(--mat)"> ${c.t}</span>` : '';
+            const countHtml = c.c > 1 ? `<div class="g-badge">x${c.c}</div>` : '';
+            list.innerHTML += `
+                <div class="g-item ${c.tier.substr(0,3)}">
+                    <div class="g-info">
+                        <p class="${c.css}">${c.tn}</p>
+                        <h3>${c.n}${tuneHtml}</h3>
                     </div>
-                `;
-            });
-        }
-        openModal('garageModal');
+                    ${countHtml}
+                </div>
+            `;
+        });
+        
+        // Update filter chips
+        document.querySelectorAll('.g-chip').forEach(b => b.classList.remove('active'));
+        // (Simple UI toggle logic for chips omitted for brevity, assumes default 'all')
+    }
+
+    function filterGarage(f, btn) {
+        document.querySelectorAll('.g-chip').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderGarage(f);
     }
 
     function clearGarage() {
-        if(confirm('Удалить все машины?')) {
+        if(confirm('Очистить историю?')) {
             garage = [];
-            localStorage.removeItem('garage_v18');
-            openGarage();
+            localStorage.setItem('garage_v19', '[]');
+            renderGarage();
         }
+    }
+
+    function googleSearch() {
+        if(!generatedCar) return;
+        const q = `${generatedCar.brand} ${generatedCar.model} ${generatedCar.spec} ${generatedCar.tune||''}`;
+        window.open(`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(q)}`, '_blank');
     }
 </script>
 </body>
