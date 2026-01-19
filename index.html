@@ -11,11 +11,11 @@
     <style>
         :root {
             --bg: #050505;
-            --glass: rgba(255, 255, 255, 0.03);
-            --border: rgba(255, 255, 255, 0.08);
+            --glass: rgba(30, 30, 30, 0.9);
+            --border: rgba(255, 255, 255, 0.15);
             --text: #ffffff;
             --eco: #34d399; --mid: #60a5fa; --pre: #a78bfa; --lux: #fbbf24; --mat: #f43f5e;
-            --card-h: 140px; /* Высота одной карточки */
+            --item-h: 120px; /* Высота одной ячейки */
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
@@ -26,229 +26,178 @@
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
             color: var(--text);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            user-select: none; transition: background 0.5s ease;
+            user-select: none;
         }
-        body::before { content:''; position:absolute; inset:0; background: radial-gradient(circle at center, rgba(0,0,0,0.4), #000 90%); z-index:0; pointer-events:none; }
+        body::before { content:''; position:absolute; inset:0; background: radial-gradient(circle at center, rgba(0,0,0,0.5), #000 90%); z-index:0; pointer-events:none; }
 
-        /* --- UI COMPONENTS --- */
-        .glass {
-            background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border); box-shadow: 0 4px 24px rgba(0,0,0,0.5);
-        }
-
-        .icon-btn {
-            width: 44px; height: 44px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: 0.2s; color: #fff;
-        }
-        .icon-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.15); }
-        .icon-btn svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2; fill: none; }
+        /* --- UI --- */
+        .icon-btn { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); transition: 0.2s; }
+        .icon-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.2); }
+        .icon-btn svg { width: 22px; height: 22px; stroke: currentColor; stroke-width: 2; fill: none; }
         .icon-btn.off { opacity: 0.4; } .slash { display: none; } .icon-btn.off .slash { display: block; }
 
         .top-bar { position: absolute; top: 20px; right: 20px; display: flex; gap: 10px; z-index: 100; }
         @supports (padding-top: env(safe-area-inset-top)) { .top-bar { top: calc(20px + env(safe-area-inset-top)); } }
 
-        /* --- SLOT MACHINE (THE CORE) --- */
-        .slot-container {
-            width: 100%; max-width: 400px;
-            height: 220px; /* Видимая зона */
-            position: relative;
-            overflow: hidden; /* Обрезает все, что за пределами */
-            margin-bottom: 20px;
-            border-radius: 24px;
-            border: 1px solid var(--border);
-            background: rgba(10,10,10,0.8);
-            box-shadow: inset 0 0 50px #000;
-            z-index: 10;
-        }
+        .wrapper { width: 90%; max-width: 450px; display: flex; flex-direction: column; align-items: center; z-index: 10; gap: 20px; }
+        .app-title { font-size: 12px; letter-spacing: 4px; opacity: 0.5; font-weight: 700; text-transform: uppercase; }
 
-        /* Центральная линия (Указатель) */
-        .slot-line {
-            position: absolute; top: 50%; left: 0; width: 100%; height: 2px;
-            background: linear-gradient(90deg, transparent, #fff, transparent);
-            transform: translateY(-1px); z-index: 20; opacity: 0.3;
-            box-shadow: 0 0 10px #fff;
-        }
-        .slot-overlay-top, .slot-overlay-bot {
-            position: absolute; left: 0; width: 100%; height: 30%; z-index: 15; pointer-events: none;
-        }
-        .slot-overlay-top { top: 0; background: linear-gradient(to bottom, #000, transparent); }
-        .slot-overlay-bot { bottom: 0; background: linear-gradient(to top, #000, transparent); }
-
-        /* Лента с машинами */
-        .slot-track {
-            position: absolute; top: 50%; left: 0; width: 100%;
-            /* Стартовая позиция (центр трека выровнен по центру контейнера) */
-            transform: translateY(-50%); 
-            will-change: transform, filter; /* Оптимизация для GPU */
-        }
-
-        /* Карточка машины в рулетке */
-        .slot-card {
-            height: var(--card-h);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            opacity: 0.4; transform: scale(0.9); transition: 0.3s;
-            padding: 0 10px; text-align: center;
-        }
-        /* Когда карточка побеждает */
-        .slot-card.winner {
-            opacity: 1; transform: scale(1.05); filter: drop-shadow(0 0 20px rgba(255,255,255,0.2));
+        /* --- THE WHEEL (DRUM) --- */
+        .wheel-frame {
+            width: 100%; height: 240px; /* 2 items visible approx */
+            background: #111; border: 4px solid #333; border-radius: 20px;
+            position: relative; overflow: hidden;
+            box-shadow: inset 0 0 50px #000, 0 10px 40px rgba(0,0,0,0.5);
         }
         
-        .sc-tier { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
-        .sc-brand { font-size: 20px; font-weight: 800; line-height: 1; text-transform: uppercase; color: #fff; }
-        .sc-model { font-size: 14px; font-weight: 500; color: #ccc; margin-top: 2px; }
-        .sc-tune { font-size: 11px; font-weight: 700; color: var(--mat); margin-top: 4px; letter-spacing: 1px; }
+        /* The Pointer (Arrow) */
+        .pointer-container {
+            position: absolute; top: 50%; left: -10px; transform: translateY(-50%);
+            z-index: 50; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.5));
+        }
+        .pointer {
+            width: 0; height: 0;
+            border-top: 15px solid transparent;
+            border-bottom: 15px solid transparent;
+            border-left: 30px solid var(--mat); /* Red Arrow */
+            transform-origin: left center;
+            transition: transform 0.05s; /* Super fast recoil */
+        }
+        .pointer.tick { transform: rotate(-25deg) scale(1.1); }
 
-        /* Motion Blur Class (JS добавляет во время спина) */
-        .blur-fx { filter: blur(3px); }
+        /* Center Highlight Line */
+        .center-line {
+            position: absolute; top: 50%; left: 0; width: 100%; height: 4px;
+            background: rgba(255, 255, 255, 0.1); transform: translateY(-50%);
+            pointer-events: none; z-index: 5;
+            box-shadow: 0 0 10px rgba(255,255,255,0.2);
+        }
+
+        /* The Moving Tape */
+        .wheel-tape {
+            width: 100%;
+            /* No transition by default, managed by JS/CSS when spinning */
+            will-change: transform;
+        }
+
+        /* Wheel Item (The Division) */
+        .w-item {
+            height: var(--item-h);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            background: linear-gradient(to bottom, #1a1a1a, #111);
+            position: relative; padding: 0 15px; text-align: center;
+        }
+        .w-item::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 1px; background: rgba(255,255,255,0.05); }
+        
+        /* Item Text - NO BLUR */
+        .w-tier { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; color: #666; }
+        .w-name { font-size: 18px; font-weight: 800; text-transform: uppercase; color: #eee; line-height: 1.1; }
+        .w-tune { font-size: 11px; font-weight: 700; color: var(--mat); margin-top: 4px; }
+
+        /* Winner Highlight */
+        .w-item.winner {
+            background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+            box-shadow: inset 0 0 20px rgba(255,255,255,0.1);
+        }
+        .w-item.winner .w-name { color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.5); transform: scale(1.05); transition: 0.3s; }
 
         /* --- CONTROLS --- */
-        .wrapper { width: 90%; max-width: 420px; display: flex; flex-direction: column; align-items: center; z-index: 10; }
-        .app-title { font-size: 12px; letter-spacing: 4px; opacity: 0.5; font-weight: 700; margin-bottom: 20px; text-transform: uppercase; }
-
         .controls { width: 100%; display: grid; grid-template-columns: 1fr auto; gap: 12px; }
         .btn-spin {
-            background: #fff; color: #000; border: none; border-radius: 18px; height: 64px;
-            font-size: 18px; font-weight: 800; letter-spacing: 1px; cursor: pointer;
-            box-shadow: 0 0 30px rgba(255,255,255,0.1); transition: 0.1s;
+            background: #fff; color: #000; border: none; border-radius: 16px; height: 60px;
+            font-size: 18px; font-weight: 900; letter-spacing: 1px; cursor: pointer;
+            box-shadow: 0 4px 20px rgba(255,255,255,0.15); transition: 0.1s;
         }
         .btn-spin:active { transform: scale(0.98); background: #ddd; }
-        .btn-spin:disabled { background: #333; color: #666; box-shadow: none; cursor: default; }
+        .btn-spin:disabled { background: #333; color: #555; box-shadow: none; }
 
         .btn-garage {
-            width: 64px; height: 64px; border-radius: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer;
+            width: 60px; height: 60px; border-radius: 16px; background: rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* Кнопка "Забрать" и "Фото" */
-        .action-area { width: 100%; margin-top: 15px; height: 60px; position: relative; }
+        .action-area { width: 100%; height: 50px; position: relative; margin-top: 10px; }
+        .btn-act {
+            position: absolute; inset: 0; border-radius: 14px; border: none;
+            font-weight: 800; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            text-transform: uppercase; transition: 0.3s;
+        }
+        #claimBtn { background: var(--eco); color: #000; opacity: 0; pointer-events: none; transform: translateY(10px); z-index: 2; box-shadow: 0 0 20px rgba(52, 211, 153, 0.3); }
+        #claimBtn.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
         
-        .btn-action {
-            position: absolute; inset: 0; border-radius: 16px; font-weight: 700; font-size: 14px;
-            display: flex; align-items: center; justify-content: center; cursor: pointer;
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-transform: uppercase;
-            border: none;
-        }
+        #googleBtn { background: rgba(255,255,255,0.1); color: #ccc; z-index: 1; border: 1px solid rgba(255,255,255,0.1); opacity: 0; }
+        #googleBtn.visible { opacity: 1; }
+        #googleBtn svg { width: 18px; height: 18px; margin-right: 8px; }
 
-        #claimBtn {
-            background: var(--eco); color: #000; z-index: 2;
-            transform: scale(0.9); opacity: 0; pointer-events: none;
-            box-shadow: 0 0 20px rgba(52, 211, 153, 0.4);
-        }
-        #claimBtn.active { transform: scale(1); opacity: 1; pointer-events: auto; }
-
-        #googleBtn {
-            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); color: #fff; z-index: 1;
-            opacity: 0; transform: translateY(10px);
-        }
-        #googleBtn.active { opacity: 1; transform: translateY(0); }
-        #googleBtn svg { width: 18px; height: 18px; margin-right: 8px; stroke: currentColor; fill: none; stroke-width: 2; }
+        /* COLORS */
+        .c-eco { color: var(--eco) !important; } .c-mid { color: var(--mid) !important; } 
+        .c-pre { color: var(--pre) !important; } .c-lux { color: var(--lux) !important; } .c-mat { color: var(--mat) !important; }
 
         /* --- MODALS --- */
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 2000; opacity: 0; pointer-events: none; transition: 0.3s; display: flex; flex-direction: column; justify-content: flex-end; }
         .modal.active { opacity: 1; pointer-events: auto; }
-        .modal-content { background: #111; border-top: 1px solid #333; border-radius: 24px 24px 0 0; padding: 20px; height: 85vh; display: flex; flex-direction: column; transform: translateY(100%); transition: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .modal-content { background: #111; border-top: 1px solid #333; border-radius: 24px 24px 0 0; padding: 20px; height: 80vh; display: flex; flex-direction: column; transform: translateY(100%); transition: 0.3s; }
         .modal.active .modal-content { transform: translateY(0); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .modal-close { font-size: 24px; cursor: pointer; color: #666; }
-
-        /* Garage List */
-        .g-filters { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; -ms-overflow-style: none; scrollbar-width: none; }
-        .g-filters::-webkit-scrollbar { display: none; }
-        .g-chip { padding: 8px 16px; background: #222; border-radius: 20px; font-size: 11px; font-weight: 700; color: #888; border: 1px solid transparent; white-space: nowrap; transition: 0.2s; }
-        .g-chip.active { background: #fff; color: #000; }
-
-        .g-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .g-item { background: #181818; border: 1px solid #333; border-radius: 16px; padding: 15px; display: grid; grid-template-columns: 1fr auto; align-items: center; border-left: 4px solid #444; }
-        .g-item.eco { border-color: var(--eco); } .g-item.mid { border-color: var(--mid); } .g-item.pre { border-color: var(--pre); } .g-item.lux { border-color: var(--lux); } .g-item.mat { border-color: var(--mat); }
-        .g-badge { background: #333; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; color: #fff; }
-
-        /* COLORS */
-        .c-eco { color: var(--eco); text-shadow: 0 0 15px rgba(52, 211, 153, 0.3); }
-        .c-mid { color: var(--mid); text-shadow: 0 0 15px rgba(96, 165, 250, 0.3); }
-        .c-pre { color: var(--pre); text-shadow: 0 0 15px rgba(167, 139, 250, 0.3); }
-        .c-lux { color: var(--lux); text-shadow: 0 0 20px rgba(251, 191, 36, 0.4); }
-        .c-mat { color: var(--mat); text-shadow: 0 0 25px rgba(244, 63, 94, 0.5); }
-
-        /* CHEAT */
-        #cheatMenu { position: fixed; top: 20%; left: 50%; transform: translateX(-50%) scale(0.9); background: #111; border: 1px solid #444; padding: 15px; border-radius: 20px; opacity: 0; pointer-events: none; transition: 0.2s; z-index: 3000; box-shadow: 0 20px 50px #000; }
-        #cheatMenu.active { opacity: 1; transform: translateX(-50%) scale(1); pointer-events: auto; }
-        .cheat-btn { padding: 12px 20px; background: #222; margin: 4px; color: #fff; border: none; border-radius: 10px; font-weight: bold; font-size: 12px; width: 100%; text-align: center; }
-
-        /* IMPACT ANIMATION */
-        @keyframes flash { 0% { background: #fff; } 100% { background: transparent; } }
-        .impact-flash { position: fixed; inset: 0; z-index: 5000; pointer-events: none; animation: flash 0.15s ease-out forwards; }
+        .g-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+        .g-item { background: #181818; padding: 12px; border-radius: 12px; display: grid; grid-template-columns: 1fr auto; align-items: center; border-left: 4px solid #333; }
+        
+        #cheatMenu { position: fixed; top: 20%; left: 50%; transform: translate(-50%, -20px); background: #111; border: 1px solid #444; padding: 10px; border-radius: 16px; opacity: 0; pointer-events: none; transition: 0.2s; z-index: 3000; }
+        #cheatMenu.active { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+        .cheat-grid { display: grid; grid-template-columns: 1fr; gap: 5px; }
+        .cheat-btn { padding: 10px 20px; background: #222; color: #fff; border: none; border-radius: 8px; font-weight: bold; font-size: 12px; }
     </style>
 </head>
 <body>
 
 <div class="top-bar">
-    <div class="icon-btn glass" onclick="openModal('bgModal')"><svg viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-    <div class="icon-btn glass" id="vibBtn" onclick="toggleVibro()"><svg viewBox="0 0 24 24"><rect x="10" y="4" width="4" height="16" rx="2"/><line class="slash" x1="3" y1="3" x2="21" y2="21"/></svg></div>
-    <div class="icon-btn glass" id="sndBtn" onclick="toggleSound()"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line class="slash" x1="23" y1="9" x2="17" y2="15"/></svg></div>
+    <div class="icon-btn" onclick="openModal('bgModal')"><svg viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div class="icon-btn" id="vibBtn" onclick="toggleVibro()"><svg viewBox="0 0 24 24"><rect x="10" y="4" width="4" height="16" rx="2"/><line class="slash" x1="3" y1="3" x2="21" y2="21"/></svg></div>
+    <div class="icon-btn" id="sndBtn" onclick="toggleSound()"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line class="slash" x1="23" y1="9" x2="17" y2="15"/></svg></div>
 </div>
 
 <div class="wrapper">
     <div class="app-title">Car Randomizer</div>
     
-    <div class="slot-container">
-        <div class="slot-overlay-top"></div>
-        <div class="slot-line"></div>
-        <div class="slot-overlay-bot"></div>
-        
-        <div class="slot-track" id="track">
-            <div class="slot-card" style="opacity:1; transform:scale(1)">
-                <div class="sc-brand" style="font-size:16px; color:#888">READY</div>
-                <div class="sc-model">PRESS SPIN</div>
+    <div class="wheel-frame">
+        <div class="pointer-container"><div class="pointer" id="pointer"></div></div>
+        <div class="center-line"></div>
+        <div class="wheel-tape" id="tape">
+            <div class="w-item" style="height:240px">
+                <div class="w-name" style="color:#666">READY</div>
             </div>
         </div>
     </div>
 
     <div class="controls">
         <button class="btn-spin" id="spinBtn" onclick="spin()">КРУТИТЬ</button>
-        <div class="btn-garage glass" onclick="renderGarage();openModal('garageModal')">
+        <div class="btn-garage" onclick="renderGarage();openModal('garageModal')">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         </div>
     </div>
 
     <div class="action-area">
-        <button class="btn-action" id="claimBtn" onclick="claim()">ЗАБРАТЬ В ГАРАЖ</button>
-        <button class="btn-action" id="googleBtn" onclick="googleSearch()">
-            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <button class="btn-act" id="claimBtn" onclick="claim()">ЗАБРАТЬ В ГАРАЖ</button>
+        <button class="btn-act" id="googleBtn" onclick="googleSearch()">
+            <svg viewBox="0 0 24 24" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             ФОТО
         </button>
     </div>
 </div>
 
-<div class="modal" id="garageModal"><div class="modal-content">
-    <div class="modal-header"><h3>ГАРАЖ</h3><div class="modal-close" onclick="closeModal('garageModal')">✕</div></div>
-    <div class="g-filters">
-        <div class="g-chip active" onclick="filterGarage('all',this)">ВСЕ</div>
-        <div class="g-chip" onclick="filterGarage('matmall',this)">MAT-MALL</div>
-        <div class="g-chip" onclick="filterGarage('luxury',this)">ЛЮКС</div>
-        <div class="g-chip" onclick="filterGarage('premium',this)">ПРЕМИУМ</div>
-        <div class="g-chip" onclick="filterGarage('middle',this)">СРЕДНИЙ</div>
-        <div class="g-chip" onclick="filterGarage('economy',this)">ЭКОНОМ</div>
-    </div>
-    <div class="g-list" id="garageList"></div>
-    <button class="btn-spin" style="margin-top:15px; height:50px; font-size:14px; background:#222; color:#fff; box-shadow:none" onclick="clearGarage()">ОЧИСТИТЬ</button>
-</div></div>
-
-<div class="modal" id="bgModal"><div class="modal-content" style="height:auto"><div class="modal-header"><h3>ФОН</h3><div class="modal-close" onclick="closeModal('bgModal')">✕</div></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding-bottom:20px"><div style="aspect-ratio:1;background:#000;border-radius:12px;border:1px solid #333" onclick="sBg('c','#000')"></div><div style="aspect-ratio:1;background:#1a1a1a;border-radius:12px;border:1px solid #333" onclick="sBg('c','#1a1a1a')"></div><div style="aspect-ratio:1;background:url('mercedes.jpg') center/cover;border-radius:12px;border:1px solid #333" onclick="sBg('i','mercedes.jpg')"></div></div></div></div>
-
-<div id="cheatMenu"><div style="display:grid;grid-template-columns:1fr;gap:5px"><button class="cheat-btn" style="color:var(--eco)" onclick="sc('economy')">ECO</button><button class="cheat-btn" style="color:var(--mid)" onclick="sc('middle')">MID</button><button class="cheat-btn" style="color:var(--pre)" onclick="sc('premium')">PRE</button><button class="cheat-btn" style="color:var(--lux)" onclick="sc('luxury')">LUX</button><button class="cheat-btn" style="color:var(--mat)" onclick="sc('matmall')">MAT-MALL</button></div></div>
+<div class="modal" id="garageModal"><div class="modal-content"><div class="modal-header"><h3>ГАРАЖ</h3><div onclick="closeModal('garageModal')">✕</div></div><div class="g-list" id="garageList"></div><button onclick="clearGarage()" style="margin-top:15px;padding:15px;background:#333;color:#fff;border:none;border-radius:12px">ОЧИСТИТЬ</button></div></div>
+<div class="modal" id="bgModal"><div class="modal-content" style="height:auto"><div class="modal-header"><h3>ФОН</h3><div onclick="closeModal('bgModal')">✕</div></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding-bottom:20px"><div style="aspect-ratio:1;background:#000;border:1px solid #333;border-radius:10px" onclick="sBg('c','#000')"></div><div style="aspect-ratio:1;background:#1a1a1a;border:1px solid #333;border-radius:10px" onclick="sBg('c','#1a1a1a')"></div><div style="aspect-ratio:1;background:url('mercedes.jpg') center/cover;border:1px solid #333;border-radius:10px" onclick="sBg('i','mercedes.jpg')"></div></div></div></div>
+<div id="cheatMenu"><div class="cheat-grid"><button class="cheat-btn" onclick="sc('economy')" style="color:var(--eco)">ECO</button><button class="cheat-btn" onclick="sc('middle')" style="color:var(--mid)">MID</button><button class="cheat-btn" onclick="sc('premium')" style="color:var(--pre)">PRE</button><button class="cheat-btn" onclick="sc('luxury')" style="color:var(--lux)">LUX</button><button class="cheat-btn" onclick="sc('matmall')" style="color:var(--mat)">MAT</button></div></div>
 
 <script>
-    // --- CORE VARIABLES ---
     let snd=true, vib=true, cheat=null, currentData=null, audioCtx=null;
-    let garage = JSON.parse(localStorage.getItem('garage_v21')||'[]');
+    let garage = JSON.parse(localStorage.getItem('garage_v22')||'[]');
     
-    // --- CONSTANTS ---
-    const CARD_HEIGHT = 140; 
-    const TOTAL_ITEMS = 60; // 50 items + winners + buffer
-    const WIN_INDEX = 50; // Index where the winner lands
+    // CONFIG
+    const ITEM_H = 120; // Matches CSS
+    const WIN_IDX = 40; // Winner index in the array
 
-    // --- INIT ---
     window.onload = () => {
         if(localStorage.getItem('snd')==='0') toggleSound();
         if(localStorage.getItem('vib')==='0') toggleVibro();
@@ -262,8 +211,8 @@
 
     // --- AUDIO / VIBRO ---
     function initAudio(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); if(audioCtx.state==='suspended')audioCtx.resume(); }
-    function clickSound() { if(snd&&audioCtx){ const o=audioCtx.createOscillator(),g=audioCtx.createGain(); o.connect(g);g.connect(audioCtx.destination); o.frequency.value=800; g.gain.setValueAtTime(0.05,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.05); o.start();o.stop(audioCtx.currentTime+0.05); } }
-    function winSound() { if(snd&&audioCtx){ const o=audioCtx.createOscillator(),g=audioCtx.createGain(); o.connect(g);g.connect(audioCtx.destination); o.type='triangle'; o.frequency.setValueAtTime(100,audioCtx.currentTime); o.frequency.linearRampToValueAtTime(600,audioCtx.currentTime+0.3); g.gain.setValueAtTime(0.3,audioCtx.currentTime); g.gain.linearRampToValueAtTime(0.001,audioCtx.currentTime+0.5); o.start();o.stop(audioCtx.currentTime+0.5); } }
+    function clickSound() { if(snd&&audioCtx){ const o=audioCtx.createOscillator(),g=audioCtx.createGain(); o.connect(g);g.connect(audioCtx.destination); o.type='square'; o.frequency.value=400; g.gain.setValueAtTime(0.05,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.03); o.start();o.stop(audioCtx.currentTime+0.03); } }
+    function winSound() { if(snd&&audioCtx){ const o=audioCtx.createOscillator(),g=audioCtx.createGain(); o.connect(g);g.connect(audioCtx.destination); o.type='triangle'; o.frequency.setValueAtTime(200,audioCtx.currentTime); o.frequency.linearRampToValueAtTime(600,audioCtx.currentTime+0.3); g.gain.setValueAtTime(0.2,audioCtx.currentTime); g.gain.linearRampToValueAtTime(0.001,audioCtx.currentTime+0.5); o.start();o.stop(audioCtx.currentTime+0.5); } }
     function toggleSound(){ snd=!snd; document.getElementById('sndBtn').classList.toggle('off',!snd); localStorage.setItem('snd',snd?'1':'0'); if(snd)initAudio(); }
     function toggleVibro(){ vib=!vib; document.getElementById('vibBtn').classList.toggle('off',!vib); localStorage.setItem('vib',vib?'1':'0'); }
     function doVib(p){ if(vib&&navigator.vibrate) navigator.vibrate(p); }
@@ -278,7 +227,6 @@
     // --- DATA ---
     const r=(a)=>a[Math.floor(Math.random()*a.length)];
     const ch=(p)=>Math.random()<p;
-    
     function getTune(t){ 
         if(!ch(0.2))return null;
         const m={'b':['Manhart','G-Power','Stage 2'],'m':['Brabus','Mansory','Rocket'],'j':['HKS','VeilSide','Drift Spec'],'l':['Turbo','Bunker'],'c':['Chip','Black Ed']};
@@ -310,167 +258,144 @@
         return d;
     }
 
-    // --- SPIN LOGIC ---
-    const track = document.getElementById('track');
-    const spinBtn = document.getElementById('spinBtn');
-    const claimBtn = document.getElementById('claimBtn');
-    const googleBtn = document.getElementById('googleBtn');
+    // --- SPIN ENGINE ---
+    const tape = document.getElementById('tape');
+    const pointer = document.getElementById('pointer');
+    let spinInterval = null;
 
     function spin() {
-        if(spinBtn.disabled) return;
-        spinBtn.disabled = true;
-        claimBtn.classList.remove('active');
-        googleBtn.classList.remove('active');
+        const btn = document.getElementById('spinBtn');
+        if(btn.disabled) return;
+        btn.disabled = true;
         initAudio();
+        
+        // Reset UI
+        document.getElementById('claimBtn').classList.remove('visible');
+        document.getElementById('googleBtn').classList.remove('visible');
 
-        // 1. Decide Winner
+        // 1. Prepare Data
         let t = cheat || (()=>{const x=Math.random();return x<0.01?'matmall':x<0.26?'economy':x<0.51?'middle':x<0.76?'premium':'luxury'})();
         cheat = null;
         currentData = genCar(t);
 
-        // 2. Build Strip
+        // 2. Build Tape (Buffer + Winner + Buffer)
         let html = '';
-        // Add buffer before
         for(let i=0; i<WIN_INDEX; i++) {
-            const rt = r(['economy','middle','premium','luxury']);
-            const rc = genCar(rt);
-            html += createCardHTML(rc);
+            const rc = genCar(r(['economy','middle','premium','luxury']));
+            html += itemHtml(rc);
         }
-        // Add Winner
-        html += createCardHTML(currentData, true);
-        // Add buffer after
+        html += itemHtml(currentData, true); // WINNER
         for(let i=0; i<5; i++) {
-            const rt = r(['economy','middle','premium','luxury']);
-            const rc = genCar(rt);
-            html += createCardHTML(rc);
+            const rc = genCar(r(['economy','middle','premium','luxury']));
+            html += itemHtml(rc);
         }
-        
-        track.innerHTML = html;
-        
-        // 3. Reset Position
-        // Start at index 2 (so we see something scrolling immediately)
-        const startY = - (2 * CARD_HEIGHT) + (CARD_HEIGHT/2); // Align center
-        track.style.transition = 'none';
-        track.style.transform = `translateY(0px)`;
-        track.classList.remove('blur-fx');
+        tape.innerHTML = html;
 
-        // 4. Animate
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                track.classList.add('blur-fx');
-                // Calculate target: Move to WIN_INDEX
-                // We want WIN_INDEX item to be centered.
-                // Center of container is 110px (220/2).
-                // Center of item N is N*140 + 70.
-                // TranslateY = 110 - (N*140 + 70) = 40 - N*140
-                const targetY = 40 - (WIN_INDEX * CARD_HEIGHT);
-                
-                track.style.transition = 'transform 4s cubic-bezier(0.12, 0.8, 0.38, 1)';
-                track.style.transform = `translateY(${targetY}px)`;
-                
-                // Sound simulation
-                simulateTicks(4000);
-            });
-        });
+        // 3. Start Position (Reset)
+        // Shift up so we don't see the jump.
+        // Start at index 0. Center of Index 0 is ITEM_H/2.
+        // Container height 240. Center is 120.
+        // Transform = 120 - (ITEM_H/2) = 120 - 60 = 60px (Visible top item)
+        // Let's just animate TranslateY.
+        
+        // Initial offset to show start
+        const startY = 0; 
+        tape.style.transition = 'none';
+        tape.style.transform = `translateY(${startY}px)`;
 
-        // 5. Finish
+        // 4. Animate to Winner
+        // Target: Center the WIN_INDEX item.
+        // Center of container = 120px.
+        // Center of item N = N*ITEM_H + ITEM_H/2.
+        // TargetY = 120 - (WIN_INDEX * ITEM_H + ITEM_H/2).
+        const targetY = 120 - (WIN_INDEX * ITEM_H + ITEM_H/2);
+
+        // Force Reflow
+        tape.offsetHeight;
+
+        // GO!
+        tape.style.transition = 'transform 5s cubic-bezier(0.1, 0.9, 0.3, 1)';
+        tape.style.transform = `translateY(${targetY}px)`;
+
+        // 5. Sound & Pointer Physics Simulation
+        // We need to trigger "Tick" every time an item passes center (120px).
+        // Since we use CSS transition, we can't get exact position easily.
+        // We will approximate or use requestAnimationFrame to check position.
+        trackPosition();
+
         setTimeout(() => {
-            track.classList.remove('blur-fx');
-            const winnerEl = track.children[WIN_INDEX];
-            winnerEl.classList.add('winner');
-            
-            // Flash Effect
-            const flash = document.createElement('div');
-            flash.className = 'impact-flash';
-            document.body.appendChild(flash);
-            setTimeout(()=>flash.remove(), 200);
-
+            // Finish
+            const winEl = tape.children[WIN_INDEX];
+            winEl.classList.add('winner');
             winSound();
             doVib([50,50,100]);
             
-            claimBtn.classList.add('active');
-            spinBtn.disabled = false;
-        }, 4000);
+            document.getElementById('claimBtn').classList.add('visible');
+            btn.disabled = false;
+        }, 5000);
     }
 
-    function createCardHTML(c, isWinner=false) {
-        const tuneHtml = c.tune ? `<div class="sc-tune">${c.tune}</div>` : '';
-        // If it's not the winner, we don't need full details to save rendering, 
-        // but for motion blur realism we render structure.
-        return `
-            <div class="slot-card">
-                <div class="sc-tier ${c.css}">${c.tn}</div>
-                <div class="sc-brand">${c.b}</div>
-                <div class="sc-model">${c.m} ${c.s}</div>
-                ${tuneHtml}
-            </div>
-        `;
-    }
-
-    function simulateTicks(duration) {
-        let start = Date.now();
-        let ticks = 0;
+    function trackPosition() {
+        let lastIdx = -1;
+        const startTime = Date.now();
         
-        function loop() {
-            let elapsed = Date.now() - start;
-            if(elapsed >= duration) return;
+        function check() {
+            if(Date.now() - startTime > 5000) return; // Stop checking
             
-            // Ticking curve: fast then slow
-            // A simple approximation
-            let progress = elapsed / duration;
-            let interval = 50 + (progress * 300); // 50ms to 350ms
+            // Get current transform Y
+            const style = window.getComputedStyle(tape);
+            const matrix = new WebKitCSSMatrix(style.transform);
+            const currentY = matrix.m42; // TranslateY value
             
-            clickSound();
-            doVib(5);
-            setTimeout(loop, interval);
+            // Calculate which item is passing the center (120px)
+            // Center Line Position relative to track top = 120 - currentY
+            const centerRel = 120 - currentY;
+            const currentIdx = Math.floor(centerRel / ITEM_H);
+
+            if(currentIdx > lastIdx) {
+                lastIdx = currentIdx;
+                clickSound();
+                animatePointer();
+                doVib(10);
+            }
+            requestAnimationFrame(check);
         }
-        loop();
+        requestAnimationFrame(check);
     }
 
-    // --- GARAGE ---
+    function animatePointer() {
+        pointer.classList.remove('tick');
+        void pointer.offsetWidth; // trigger reflow
+        pointer.classList.add('tick');
+    }
+
+    function itemHtml(c, isWin=false) {
+        const tn = c.tune ? `<div class="w-tune">${c.tune}</div>` : '';
+        return `<div class="w-item ${isWin?'':'blur-item'}"><div class="w-tier ${c.css}">${c.tn}</div><div class="w-name">${c.b} ${c.m}<br><span style="font-size:12px;opacity:0.7">${c.s}</span></div>${tn}</div>`;
+    }
+
+    // --- CLAIM ---
     function claim() {
-        claimBtn.classList.remove('active');
-        googleBtn.classList.add('active');
+        document.getElementById('claimBtn').classList.remove('visible');
+        document.getElementById('googleBtn').classList.add('visible');
         
-        // Save
         const n = `${currentData.b} ${currentData.m} ${currentData.s}`;
         const ex = garage.find(c => c.n === n && c.t === currentData.tune);
         if(ex) ex.c++;
-        else garage.unshift({n:n, tn:currentData.tn, t:currentData.tune, css:currentData.gcss, c:1, tier:currentData.tier});
-        localStorage.setItem('garage_v21', JSON.stringify(garage));
+        else garage.unshift({n:n, tn:currentData.tn, t:currentData.tune, css:currentData.gcss, c:1});
+        localStorage.setItem('garage_v22', JSON.stringify(garage));
     }
 
-    function renderGarage(filter='all') {
+    function renderGarage() {
         const l = document.getElementById('garageList');
-        l.innerHTML = garage.length ? '' : '<div style="color:#666;text-align:center;padding:20px">Гараж пуст</div>';
-        
-        // Filter chips UI
-        document.querySelectorAll('.g-chip').forEach(c => c.classList.remove('active'));
-        // Find button with matching onclick
-        // (Simplified for this code block, assuming correct click)
-        
+        l.innerHTML = garage.length ? '' : '<div style="color:#666;text-align:center;padding:20px">Пусто</div>';
         garage.forEach(i => {
-            if(filter!=='all' && i.tier!==filter) return;
             const t = i.t ? `<div style="font-size:10px;color:var(--mat);font-weight:700;margin-top:2px">${i.t}</div>` : '';
-            l.innerHTML += `
-                <div class="g-item ${i.gcss}">
-                    <div>
-                        <div style="font-size:9px;opacity:0.7;margin-bottom:2px">${i.tn}</div>
-                        <div style="font-size:14px;font-weight:700;color:#fff">${i.n}</div>
-                        ${t}
-                    </div>
-                    <div class="g-badge">x${i.c}</div>
-                </div>`;
+            l.innerHTML += `<div class="g-item" style="border-left-color:var(--${i.css})"><div><div style="font-size:9px;opacity:0.7">${i.tn}</div><div style="font-size:14px;font-weight:700;color:#fff">${i.n}</div>${t}</div><div style="font-size:10px;font-weight:bold;background:#333;padding:4px 8px;border-radius:6px">x${i.c}</div></div>`;
         });
     }
-    
-    function filterGarage(f, btn) {
-        document.querySelectorAll('.g-chip').forEach(c => c.classList.remove('active'));
-        btn.classList.add('active');
-        renderGarage(f);
-    }
 
-    function clearGarage() { garage=[]; localStorage.removeItem('garage_v21'); renderGarage(); }
+    function clearGarage() { garage=[]; localStorage.removeItem('garage_v22'); renderGarage(); }
     function googleSearch() { if(currentData) window.open(`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(currentData.b+' '+currentData.m)}`, '_blank'); }
 </script>
 </body>
