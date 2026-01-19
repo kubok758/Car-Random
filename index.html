@@ -22,239 +22,102 @@
             --mat: #ff0040;
         }
 
-        html {
-            height: 100%;
-            width: 100%;
-            overflow: hidden;
-        }
-
+        html { height: 100%; width: 100%; overflow: hidden; }
         body {
             background-color: var(--bg-color);
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             background-attachment: scroll;
-            
             color: var(--text);
             font-family: 'Arial Black', 'Impact', sans-serif;
-            
-            /* Фиксация */
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            height: 100%;
-            width: 100%;
-            
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            overscroll-behavior: none;
-            touch-action: none;
-            user-select: none;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            height: 100%; width: 100%;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            margin: 0; padding: 0;
+            overflow: hidden; overscroll-behavior: none;
+            touch-action: none; user-select: none;
             -webkit-tap-highlight-color: transparent;
             transition: background-color 0.5s ease;
         }
-
         body::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            z-index: -1;
-            pointer-events: none;
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4); z-index: -1; pointer-events: none;
         }
 
         .wrapper {
-            width: 90%;
-            max-width: 600px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            z-index: 10;
+            width: 90%; max-width: 600px; padding: 20px;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            position: relative; z-index: 10;
         }
 
-        /* Настройки */
-        .settings-bar {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 10px;
-            z-index: 1000;
-        }
-
-        @supports (padding-top: env(safe-area-inset-top)) {
-            .settings-bar { top: calc(20px + env(safe-area-inset-top)); }
-        }
+        .settings-bar { position: absolute; top: 20px; right: 20px; display: flex; gap: 10px; z-index: 1000; }
+        @supports (padding-top: env(safe-area-inset-top)) { .settings-bar { top: calc(20px + env(safe-area-inset-top)); } }
 
         .icon-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #fff;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(10px);
-            padding: 0;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff; width: 45px; height: 45px; border-radius: 50%;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            backdrop-filter: blur(10px); padding: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             transition: all 0.2s ease;
         }
-
         .icon-btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
         .icon-btn:active { transform: scale(0.95); background: rgba(255,255,255,0.2); }
         .icon-btn.off { opacity: 0.5; border-color: #444; color: #888; background: rgba(0,0,0,0.8); }
-        
-        .icon-btn.active {
-            background: rgba(255, 255, 255, 0.9);
-            color: #000;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
-        }
-
+        .icon-btn.active { background: rgba(255, 255, 255, 0.9); color: #000; box-shadow: 0 0 15px rgba(255, 255, 255, 0.5); }
         .slash { display: none; }
         .icon-btn.off .slash { display: block; }
 
-        /* Меню фона */
         #bgMenu {
-            display: none;
-            position: absolute;
-            top: 80px; right: 20px; width: 260px;
-            background: rgba(20, 20, 20, 0.95);
-            border: 1px solid #444;
-            border-radius: 15px;
-            padding: 15px;
-            z-index: 1001;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
-            backdrop-filter: blur(10px);
-            text-align: left;
+            display: none; position: absolute; top: 80px; right: 20px; width: 260px;
+            background: rgba(20, 20, 20, 0.95); border: 1px solid #444; border-radius: 15px;
+            padding: 15px; z-index: 1001; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px); text-align: left;
         }
-        
-        @supports (padding-top: env(safe-area-inset-top)) {
-            #bgMenu { top: calc(80px + env(safe-area-inset-top)); }
-        }
-
+        @supports (padding-top: env(safe-area-inset-top)) { #bgMenu { top: calc(80px + env(safe-area-inset-top)); } }
         #bgMenu h3 { margin: 0 0 10px 0; font-size: 0.9rem; color: #888; text-transform: uppercase; font-family: 'Segoe UI', sans-serif; letter-spacing: 1px; border-bottom: 1px solid #333; padding-bottom: 5px; }
         .bg-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; }
         .bg-btn { width: 100%; aspect-ratio: 1; border-radius: 8px; border: 2px solid rgba(255,255,255,0.1); cursor: pointer; transition: transform 0.2s; position: relative; overflow: hidden; }
-        .bg-btn:hover { border-color: #fff; }
-        .bg-btn:active { transform: scale(0.9); }
-
-        .c-black { background: #0b0b0b; }
-        .c-gray { background: #2d2d2d; }
-        .c-blue { background: #0f1c2e; }
-        .c-red { background: #2e0f0f; }
-        .img-merc { background: url('mercedes.jpg') center/cover; }
-        .img-bmw { background: url('bmw.jpg') center/cover; }
-        .img-porsche { background: url('porsche.jpg') center/cover; }
-
+        .bg-btn:hover { border-color: #fff; } .bg-btn:active { transform: scale(0.9); }
+        .c-black { background: #0b0b0b; } .c-gray { background: #2d2d2d; } .c-blue { background: #0f1c2e; } .c-red { background: #2e0f0f; }
+        .img-merc { background: url('mercedes.jpg') center/cover; } .img-bmw { background: url('bmw.jpg') center/cover; } .img-porsche { background: url('porsche.jpg') center/cover; }
         .mobile-wallpapers { display: none; }
         @media (max-width: 768px) { .mobile-wallpapers { display: block; } }
 
-        /* Интерфейс */
         h1 {
-            font-size: 1.8rem;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            color: #fff;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-            margin-bottom: 30px;
-            line-height: 1.2;
-            width: 100%;
+            font-size: 1.8rem; text-transform: uppercase; letter-spacing: 4px;
+            color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            margin-bottom: 30px; line-height: 1.2; width: 100%;
         }
-
         .output-box {
-            background: rgba(20, 20, 20, 0.85);
-            border: 2px solid rgba(255,255,255,0.1);
-            border-radius: 16px;
-            padding: 20px;
-            width: 100%;
-            position: relative;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
-            transition: 0.1s transform, 0.3s border-color, 0.3s box-shadow;
-            cursor: pointer;
-            min-height: 180px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(10px);
+            background: rgba(20, 20, 20, 0.85); border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 16px; padding: 20px; width: 100%; position: relative;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5); transition: 0.1s transform, 0.3s border-color, 0.3s box-shadow;
+            cursor: pointer; min-height: 180px; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; backdrop-filter: blur(10px);
         }
         .output-box:active { transform: scale(0.98); }
-
         #carName {
-            font-size: 1.8rem;
-            line-height: 1.2;
-            text-transform: uppercase;
-            background: -webkit-linear-gradient(#fff, #aaa);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
-            margin-bottom: 10px;
-            word-break: break-word;
+            font-size: 1.8rem; line-height: 1.2; text-transform: uppercase;
+            background: -webkit-linear-gradient(#fff, #aaa); -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
+            margin-bottom: 10px; word-break: break-word;
         }
-
-        #tierLabel {
-            font-family: 'Segoe UI', sans-serif;
-            font-size: 0.8rem;
-            letter-spacing: 3px;
-            color: #999;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .controls { 
-            width: 100%; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 15px; 
-            margin-top: 20px; 
-        }
-
+        #tierLabel { font-family: 'Segoe UI', sans-serif; font-size: 0.8rem; letter-spacing: 3px; color: #999; font-weight: 700; text-transform: uppercase; }
+        .controls { width: 100%; display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
         .btn {
-            background: #fff;
-            color: #000;
-            border: none;
-            padding: 20px 0;
-            width: 100%;
-            font-size: 1.4rem;
-            font-weight: 900;
-            text-transform: uppercase;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: 0.1s;
-            box-shadow: 0 0 20px rgba(255,255,255,0.1);
+            background: #fff; color: #000; border: none; padding: 20px 0; width: 100%;
+            font-size: 1.4rem; font-weight: 900; text-transform: uppercase; border-radius: 12px;
+            cursor: pointer; transition: 0.1s; box-shadow: 0 0 20px rgba(255,255,255,0.1);
         }
-        .btn:active { transform: translateY(2px); background: #ddd; }
-        .btn:disabled { background: #333; color: #555; box-shadow: none; }
-
+        .btn:active { transform: translateY(2px); background: #ddd; } .btn:disabled { background: #333; color: #555; box-shadow: none; }
         #googleBtn {
-            display: none;
-            background: rgba(0,0,0,0.6);
-            color: #aaa;
-            border: 2px solid rgba(255,255,255,0.2);
-            padding: 15px 0;
-            width: 100%;
-            font-size: 1rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.2s;
-            font-family: 'Segoe UI', sans-serif;
-            letter-spacing: 1px;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            display: none; background: rgba(0,0,0,0.6); color: #aaa; border: 2px solid rgba(255,255,255,0.2);
+            padding: 15px 0; width: 100%; font-size: 1rem; font-weight: 700; text-transform: uppercase;
+            border-radius: 8px; cursor: pointer; transition: 0.2s; font-family: 'Segoe UI', sans-serif;
+            letter-spacing: 1px; align-items: center; justify-content: center; gap: 10px;
         }
         #googleBtn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; }
         #googleBtn:hover { border-color: #fff; color: #fff; background: rgba(0,0,0,0.8); }
@@ -271,11 +134,7 @@
         .glow-mat { border-color: var(--mat); box-shadow: 0 0 80px rgba(255, 0, 64, 0.6); }
         .glow-mat #carName { background: -webkit-linear-gradient(#fff, var(--mat)); -webkit-background-clip: text; }
 
-        #cheatPanel {
-            display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            background: #000; border: 2px solid red; padding: 10px; z-index: 2000;
-            box-shadow: 0 0 30px rgba(255,0,0,0.5); width: 80%; max-width: 400px; text-align: center; border-radius: 10px;
-        }
+        #cheatPanel { display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #000; border: 2px solid red; padding: 10px; z-index: 2000; box-shadow: 0 0 30px rgba(255,0,0,0.5); width: 80%; max-width: 400px; text-align: center; border-radius: 10px; }
         .cheat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 5px; }
         .cheat-btn { padding: 10px; cursor: pointer; font-weight: bold; border:none; font-size: 0.8rem; border-radius: 5px; }
     </style>
@@ -334,89 +193,28 @@
 </div>
 
 <script>
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Fail:', err));
-        });
-    }
+    if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Fail:', err)); }); }
 
     // === UI ===
-    function toggleBgMenu() {
-        const menu = document.getElementById('bgMenu');
-        menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
-    }
-    document.addEventListener('click', (e) => {
-        const menu = document.getElementById('bgMenu');
-        const btn = document.getElementById('bgToggle');
-        if (!menu.contains(e.target) && !btn.contains(e.target)) menu.style.display = 'none';
-    });
-    function setBgColor(c) {
-        document.body.style.backgroundImage = 'none';
-        document.body.style.backgroundColor = c;
-        document.getElementById('bgMenu').style.display = 'none';
-        localStorage.setItem('carApp_bgType', 'color');
-        localStorage.setItem('carApp_bgValue', c);
-    }
-    function setBgImage(f) {
-        document.body.style.backgroundColor = '#0b0b0b';
-        document.body.style.backgroundImage = `url('${f}')`;
-        document.getElementById('bgMenu').style.display = 'none';
-        localStorage.setItem('carApp_bgType', 'image');
-        localStorage.setItem('carApp_bgValue', f);
-    }
+    function toggleBgMenu() { const m = document.getElementById('bgMenu'); m.style.display = (m.style.display === 'block') ? 'none' : 'block'; }
+    document.addEventListener('click', (e) => { const m = document.getElementById('bgMenu'), b = document.getElementById('bgToggle'); if (!m.contains(e.target) && !b.contains(e.target)) m.style.display = 'none'; });
+    function setBgColor(c) { document.body.style.backgroundImage = 'none'; document.body.style.backgroundColor = c; document.getElementById('bgMenu').style.display = 'none'; localStorage.setItem('carApp_bgType', 'color'); localStorage.setItem('carApp_bgValue', c); }
+    function setBgImage(f) { document.body.style.backgroundColor = '#0b0b0b'; document.body.style.backgroundImage = `url('${f}')`; document.getElementById('bgMenu').style.display = 'none'; localStorage.setItem('carApp_bgType', 'image'); localStorage.setItem('carApp_bgValue', f); }
 
     // === SETTINGS ===
     let audioCtx=null, isSoundOn=true, isVibroOn=true, isFastSpin=false;
-
-    function initAudio() {
-        if(!audioCtx) {
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            audioCtx = new AudioContext();
-        }
-        if(audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
-    }
-
+    function initAudio() { if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); if(audioCtx.state==='suspended') audioCtx.resume(); }
     function playClickSound() {
-        if(!isSoundOn || !audioCtx) return;
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.type = 'triangle'; 
-        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.05);
-        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.05);
+        if(!isSoundOn||!audioCtx)return; const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+        o.connect(g); g.connect(audioCtx.destination); o.type='triangle'; 
+        o.frequency.setValueAtTime(800,audioCtx.currentTime); o.frequency.exponentialRampToValueAtTime(1200,audioCtx.currentTime+0.05);
+        g.gain.setValueAtTime(0.3,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+0.05);
+        o.start(); o.stop(audioCtx.currentTime+0.05);
     }
-
-    function toggleSound() {
-        isSoundOn = !isSoundOn;
-        document.getElementById('soundToggle').classList.toggle('off', !isSoundOn);
-        localStorage.setItem('carApp_sound', isSoundOn);
-        initAudio();
-    }
-
-    function toggleVibro() {
-        isVibroOn = !isVibroOn;
-        document.getElementById('vibroToggle').classList.toggle('off', !isVibroOn);
-        localStorage.setItem('carApp_vibro', isVibroOn);
-    }
-
-    function toggleFast() {
-        isFastSpin = !isFastSpin;
-        document.getElementById('fastToggle').classList.toggle('active', isFastSpin);
-        localStorage.setItem('carApp_fast', isFastSpin);
-    }
-
-    function doVibrate(pattern) {
-        if(isVibroOn && navigator.vibrate) {
-            try { navigator.vibrate(pattern); } catch(e){}
-        }
-    }
+    function toggleSound() { isSoundOn=!isSoundOn; document.getElementById('soundToggle').classList.toggle('off',!isSoundOn); localStorage.setItem('carApp_sound',isSoundOn); initAudio(); }
+    function toggleVibro() { isVibroOn=!isVibroOn; document.getElementById('vibroToggle').classList.toggle('off',!isVibroOn); localStorage.setItem('carApp_vibro',isVibroOn); }
+    function toggleFast() { isFastSpin=!isFastSpin; document.getElementById('fastToggle').classList.toggle('active',isFastSpin); localStorage.setItem('carApp_fast',isFastSpin); }
+    function doVibrate(p) { if(isVibroOn&&navigator.vibrate) try{navigator.vibrate(p);}catch(e){} }
     
     function initSettings() {
         if(localStorage.getItem('carApp_sound')==='false'){ isSoundOn=false; document.getElementById('soundToggle').classList.add('off'); }
@@ -719,7 +517,7 @@
             glowClass = 'glow-eco';
         } else if (tier === 'middle') {
             resultName = genMiddle();
-            label = "КЛАСС 2: JDM / ТЮНИНГ";
+            label = "КЛАСС 2: СРЕДНИЙ / JDM / SUV"; // Исправленное название
             glowClass = 'glow-mid';
         } else if (tier === 'premium') {
             resultName = genPremium();
