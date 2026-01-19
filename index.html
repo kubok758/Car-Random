@@ -58,7 +58,6 @@
             box-sizing: border-box;
         }
 
-        /* === ВЕРХНИЕ КНОПКИ === */
         .settings-bar {
             position: absolute;
             top: 20px;
@@ -86,18 +85,10 @@
 
         .icon-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
         .icon-btn:active { transform: scale(0.9); }
-        
-        .icon-btn.off {
-            opacity: 0.5;
-            border-color: #444;
-            color: #888;
-            background: rgba(0,0,0,0.5);
-        }
-        
+        .icon-btn.off { opacity: 0.5; border-color: #444; color: #888; background: rgba(0,0,0,0.5); }
         .slash { display: none; }
         .icon-btn.off .slash { display: block; }
 
-        /* === МЕНЮ ФОНА === */
         #bgMenu {
             display: none;
             position: fixed;
@@ -121,7 +112,6 @@
         .c-gray { background: #2d2d2d; }
         .c-blue { background: #0f1c2e; }
         .c-red { background: #2e0f0f; }
-
         .img-merc { background: url('mercedes.jpg') center/cover; }
         .img-bmw { background: url('bmw.jpg') center/cover; }
         .img-porsche { background: url('porsche.jpg') center/cover; }
@@ -129,7 +119,6 @@
         .mobile-wallpapers { display: none; }
         @media (max-width: 768px) { .mobile-wallpapers { display: block; } }
 
-        /* === ОСНОВНОЙ UI === */
         h1 {
             font-size: 1.8rem;
             text-transform: uppercase;
@@ -312,13 +301,37 @@
 </div>
 
 <script>
+    // PWA Service Worker (v2)
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js').catch(e=>{});
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => {
+                    // Проверка обновлений
+                    reg.onupdatefound = () => {
+                        const installingWorker = reg.installing;
+                        installingWorker.onstatechange = () => {
+                            if (installingWorker.state === 'installed') {
+                                if (navigator.serviceWorker.controller) {
+                                    console.log('Доступно обновление. Перезагрузите.');
+                                }
+                            }
+                        };
+                    };
+                })
+                .catch(err => console.log('SW Fail:', err));
         });
     }
 
-    // === УПРАВЛЕНИЕ ФОНОМ С СОХРАНЕНИЕМ ===
+    // === ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ===
+    let audioCtx = null;
+    let isSoundOn = true;
+    let isVibroOn = true;
+    let cheatNext = null;
+    let currentCar = "";
+    let clicks = 0;
+    let timer;
+
+    // === УПРАВЛЕНИЕ ФОНОМ ===
     function toggleBgMenu() {
         const menu = document.getElementById('bgMenu');
         menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
@@ -334,8 +347,6 @@
         document.body.style.backgroundImage = 'none';
         document.body.style.backgroundColor = c;
         document.getElementById('bgMenu').style.display = 'none';
-        
-        // Сохраняем
         localStorage.setItem('carApp_bgType', 'color');
         localStorage.setItem('carApp_bgValue', c);
     }
@@ -344,17 +355,11 @@
         document.body.style.backgroundColor = '#0b0b0b';
         document.body.style.backgroundImage = `url('${f}')`;
         document.getElementById('bgMenu').style.display = 'none';
-        
-        // Сохраняем
         localStorage.setItem('carApp_bgType', 'image');
         localStorage.setItem('carApp_bgValue', f);
     }
 
     // === АУДИО И ВИБРАЦИЯ ===
-    let audioCtx = null;
-    let isSoundOn = true;
-    let isVibroOn = true;
-
     function initAudio() {
         if (!audioCtx) {
             const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -401,7 +406,7 @@
         }
     }
 
-    // === ИНИЦИАЛИЗАЦИЯ НАСТРОЕК ПРИ ЗАГРУЗКЕ ===
+    // === ИНИЦИАЛИЗАЦИЯ (ВОССТАНОВЛЕНИЕ НАСТРОЕК) ===
     function initSettings() {
         // Звук
         const savedSound = localStorage.getItem('carApp_sound');
@@ -482,12 +487,7 @@
         return r(["Ferrari 488 Pista","Ferrari F8 Tributo","Ferrari 812 Superfast","Ferrari SF90 Stradale","Ferrari LaFerrari","Ferrari Enzo","Ferrari F40","Lamborghini Aventador SVJ","Lamborghini Huracan Performante","Lamborghini Urus","Lamborghini Revuelto","Lamborghini Murcielago SV","Lamborghini Diablo VT","Porsche 911 Turbo S (992)","Porsche 911 GT3 RS (992)","Porsche 911 GT2 RS (991)","Porsche Carrera GT","Porsche 918 Spyder","Bugatti Chiron","Bugatti Chiron Super Sport","Bugatti Divo","Bugatti Veyron Super Sport","McLaren 720S","McLaren 765LT","McLaren P1","McLaren Senna","Rolls-Royce Phantom","Rolls-Royce Cullinan","Rolls-Royce Wraith","Bentley Continental GT Speed","Bentley Bentayga","Koenigsegg Agera RS","Koenigsegg Jesko","Pagani Huayra BC"]);
     }
 
-    // === ЛОГИКА APP ===
-    let cheatNext = null;
-    let currentCar = "";
-    let clicks = 0;
-    let timer;
-
+    // === UI BINDING ===
     const carNameEl = document.getElementById('carName');
     const tierLabelEl = document.getElementById('tierLabel');
     const box = document.getElementById('box');
@@ -495,8 +495,10 @@
     const googleBtn = document.getElementById('googleBtn');
     const cheatPanel = document.getElementById('cheatPanel');
 
-    // Загрузка настроек при старте
-    initSettings();
+    // === ЗАПУСК ===
+    document.addEventListener('DOMContentLoaded', () => {
+        initSettings();
+    });
 
     box.addEventListener('click', () => {
         clicks++;
