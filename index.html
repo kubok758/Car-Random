@@ -38,16 +38,64 @@
             box-sizing: border-box;
         }
 
+        /* === КНОПКА ЗВУКА (НОВЫЙ ДИЗАЙН) === */
+        .sound-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.05); /* Еле заметный фон */
+            border: 1px solid rgba(255, 255, 255, 0.3); /* Тонкая обводка */
+            color: #fff;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        /* SVG иконки внутри кнопки */
+        .sound-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: 0.2s;
+        }
+
+        .sound-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #fff;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255,255,255,0.2);
+        }
+        
+        .sound-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Выключенное состояние (красноватый оттенок или просто темнее) */
+        .sound-btn.muted {
+            opacity: 0.6;
+            border-color: #555;
+        }
+
         h1 {
             font-size: 1.8rem;
             text-transform: uppercase;
             letter-spacing: 4px;
             color: #333;
             margin-bottom: 30px;
-            margin-top: 0;
+            margin-top: 40px; /* Отступ чтобы не наезжать на кнопку звука */
         }
 
-        /* Окно выдачи */
         .output-box {
             background: var(--card);
             border: 2px solid #333;
@@ -64,7 +112,6 @@
             justify-content: center;
             align-items: center;
         }
-
         .output-box:active { transform: scale(0.98); }
 
         #carName {
@@ -86,14 +133,8 @@
             font-weight: 700;
         }
 
-        /* Группа кнопок */
-        .controls {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
+        .controls { display: flex; flex-direction: column; gap: 15px; }
 
-        /* Главная кнопка */
         .btn {
             background: #fff;
             color: #000;
@@ -112,9 +153,8 @@
         .btn:active { transform: translateY(2px); background: #ddd; }
         .btn:disabled { background: #333; color: #555; transform: none; box-shadow: none;}
 
-        /* Кнопка Google (скрыта по умолчанию) */
         #googleBtn {
-            display: none; /* Скрыта пока нет результата */
+            display: none;
             background: transparent;
             color: #aaa;
             border: 2px solid #333;
@@ -129,44 +169,23 @@
             font-family: 'Segoe UI', sans-serif;
             letter-spacing: 1px;
         }
-        #googleBtn:hover {
-            border-color: #fff;
-            color: #fff;
-            background: rgba(255,255,255,0.05);
-        }
+        #googleBtn:hover { border-color: #fff; color: #fff; background: rgba(255,255,255,0.05); }
         #googleBtn:active { transform: scale(0.98); }
-
-        /* Иконка Google */
         .g-icon { margin-right: 8px; font-style: normal; }
 
-        /* Свечение */
         .glow-eco { border-color: var(--eco); box-shadow: 0 0 40px rgba(0,255,157,0.15); }
         .glow-eco #carName { background: -webkit-linear-gradient(#fff, var(--eco)); -webkit-background-clip: text; }
-        
         .glow-mid { border-color: var(--mid); box-shadow: 0 0 50px rgba(0,234,255,0.2); }
         .glow-mid #carName { background: -webkit-linear-gradient(#fff, var(--mid)); -webkit-background-clip: text; }
-        
         .glow-pre { border-color: var(--pre); box-shadow: 0 0 60px rgba(214,0,255,0.25); }
         .glow-pre #carName { background: -webkit-linear-gradient(#fff, var(--pre)); -webkit-background-clip: text; }
-        
         .glow-lux { border-color: var(--lux); box-shadow: 0 0 80px rgba(255,189,0,0.3); }
         .glow-lux #carName { background: -webkit-linear-gradient(#fff, var(--lux)); -webkit-background-clip: text; }
 
-        /* Админка */
         #cheatPanel {
-            display: none;
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #000;
-            border: 2px solid red;
-            padding: 10px;
-            z-index: 100;
-            box-shadow: 0 0 30px rgba(255,0,0,0.5);
-            width: 80%;
-            max-width: 400px;
-            text-align: center;
+            display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: #000; border: 2px solid red; padding: 10px; z-index: 100;
+            box-shadow: 0 0 30px rgba(255,0,0,0.5); width: 80%; max-width: 400px; text-align: center;
         }
         .cheat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 5px; }
         .cheat-btn { padding: 15px; cursor: pointer; font-weight: bold; border:none; font-size: 1rem; }
@@ -175,6 +194,13 @@
 <body>
 
 <div class="wrapper">
+    <button class="sound-btn" id="soundToggle" onclick="toggleSound()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+        </svg>
+    </button>
+
     <div id="cheatPanel">
         <div style="color:red; font-size:10px; font-weight:bold">ADMIN MODE</div>
         <div class="cheat-grid">
@@ -201,10 +227,58 @@
 </div>
 
 <script>
+    // === АУДИО СИСТЕМА ===
+    const popSoundSrc = "data:audio/wav;base64,UklGRl9vT1BXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ"+
+    "tvdT1OAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"+
+    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"+
+    "AAAAAAAAAAAA//+9vbW1t7f//7W1taWl//+lpaWlpf//paWlpaWl//+lpaWlpf//paWlpaWl//+lpaWlpf//paWlpaWl//"+
+    "8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"+
+    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+
+    const clickAudio = new Audio(popSoundSrc);
+    clickAudio.volume = 0.5;
+    
+    let isMuted = false;
+
+    // SVG код для иконок
+    const iconSoundOn = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+        </svg>`;
+    
+    const iconSoundOff = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+        </svg>`;
+
+    function toggleSound() {
+        isMuted = !isMuted;
+        const btn = document.getElementById('soundToggle');
+        
+        if(isMuted) {
+            btn.innerHTML = iconSoundOff;
+            btn.classList.add('muted');
+        } else {
+            btn.innerHTML = iconSoundOn;
+            btn.classList.remove('muted');
+        }
+    }
+
+    function playTick() {
+        if (isMuted) return;
+        if (navigator.vibrate) {
+            try { navigator.vibrate(5); } catch(e){}
+        }
+        clickAudio.currentTime = 0;
+        clickAudio.play().catch(e => {});
+    }
+
     // === ГЕНЕРАТОР ===
     const r = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
-    // 1. ECONOMY
     function genEconomy() {
         const pool = [
             () => `Lada Priora ${r(['Sedan', 'Hatchback', 'Coupe'])}`,
@@ -224,7 +298,6 @@
         return r(pool)();
     }
 
-    // 2. MIDDLE
     function genMiddle() {
         const brands = {
             toyota: [
@@ -258,7 +331,6 @@
         return `${brandName} ${car.model} ${chassis} ${trim}`;
     }
 
-    // 3. PREMIUM
     function genPremium() {
         const germans = [
             { 
@@ -321,7 +393,6 @@
         return `${selectedBrand.brand} ${engine} ${config.ch}`;
     }
 
-    // 4. LUXURY
     function genLuxury() {
         const hypers = [
             "Ferrari 488 Pista", "Ferrari F8 Tributo", "Ferrari 812 Superfast", "Ferrari SF90 Stradale", "Ferrari LaFerrari", "Ferrari Enzo", "Ferrari F40",
@@ -339,7 +410,7 @@
 
     // === ЛОГИКА ===
     let cheatNext = null;
-    let currentCar = ""; // Для сохранения названия машины
+    let currentCar = "";
 
     const carNameEl = document.getElementById('carName');
     const tierLabelEl = document.getElementById('tierLabel');
@@ -348,7 +419,6 @@
     const googleBtn = document.getElementById('googleBtn');
     const cheatPanel = document.getElementById('cheatPanel');
 
-    // Админка
     let clicks = 0;
     let timer;
     box.addEventListener('click', () => {
@@ -371,7 +441,6 @@
 
     function openGoogle() {
         if (!currentCar) return;
-        // Открываем Google Картинки в новой вкладке
         const query = encodeURIComponent(currentCar);
         const url = `https://www.google.com/search?tbm=isch&q=${query}`;
         window.open(url, '_blank');
@@ -380,11 +449,18 @@
     function spin() {
         if (spinBtn.disabled) return;
         spinBtn.disabled = true;
-        googleBtn.style.display = 'none'; // Прячем кнопку Google при старте
+        googleBtn.style.display = 'none';
         
         box.className = 'output-box'; 
         carNameEl.style.opacity = 0.5;
         tierLabelEl.innerText = "SEARCHING...";
+
+        if(!isMuted) {
+            clickAudio.play().then(() => {
+                clickAudio.pause();
+                clickAudio.currentTime = 0;
+            }).catch(()=>{});
+        }
 
         let speed = 50;
         let steps = 0;
@@ -394,6 +470,8 @@
             const funcs = [genEconomy, genMiddle, genPremium, genLuxury];
             carNameEl.innerText = funcs[Math.floor(Math.random()*funcs.length)]();
             
+            playTick();
+
             steps++;
             if (steps < maxSteps) {
                 if(steps > maxSteps - 5) speed += 30;
@@ -439,16 +517,15 @@
             box.classList.add('glow-lux');
         }
 
-        currentCar = resultName; // Сохраняем для Google поиска
+        currentCar = resultName;
         carNameEl.innerText = resultName;
         carNameEl.style.opacity = 1;
         tierLabelEl.innerText = label;
         spinBtn.disabled = false;
         
-        // Показываем кнопку Google
         googleBtn.style.display = 'block';
 
-        if (navigator.vibrate) navigator.vibrate(20);
+        if (!isMuted && navigator.vibrate) navigator.vibrate([30, 50, 30]);
     }
 </script>
 
