@@ -10,11 +10,12 @@
     <title>CAR RANDOMIZER</title>
     <style>
         :root {
-            --bg: #000000;
-            --glass: rgba(255, 255, 255, 0.05);
-            --border: rgba(255, 255, 255, 0.1);
+            --bg: #050505;
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.08);
             --text: #ffffff;
             --eco: #34d399; --mid: #60a5fa; --pre: #a78bfa; --lux: #fbbf24; --mat: #f43f5e;
+            --card-h: 140px; /* Высота одной карточки */
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
@@ -27,165 +28,227 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             user-select: none; transition: background 0.5s ease;
         }
-        body::before { content:''; position:absolute; inset:0; background: radial-gradient(circle at center, rgba(0,0,0,0.3), #000); z-index:0; pointer-events:none; }
+        body::before { content:''; position:absolute; inset:0; background: radial-gradient(circle at center, rgba(0,0,0,0.4), #000 90%); z-index:0; pointer-events:none; }
 
-        /* --- ANIMATIONS --- */
-        @keyframes blurMove {
-            0% { transform: scaleY(1); opacity: 1; filter: blur(0px); }
-            50% { transform: scaleY(1.2); opacity: 0.7; filter: blur(4px); }
-            100% { transform: scaleY(1); opacity: 1; filter: blur(0px); }
-        }
-        
-        @keyframes impactFlash {
-            0% { text-shadow: 0 0 50px currentColor; transform: scale(1.1); filter: brightness(2); }
-            100% { text-shadow: 0 0 0 transparent; transform: scale(1); filter: brightness(1); }
+        /* --- UI COMPONENTS --- */
+        .glass {
+            background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border); box-shadow: 0 4px 24px rgba(0,0,0,0.5);
         }
 
-        @keyframes screenShake {
-            0%, 100% { transform: translate(0, 0); }
-            25% { transform: translate(-2px, 2px); }
-            50% { transform: translate(2px, -2px); }
-            75% { transform: translate(-2px, -2px); }
+        .icon-btn {
+            width: 44px; height: 44px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.2s; color: #fff;
         }
-
-        .motion-blur { animation: blurMove 0.1s infinite; color: rgba(255,255,255,0.6); }
-        .impact { animation: impactFlash 0.3s ease-out forwards; }
-        .shaking { animation: screenShake 0.2s ease-out; }
-
-        /* --- UI --- */
-        .glass { background: var(--glass); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border: 1px solid var(--border); box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
-        
-        .icon-btn { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; transition: 0.2s; }
-        .icon-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.2); }
+        .icon-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.15); }
         .icon-btn svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2; fill: none; }
         .icon-btn.off { opacity: 0.4; } .slash { display: none; } .icon-btn.off .slash { display: block; }
 
         .top-bar { position: absolute; top: 20px; right: 20px; display: flex; gap: 10px; z-index: 100; }
         @supports (padding-top: env(safe-area-inset-top)) { .top-bar { top: calc(20px + env(safe-area-inset-top)); } }
 
-        .wrapper { position: relative; z-index: 10; width: 90%; max-width: 420px; display: flex; flex-direction: column; gap: 20px; transition: 0.5s; }
-        .wrapper.hidden { opacity: 0; transform: scale(0.9); pointer-events: none; }
+        /* --- SLOT MACHINE (THE CORE) --- */
+        .slot-container {
+            width: 100%; max-width: 400px;
+            height: 220px; /* Видимая зона */
+            position: relative;
+            overflow: hidden; /* Обрезает все, что за пределами */
+            margin-bottom: 20px;
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            background: rgba(10,10,10,0.8);
+            box-shadow: inset 0 0 50px #000;
+            z-index: 10;
+        }
 
-        .app-title { text-align: center; font-size: 12px; letter-spacing: 4px; text-transform: uppercase; opacity: 0.5; font-weight: 700; margin-bottom: -10px; }
+        /* Центральная линия (Указатель) */
+        .slot-line {
+            position: absolute; top: 50%; left: 0; width: 100%; height: 2px;
+            background: linear-gradient(90deg, transparent, #fff, transparent);
+            transform: translateY(-1px); z-index: 20; opacity: 0.3;
+            box-shadow: 0 0 10px #fff;
+        }
+        .slot-overlay-top, .slot-overlay-bot {
+            position: absolute; left: 0; width: 100%; height: 30%; z-index: 15; pointer-events: none;
+        }
+        .slot-overlay-top { top: 0; background: linear-gradient(to bottom, #000, transparent); }
+        .slot-overlay-bot { bottom: 0; background: linear-gradient(to top, #000, transparent); }
 
-        .main-card { border-radius: 24px; padding: 30px 20px; display: flex; flex-direction: column; align-items: center; text-align: center; min-height: 220px; justify-content: center; }
-        .res-tier { font-size: 12px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 10px; opacity: 0.8; }
-        .res-name { font-size: 26px; font-weight: 800; line-height: 1.1; margin-bottom: 5px; }
-        .res-spec { font-size: 16px; font-weight: 500; opacity: 0.6; }
-        .res-tune { font-size: 14px; color: var(--mat); margin-top: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+        /* Лента с машинами */
+        .slot-track {
+            position: absolute; top: 50%; left: 0; width: 100%;
+            /* Стартовая позиция (центр трека выровнен по центру контейнера) */
+            transform: translateY(-50%); 
+            will-change: transform, filter; /* Оптимизация для GPU */
+        }
 
-        .controls { display: grid; grid-template-columns: 1fr auto; gap: 12px; }
-        .btn-spin { background: #fff; color: #000; border: none; border-radius: 18px; height: 64px; font-size: 18px; font-weight: 800; letter-spacing: 1px; cursor: pointer; box-shadow: 0 0 30px rgba(255,255,255,0.1); transition: 0.1s; }
-        .btn-spin:active { transform: scale(0.98); background: #e5e5e5; }
-        .btn-garage-main { width: 64px; height: 64px; border-radius: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .btn-google { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 16px; height: 50px; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 14px; font-weight: 600; cursor: pointer; opacity: 0; pointer-events: none; transition: 0.3s; }
-        .btn-google.visible { opacity: 1; pointer-events: auto; }
-
-        /* --- CINEMATIC OVERLAY --- */
-        #cinematic {
-            position: fixed; inset: 0; background: #000; z-index: 500;
+        /* Карточка машины в рулетке */
+        .slot-card {
+            height: var(--card-h);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            opacity: 0; pointer-events: none; transition: opacity 0.5s;
+            opacity: 0.4; transform: scale(0.9); transition: 0.3s;
+            padding: 0 10px; text-align: center;
         }
-        #cinematic.active { opacity: 1; pointer-events: auto; }
+        /* Когда карточка побеждает */
+        .slot-card.winner {
+            opacity: 1; transform: scale(1.05); filter: drop-shadow(0 0 20px rgba(255,255,255,0.2));
+        }
+        
+        .sc-tier { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+        .sc-brand { font-size: 20px; font-weight: 800; line-height: 1; text-transform: uppercase; color: #fff; }
+        .sc-model { font-size: 14px; font-weight: 500; color: #ccc; margin-top: 2px; }
+        .sc-tune { font-size: 11px; font-weight: 700; color: var(--mat); margin-top: 4px; letter-spacing: 1px; }
 
-        .cine-container { width: 100%; max-width: 400px; padding: 20px; display: flex; flex-direction: column; gap: 15px; text-align: center; }
-        
-        .cine-row {
-            opacity: 0.2; transform: translateY(10px); transition: 0.3s;
-            display: flex; flex-direction: column; align-items: center; min-height: 50px;
+        /* Motion Blur Class (JS добавляет во время спина) */
+        .blur-fx { filter: blur(3px); }
+
+        /* --- CONTROLS --- */
+        .wrapper { width: 90%; max-width: 420px; display: flex; flex-direction: column; align-items: center; z-index: 10; }
+        .app-title { font-size: 12px; letter-spacing: 4px; opacity: 0.5; font-weight: 700; margin-bottom: 20px; text-transform: uppercase; }
+
+        .controls { width: 100%; display: grid; grid-template-columns: 1fr auto; gap: 12px; }
+        .btn-spin {
+            background: #fff; color: #000; border: none; border-radius: 18px; height: 64px;
+            font-size: 18px; font-weight: 800; letter-spacing: 1px; cursor: pointer;
+            box-shadow: 0 0 30px rgba(255,255,255,0.1); transition: 0.1s;
         }
-        .cine-row.spinning { opacity: 0.8; transform: scale(1.05); }
-        .cine-row.done { opacity: 1; transform: scale(1); }
+        .btn-spin:active { transform: scale(0.98); background: #ddd; }
+        .btn-spin:disabled { background: #333; color: #666; box-shadow: none; cursor: default; }
+
+        .btn-garage {
+            width: 64px; height: 64px; border-radius: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer;
+        }
+
+        /* Кнопка "Забрать" и "Фото" */
+        .action-area { width: 100%; margin-top: 15px; height: 60px; position: relative; }
         
-        .cine-label { font-size: 10px; text-transform: uppercase; letter-spacing: 3px; color: #555; margin-bottom: 4px; font-weight: 700; }
-        .cine-val { font-size: 24px; font-weight: 800; text-transform: uppercase; line-height: 1; white-space: nowrap; }
-        
-        #cTierVal { font-size: 20px; letter-spacing: 2px; }
-        #cBrandVal { font-size: 32px; }
-        #cModelVal { font-size: 26px; }
-        #cSpecVal { font-size: 18px; color: #aaa; }
-        #cTuneVal { font-size: 16px; color: #666; }
-        #cTuneVal.tuned { color: var(--mat); text-shadow: 0 0 15px var(--mat); }
+        .btn-action {
+            position: absolute; inset: 0; border-radius: 16px; font-weight: 700; font-size: 14px;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-transform: uppercase;
+            border: none;
+        }
 
         #claimBtn {
-            margin-top: 40px; background: #fff; color: #000; border: none;
-            padding: 20px 0; width: 100%; font-size: 16px; font-weight: 900; letter-spacing: 2px;
-            border-radius: 16px; cursor: pointer; opacity: 0; transform: translateY(20px); transition: 0.5s;
+            background: var(--eco); color: #000; z-index: 2;
+            transform: scale(0.9); opacity: 0; pointer-events: none;
+            box-shadow: 0 0 20px rgba(52, 211, 153, 0.4);
         }
-        #claimBtn.show { opacity: 1; transform: translateY(0); box-shadow: 0 0 50px rgba(255,255,255,0.4); }
+        #claimBtn.active { transform: scale(1); opacity: 1; pointer-events: auto; }
 
-        /* MODALS */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; opacity: 0; pointer-events: none; transition: 0.3s; display: flex; flex-direction: column; justify-content: flex-end; }
+        #googleBtn {
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); color: #fff; z-index: 1;
+            opacity: 0; transform: translateY(10px);
+        }
+        #googleBtn.active { opacity: 1; transform: translateY(0); }
+        #googleBtn svg { width: 18px; height: 18px; margin-right: 8px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+        /* --- MODALS --- */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 2000; opacity: 0; pointer-events: none; transition: 0.3s; display: flex; flex-direction: column; justify-content: flex-end; }
         .modal.active { opacity: 1; pointer-events: auto; }
-        .modal-content { background: #111; border-top: 1px solid #333; border-radius: 24px 24px 0 0; padding: 20px; height: 80vh; display: flex; flex-direction: column; transform: translateY(100%); transition: 0.3s; }
+        .modal-content { background: #111; border-top: 1px solid #333; border-radius: 24px 24px 0 0; padding: 20px; height: 85vh; display: flex; flex-direction: column; transform: translateY(100%); transition: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
         .modal.active .modal-content { transform: translateY(0); }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .g-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .g-item { background: #1a1a1a; border: 1px solid #333; border-radius: 14px; padding: 12px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #444; }
-        
-        /* Tier Colors */
-        .c-eco { color: var(--eco); } .b-eco { border-color: var(--eco); }
-        .c-mid { color: var(--mid); } .b-mid { border-color: var(--mid); }
-        .c-pre { color: var(--pre); } .b-pre { border-color: var(--pre); }
-        .c-lux { color: var(--lux); } .b-lux { border-color: var(--lux); }
-        .c-mat { color: var(--mat); } .b-mat { border-color: var(--mat); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-close { font-size: 24px; cursor: pointer; color: #666; }
 
-        /* CHEAT & BG menus omitted for brevity but logic retained */
-        .bg-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .bg-item { aspect-ratio: 1; border-radius: 12px; border: 2px solid rgba(255,255,255,0.1); cursor: pointer; }
-        #cheatMenu { position: absolute; top: 100px; left: 50%; transform: translate(-50%, -20px); background: #111; border: 1px solid #444; padding: 10px; border-radius: 16px; opacity: 0; pointer-events: none; transition: 0.2s; z-index: 2000; }
-        #cheatMenu.active { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
-        .cheat-btn { padding: 10px; background: #222; margin: 2px; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        /* Garage List */
+        .g-filters { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; -ms-overflow-style: none; scrollbar-width: none; }
+        .g-filters::-webkit-scrollbar { display: none; }
+        .g-chip { padding: 8px 16px; background: #222; border-radius: 20px; font-size: 11px; font-weight: 700; color: #888; border: 1px solid transparent; white-space: nowrap; transition: 0.2s; }
+        .g-chip.active { background: #fff; color: #000; }
+
+        .g-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .g-item { background: #181818; border: 1px solid #333; border-radius: 16px; padding: 15px; display: grid; grid-template-columns: 1fr auto; align-items: center; border-left: 4px solid #444; }
+        .g-item.eco { border-color: var(--eco); } .g-item.mid { border-color: var(--mid); } .g-item.pre { border-color: var(--pre); } .g-item.lux { border-color: var(--lux); } .g-item.mat { border-color: var(--mat); }
+        .g-badge { background: #333; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; color: #fff; }
+
+        /* COLORS */
+        .c-eco { color: var(--eco); text-shadow: 0 0 15px rgba(52, 211, 153, 0.3); }
+        .c-mid { color: var(--mid); text-shadow: 0 0 15px rgba(96, 165, 250, 0.3); }
+        .c-pre { color: var(--pre); text-shadow: 0 0 15px rgba(167, 139, 250, 0.3); }
+        .c-lux { color: var(--lux); text-shadow: 0 0 20px rgba(251, 191, 36, 0.4); }
+        .c-mat { color: var(--mat); text-shadow: 0 0 25px rgba(244, 63, 94, 0.5); }
+
+        /* CHEAT */
+        #cheatMenu { position: fixed; top: 20%; left: 50%; transform: translateX(-50%) scale(0.9); background: #111; border: 1px solid #444; padding: 15px; border-radius: 20px; opacity: 0; pointer-events: none; transition: 0.2s; z-index: 3000; box-shadow: 0 20px 50px #000; }
+        #cheatMenu.active { opacity: 1; transform: translateX(-50%) scale(1); pointer-events: auto; }
+        .cheat-btn { padding: 12px 20px; background: #222; margin: 4px; color: #fff; border: none; border-radius: 10px; font-weight: bold; font-size: 12px; width: 100%; text-align: center; }
+
+        /* IMPACT ANIMATION */
+        @keyframes flash { 0% { background: #fff; } 100% { background: transparent; } }
+        .impact-flash { position: fixed; inset: 0; z-index: 5000; pointer-events: none; animation: flash 0.15s ease-out forwards; }
     </style>
 </head>
 <body>
 
 <div class="top-bar">
-    <div class="icon-btn glass" onclick="openModal('bgModal')"><svg viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg></div>
+    <div class="icon-btn glass" onclick="openModal('bgModal')"><svg viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
     <div class="icon-btn glass" id="vibBtn" onclick="toggleVibro()"><svg viewBox="0 0 24 24"><rect x="10" y="4" width="4" height="16" rx="2"/><line class="slash" x1="3" y1="3" x2="21" y2="21"/></svg></div>
     <div class="icon-btn glass" id="sndBtn" onclick="toggleSound()"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line class="slash" x1="23" y1="9" x2="17" y2="15"/></svg></div>
 </div>
 
-<div class="wrapper" id="mainWrapper">
+<div class="wrapper">
     <div class="app-title">Car Randomizer</div>
-    <div class="main-card glass" id="resCard">
-        <div class="res-tier" id="mTier">ГОТОВ К ЗАЕЗДУ</div>
-        <div class="res-name" id="mName">НАЖМИ START</div>
-        <div class="res-spec" id="mSpec">ИСПЫТАЙ УДАЧУ</div>
-        <div class="res-tune" id="mTune"></div>
+    
+    <div class="slot-container">
+        <div class="slot-overlay-top"></div>
+        <div class="slot-line"></div>
+        <div class="slot-overlay-bot"></div>
+        
+        <div class="slot-track" id="track">
+            <div class="slot-card" style="opacity:1; transform:scale(1)">
+                <div class="sc-brand" style="font-size:16px; color:#888">READY</div>
+                <div class="sc-model">PRESS SPIN</div>
+            </div>
+        </div>
     </div>
+
     <div class="controls">
-        <button class="btn-spin" onclick="startCinematic()">КРУТИТЬ</button>
-        <div class="btn-garage-main glass" onclick="renderGarage();openModal('garageModal')">
+        <button class="btn-spin" id="spinBtn" onclick="spin()">КРУТИТЬ</button>
+        <div class="btn-garage glass" onclick="renderGarage();openModal('garageModal')">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         </div>
     </div>
-    <div class="btn-google" id="gBtn" onclick="googleSearch()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        ПОСМОТРЕТЬ ФОТО
+
+    <div class="action-area">
+        <button class="btn-action" id="claimBtn" onclick="claim()">ЗАБРАТЬ В ГАРАЖ</button>
+        <button class="btn-action" id="googleBtn" onclick="googleSearch()">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            ФОТО
+        </button>
     </div>
 </div>
 
-<div id="cinematic">
-    <div class="cine-container">
-        <div class="cine-row" id="r1"><div class="cine-label">КЛАСС</div><div class="cine-val" id="v1"></div></div>
-        <div class="cine-row" id="r2"><div class="cine-label">МАРКА</div><div class="cine-val" id="v2"></div></div>
-        <div class="cine-row" id="r3"><div class="cine-label">МОДЕЛЬ</div><div class="cine-val" id="v3"></div></div>
-        <div class="cine-row" id="r4"><div class="cine-label">СПЕК</div><div class="cine-val" id="v4"></div></div>
-        <div class="cine-row" id="r5"><div class="cine-label">ТЮНИНГ</div><div class="cine-val" id="v5"></div></div>
-        <button id="claimBtn" onclick="claim()">ЗАБРАТЬ</button>
+<div class="modal" id="garageModal"><div class="modal-content">
+    <div class="modal-header"><h3>ГАРАЖ</h3><div class="modal-close" onclick="closeModal('garageModal')">✕</div></div>
+    <div class="g-filters">
+        <div class="g-chip active" onclick="filterGarage('all',this)">ВСЕ</div>
+        <div class="g-chip" onclick="filterGarage('matmall',this)">MAT-MALL</div>
+        <div class="g-chip" onclick="filterGarage('luxury',this)">ЛЮКС</div>
+        <div class="g-chip" onclick="filterGarage('premium',this)">ПРЕМИУМ</div>
+        <div class="g-chip" onclick="filterGarage('middle',this)">СРЕДНИЙ</div>
+        <div class="g-chip" onclick="filterGarage('economy',this)">ЭКОНОМ</div>
     </div>
-</div>
+    <div class="g-list" id="garageList"></div>
+    <button class="btn-spin" style="margin-top:15px; height:50px; font-size:14px; background:#222; color:#fff; box-shadow:none" onclick="clearGarage()">ОЧИСТИТЬ</button>
+</div></div>
 
-<div class="modal" id="garageModal"><div class="modal-content"><div class="modal-header"><h3>ГАРАЖ</h3><div onclick="closeModal('garageModal')">✕</div></div><div class="g-list" id="garageList"></div><button onclick="clearGarage()" style="margin-top:10px;padding:15px;background:#333;color:#fff;border:none;border-radius:12px">ОЧИСТИТЬ</button></div></div>
-<div class="modal" id="bgModal"><div class="modal-content" style="height:auto"><div class="modal-header"><h3>ФОН</h3><div onclick="closeModal('bgModal')">✕</div></div><div class="bg-grid"><div class="bg-item" style="background:#000" onclick="sBg('c','#000')"></div><div class="bg-item" style="background:#1a1a1a" onclick="sBg('c','#1a1a1a')"></div><div class="bg-item" style="background:url('mercedes.jpg') center/cover" onclick="sBg('i','mercedes.jpg')"></div></div></div></div>
-<div id="cheatMenu"><div style="display:grid;grid-template-columns:1fr 1fr;gap:5px"><button class="cheat-btn" onclick="sc('economy')">ECO</button><button class="cheat-btn" onclick="sc('middle')">MID</button><button class="cheat-btn" onclick="sc('premium')">PRE</button><button class="cheat-btn" onclick="sc('luxury')">LUX</button><button class="cheat-btn" onclick="sc('matmall')">MAT</button></div></div>
+<div class="modal" id="bgModal"><div class="modal-content" style="height:auto"><div class="modal-header"><h3>ФОН</h3><div class="modal-close" onclick="closeModal('bgModal')">✕</div></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding-bottom:20px"><div style="aspect-ratio:1;background:#000;border-radius:12px;border:1px solid #333" onclick="sBg('c','#000')"></div><div style="aspect-ratio:1;background:#1a1a1a;border-radius:12px;border:1px solid #333" onclick="sBg('c','#1a1a1a')"></div><div style="aspect-ratio:1;background:url('mercedes.jpg') center/cover;border-radius:12px;border:1px solid #333" onclick="sBg('i','mercedes.jpg')"></div></div></div></div>
+
+<div id="cheatMenu"><div style="display:grid;grid-template-columns:1fr;gap:5px"><button class="cheat-btn" style="color:var(--eco)" onclick="sc('economy')">ECO</button><button class="cheat-btn" style="color:var(--mid)" onclick="sc('middle')">MID</button><button class="cheat-btn" style="color:var(--pre)" onclick="sc('premium')">PRE</button><button class="cheat-btn" style="color:var(--lux)" onclick="sc('luxury')">LUX</button><button class="cheat-btn" style="color:var(--mat)" onclick="sc('matmall')">MAT-MALL</button></div></div>
 
 <script>
-    let snd=true, vib=true, cheat=null, audioCtx=null, gData=null;
-    let garage = JSON.parse(localStorage.getItem('garage_v20')||'[]');
+    // --- CORE VARIABLES ---
+    let snd=true, vib=true, cheat=null, currentData=null, audioCtx=null;
+    let garage = JSON.parse(localStorage.getItem('garage_v21')||'[]');
+    
+    // --- CONSTANTS ---
+    const CARD_HEIGHT = 140; 
+    const TOTAL_ITEMS = 60; // 50 items + winners + buffer
+    const WIN_INDEX = 50; // Index where the winner lands
 
+    // --- INIT ---
     window.onload = () => {
         if(localStorage.getItem('snd')==='0') toggleSound();
         if(localStorage.getItem('vib')==='0') toggleVibro();
@@ -197,57 +260,48 @@
         });
     };
 
+    // --- AUDIO / VIBRO ---
     function initAudio(){ if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); if(audioCtx.state==='suspended')audioCtx.resume(); }
-    function click() { if(snd&&audioCtx){ const o=audioCtx.createOscillator(),g=audioCtx.createGain(); o.connect(g);g.connect(audioCtx.destination); o.frequency.value=800; g.gain.setValueAtTime(0.05,audioCtx.currentTime); g.gain.linearRampToValueAtTime(0,audioCtx.currentTime+0.05); o.start();o.stop(audioCtx.currentTime+0.05); } }
-    function boom() { if(snd&&audioCtx){ const o=audioCtx.createOscillator(),g=audioCtx.createGain(); o.connect(g);g.connect(audioCtx.destination); o.type='triangle'; o.frequency.value=80; g.gain.setValueAtTime(0.4,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+0.3); o.start();o.stop(audioCtx.currentTime+0.3); } }
-    function shock() { if(vib&&navigator.vibrate) navigator.vibrate([30,30,30]); }
-
+    function clickSound() { if(snd&&audioCtx){ const o=audioCtx.createOscillator(),g=audioCtx.createGain(); o.connect(g);g.connect(audioCtx.destination); o.frequency.value=800; g.gain.setValueAtTime(0.05,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.05); o.start();o.stop(audioCtx.currentTime+0.05); } }
+    function winSound() { if(snd&&audioCtx){ const o=audioCtx.createOscillator(),g=audioCtx.createGain(); o.connect(g);g.connect(audioCtx.destination); o.type='triangle'; o.frequency.setValueAtTime(100,audioCtx.currentTime); o.frequency.linearRampToValueAtTime(600,audioCtx.currentTime+0.3); g.gain.setValueAtTime(0.3,audioCtx.currentTime); g.gain.linearRampToValueAtTime(0.001,audioCtx.currentTime+0.5); o.start();o.stop(audioCtx.currentTime+0.5); } }
     function toggleSound(){ snd=!snd; document.getElementById('sndBtn').classList.toggle('off',!snd); localStorage.setItem('snd',snd?'1':'0'); if(snd)initAudio(); }
     function toggleVibro(){ vib=!vib; document.getElementById('vibBtn').classList.toggle('off',!vib); localStorage.setItem('vib',vib?'1':'0'); }
+    function doVib(p){ if(vib&&navigator.vibrate) navigator.vibrate(p); }
+
+    // --- UI ---
     function openModal(id){ document.getElementById(id).classList.add('active'); }
     function closeModal(id){ document.getElementById(id).classList.remove('active'); }
     function sBg(t,v){ appBg(t,v); localStorage.setItem('bgt',t); localStorage.setItem('bgv',v); closeModal('bgModal'); }
     function appBg(t,v){ document.body.style.background = t==='c'?v:`url('${v}') center/cover`; }
     function sc(v){ cheat=v; document.getElementById('cheatMenu').classList.remove('active'); }
 
+    // --- DATA ---
     const r=(a)=>a[Math.floor(Math.random()*a.length)];
     const ch=(p)=>Math.random()<p;
     
-    // --- REALISTIC SPIN POOLS ---
-    function getSpinPool(type) {
-        if(type==='brand') return ['BMW','MERCEDES','TOYOTA','AUDI','PORSCHE','LADA','HAVAL','KIA','HONDA','TANK','ZEEKR','FERRARI','FORD'];
-        if(type==='model') return ['CAMRY','M5','911','PRIORA','CIVIC','CLS','URUS','VESTA','E63','LAND CRUISER','MONJARO','MUSTANG','GOLF'];
-        if(type==='spec') return ['COMPETITION','TURBO S','3.5 V6','AMG S','LONG','PERFORMANCE','GT-LINE','PLATINUM','SPORT','BLACK BADGE'];
-        if(type==='tune') return ['BRABUS','STAGE 2','MANHART','STOCK','HKS','LIBERTY WALK','ALPINA','STOCK','STOCK','ABT'];
-        return ['...'];
-    }
-
     function getTune(t){ 
         if(!ch(0.2))return null;
-        const map={'b':['Manhart','G-Power','Alpina'],'m':['Brabus','Mansory'],'j':['HKS','VeilSide'],'l':['Stinger','Turbo'],'c':['Chip','Sport']};
-        return r(map[t]||['Stage 2']);
+        const m={'b':['Manhart','G-Power','Stage 2'],'m':['Brabus','Mansory','Rocket'],'j':['HKS','VeilSide','Drift Spec'],'l':['Turbo','Bunker'],'c':['Chip','Black Ed']};
+        return r(m[t]||['Tuned']);
     }
 
-    function generate() {
-        let t = cheat || (()=>{const x=Math.random();return x<0.01?'matmall':x<0.26?'economy':x<0.51?'middle':x<0.76?'premium':'luxury'})();
-        cheat=null;
-        let d={tier:t, tune:null};
-        
-        if(t=='economy'){
+    function genCar(tier) {
+        let d = {tier:tier, tune:null};
+        if(tier=='economy'){
             d.tn='ЭКОНОМ'; d.css='c-eco'; d.gcss='eco';
-            const c=[{b:'Lada',m:'Vesta NG',s:'Sport',t:'l'},{b:'VW',m:'Polo',s:'1.4 TSI',t:'c'},{b:'Skoda',m:'Rapid',s:'Monte Carlo',t:'c'},{b:'Kia',m:'Rio',s:'X-Line',t:'c'}];
+            const c=[{b:'Lada',m:'Vesta NG',s:'Sport',t:'l'},{b:'VW',m:'Polo',s:'GT',t:'c'},{b:'Skoda',m:'Rapid',s:'Monte Carlo',t:'c'},{b:'Kia',m:'Rio',s:'X-Line',t:'c'},{b:'Haval',m:'Jolion',s:'Premium',t:'c'}];
             const x=r(c); d.b=x.b; d.m=x.m; d.s=x.s; d.tune=getTune(x.t);
-        } else if(t=='middle'){
+        } else if(tier=='middle'){
             d.tn='СРЕДНИЙ'; d.css='c-mid'; d.gcss='mid';
-            const c=[{b:'Toyota',m:'Mark II',s:'Tourer V',t:'j'},{b:'Toyota',m:'Camry',s:'3.5 V6',t:'j'},{b:'Subaru',m:'WRX STI',s:'GC8',t:'j'},{b:'Geely',m:'Monjaro',s:'Flagship',t:'c'}];
+            const c=[{b:'Toyota',m:'Mark II',s:'Tourer V',t:'j'},{b:'Toyota',m:'Camry',s:'3.5 V6',t:'j'},{b:'Subaru',m:'WRX STI',s:'GC8',t:'j'},{b:'Geely',m:'Monjaro',s:'Flagship',t:'c'},{b:'Tank',m:'300',s:'City',t:'c'}];
             const x=r(c); d.b=x.b; d.m=x.m; d.s=x.s; d.tune=getTune(x.t);
-        } else if(t=='premium'){
+        } else if(tier=='premium'){
             d.tn='ПРЕМИУМ'; d.css='c-pre'; d.gcss='pre';
-            const c=[{b:'BMW',m:'M5 F90',s:'Competition',t:'b'},{b:'Mercedes',m:'E63 S',s:'W213',t:'m'},{b:'Audi',m:'RS6',s:'C8 Avant',t:'c'},{b:'Zeekr',m:'001',s:'FR',t:'c'}];
+            const c=[{b:'BMW',m:'M5 F90',s:'Competition',t:'b'},{b:'Mercedes',m:'E63 S',s:'AMG',t:'m'},{b:'Audi',m:'RS6',s:'Avant C8',t:'c'},{b:'Zeekr',m:'001',s:'FR',t:'c'},{b:'Li',m:'L9',s:'Ultra',t:'c'}];
             const x=r(c); d.b=x.b; d.m=x.m; d.s=x.s; d.tune=getTune(x.t);
-        } else if(t=='luxury'){
+        } else if(tier=='luxury'){
             d.tn='ЛЮКС'; d.css='c-lux'; d.gcss='lux';
-            const c=[{b:'Ferrari',m:'SF90',s:'Stradale'},{b:'Lamborghini',m:'Urus',s:'Performante'},{b:'Porsche',m:'911 Turbo S',s:'(992)'},{b:'Bugatti',m:'Chiron',s:'Super Sport'}];
+            const c=[{b:'Ferrari',m:'SF90',s:'Stradale'},{b:'Lamborghini',m:'Urus',s:'Performante'},{b:'Porsche',m:'911',s:'Turbo S'},{b:'Bugatti',m:'Chiron',s:'Super Sport'}];
             const x=r(c); d.b=x.b; d.m=x.m; d.s=x.s; d.tune=getTune('m');
         } else {
             d.tn='MAT-MALL'; d.css='c-mat'; d.gcss='mat';
@@ -256,96 +310,168 @@
         return d;
     }
 
-    async function spinRow(id, final, poolType, css) {
-        const el = document.getElementById(id);
-        const val = el.querySelector('.cine-val');
-        el.classList.add('active');
-        val.className = 'cine-val motion-blur'; // Start blur
-        
-        const pool = getSpinPool(poolType);
-        
-        // Spin fast
-        for(let i=0; i<15; i++) {
-            val.innerText = r(pool);
-            click();
-            await new Promise(r=>setTimeout(r, 60)); // Fast ticks
+    // --- SPIN LOGIC ---
+    const track = document.getElementById('track');
+    const spinBtn = document.getElementById('spinBtn');
+    const claimBtn = document.getElementById('claimBtn');
+    const googleBtn = document.getElementById('googleBtn');
+
+    function spin() {
+        if(spinBtn.disabled) return;
+        spinBtn.disabled = true;
+        claimBtn.classList.remove('active');
+        googleBtn.classList.remove('active');
+        initAudio();
+
+        // 1. Decide Winner
+        let t = cheat || (()=>{const x=Math.random();return x<0.01?'matmall':x<0.26?'economy':x<0.51?'middle':x<0.76?'premium':'luxury'})();
+        cheat = null;
+        currentData = genCar(t);
+
+        // 2. Build Strip
+        let html = '';
+        // Add buffer before
+        for(let i=0; i<WIN_INDEX; i++) {
+            const rt = r(['economy','middle','premium','luxury']);
+            const rc = genCar(rt);
+            html += createCardHTML(rc);
+        }
+        // Add Winner
+        html += createCardHTML(currentData, true);
+        // Add buffer after
+        for(let i=0; i<5; i++) {
+            const rt = r(['economy','middle','premium','luxury']);
+            const rc = genCar(rt);
+            html += createCardHTML(rc);
         }
         
-        // Stop
-        val.innerText = final;
-        val.className = 'cine-val impact'; // Flash
-        if(css) val.classList.add(css);
+        track.innerHTML = html;
         
-        document.body.classList.add('shaking'); // Screen shake
-        setTimeout(()=>document.body.classList.remove('shaking'), 200);
-        boom(); 
+        // 3. Reset Position
+        // Start at index 2 (so we see something scrolling immediately)
+        const startY = - (2 * CARD_HEIGHT) + (CARD_HEIGHT/2); // Align center
+        track.style.transition = 'none';
+        track.style.transform = `translateY(0px)`;
+        track.classList.remove('blur-fx');
+
+        // 4. Animate
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                track.classList.add('blur-fx');
+                // Calculate target: Move to WIN_INDEX
+                // We want WIN_INDEX item to be centered.
+                // Center of container is 110px (220/2).
+                // Center of item N is N*140 + 70.
+                // TranslateY = 110 - (N*140 + 70) = 40 - N*140
+                const targetY = 40 - (WIN_INDEX * CARD_HEIGHT);
+                
+                track.style.transition = 'transform 4s cubic-bezier(0.12, 0.8, 0.38, 1)';
+                track.style.transform = `translateY(${targetY}px)`;
+                
+                // Sound simulation
+                simulateTicks(4000);
+            });
+        });
+
+        // 5. Finish
+        setTimeout(() => {
+            track.classList.remove('blur-fx');
+            const winnerEl = track.children[WIN_INDEX];
+            winnerEl.classList.add('winner');
+            
+            // Flash Effect
+            const flash = document.createElement('div');
+            flash.className = 'impact-flash';
+            document.body.appendChild(flash);
+            setTimeout(()=>flash.remove(), 200);
+
+            winSound();
+            doVib([50,50,100]);
+            
+            claimBtn.classList.add('active');
+            spinBtn.disabled = false;
+        }, 4000);
     }
 
-    async function startCinematic() {
-        initAudio();
-        gData = generate();
-        
-        document.getElementById('mainWrapper').classList.add('hidden');
-        document.getElementById('cinematic').classList.add('active');
-        document.getElementById('claimBtn').classList.remove('show');
-        
-        ['v1','v2','v3','v4','v5'].forEach(id=>document.getElementById(id).innerText='');
-        ['r1','r2','r3','r4','r5'].forEach(id=>document.getElementById(id).classList.remove('active'));
-
-        // Sequence
-        await new Promise(r=>setTimeout(r, 500));
-        await spinRow('r1', gData.tn, 'tier', gData.css);
-        
-        await new Promise(r=>setTimeout(r, 400));
-        await spinRow('r2', gData.b, 'brand');
-        
-        await new Promise(r=>setTimeout(r, 400));
-        await spinRow('r3', gData.m, 'model');
-        
-        await new Promise(r=>setTimeout(r, 400));
-        await spinRow('r4', gData.s, 'spec');
-        
-        await new Promise(r=>setTimeout(r, 400));
-        // Tuning logic for display
-        const tTxt = gData.tune ? gData.tune : "STOCK";
-        const tCss = gData.tune ? 'c-mat' : null;
-        await spinRow('r5', tTxt, 'tune', tCss);
-        if(!gData.tune) document.getElementById('v5').style.opacity = 0.5;
-
-        shock();
-        await new Promise(r=>setTimeout(r, 300));
-        document.getElementById('claimBtn').classList.add('show');
+    function createCardHTML(c, isWinner=false) {
+        const tuneHtml = c.tune ? `<div class="sc-tune">${c.tune}</div>` : '';
+        // If it's not the winner, we don't need full details to save rendering, 
+        // but for motion blur realism we render structure.
+        return `
+            <div class="slot-card">
+                <div class="sc-tier ${c.css}">${c.tn}</div>
+                <div class="sc-brand">${c.b}</div>
+                <div class="sc-model">${c.m} ${c.s}</div>
+                ${tuneHtml}
+            </div>
+        `;
     }
 
+    function simulateTicks(duration) {
+        let start = Date.now();
+        let ticks = 0;
+        
+        function loop() {
+            let elapsed = Date.now() - start;
+            if(elapsed >= duration) return;
+            
+            // Ticking curve: fast then slow
+            // A simple approximation
+            let progress = elapsed / duration;
+            let interval = 50 + (progress * 300); // 50ms to 350ms
+            
+            clickSound();
+            doVib(5);
+            setTimeout(loop, interval);
+        }
+        loop();
+    }
+
+    // --- GARAGE ---
     function claim() {
-        document.getElementById('cinematic').classList.remove('active');
-        document.getElementById('mainWrapper').classList.remove('hidden');
+        claimBtn.classList.remove('active');
+        googleBtn.classList.add('active');
         
-        document.getElementById('mTier').innerText = gData.tn;
-        document.getElementById('mTier').className = 'res-tier '+gData.css;
-        document.getElementById('mName').innerText = gData.b + ' ' + gData.m;
-        document.getElementById('mSpec').innerText = gData.s;
-        document.getElementById('mTune').innerText = gData.tune ? '+ '+gData.tune : '';
-        document.getElementById('gBtn').classList.add('visible');
-
-        const n = `${gData.b} ${gData.m} ${gData.s}`;
-        const ex = garage.find(c => c.n === n && c.t === gData.tune);
+        // Save
+        const n = `${currentData.b} ${currentData.m} ${currentData.s}`;
+        const ex = garage.find(c => c.n === n && c.t === currentData.tune);
         if(ex) ex.c++;
-        else garage.unshift({n:n, tn:gData.tn, t:gData.tune, css:gData.gcss, c:1});
-        localStorage.setItem('garage_v20', JSON.stringify(garage));
+        else garage.unshift({n:n, tn:currentData.tn, t:currentData.tune, css:currentData.gcss, c:1, tier:currentData.tier});
+        localStorage.setItem('garage_v21', JSON.stringify(garage));
     }
 
-    function renderGarage() {
+    function renderGarage(filter='all') {
         const l = document.getElementById('garageList');
-        l.innerHTML = garage.length ? '' : '<div style="color:#666;text-align:center;padding:20px">Пусто</div>';
+        l.innerHTML = garage.length ? '' : '<div style="color:#666;text-align:center;padding:20px">Гараж пуст</div>';
+        
+        // Filter chips UI
+        document.querySelectorAll('.g-chip').forEach(c => c.classList.remove('active'));
+        // Find button with matching onclick
+        // (Simplified for this code block, assuming correct click)
+        
         garage.forEach(i => {
-            const t = i.t ? `<span style="color:var(--mat)"> ${i.t}</span>` : '';
-            l.innerHTML += `<div class="g-item b-${i.css}"><div><div style="font-size:10px;opacity:0.7">${i.tn}</div><div class="g-name">${i.n}${t}</div></div><div class="g-count">x${i.c}</div></div>`;
+            if(filter!=='all' && i.tier!==filter) return;
+            const t = i.t ? `<div style="font-size:10px;color:var(--mat);font-weight:700;margin-top:2px">${i.t}</div>` : '';
+            l.innerHTML += `
+                <div class="g-item ${i.gcss}">
+                    <div>
+                        <div style="font-size:9px;opacity:0.7;margin-bottom:2px">${i.tn}</div>
+                        <div style="font-size:14px;font-weight:700;color:#fff">${i.n}</div>
+                        ${t}
+                    </div>
+                    <div class="g-badge">x${i.c}</div>
+                </div>`;
         });
     }
+    
+    function filterGarage(f, btn) {
+        document.querySelectorAll('.g-chip').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        renderGarage(f);
+    }
 
-    function clearGarage() { garage=[]; localStorage.removeItem('garage_v20'); renderGarage(); }
-    function googleSearch() { if(gData) window.open(`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(gData.b+' '+gData.m)}`, '_blank'); }
+    function clearGarage() { garage=[]; localStorage.removeItem('garage_v21'); renderGarage(); }
+    function googleSearch() { if(currentData) window.open(`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(currentData.b+' '+currentData.m)}`, '_blank'); }
 </script>
 </body>
 </html>
