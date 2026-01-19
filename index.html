@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#0b0b0b">
     <meta name="description" content="Ultimate Car Randomizer App">
     
@@ -19,17 +19,13 @@
             --mid: #00eaff;
             --pre: #d600ff;
             --lux: #ffbd00;
-            --chn: #ff3333;
         }
 
-        /* === ИСПРАВЛЕННАЯ СТРУКТУРА (FIXED LAYOUT) === */
-        html, body {
+        /* === ГЛОБАЛЬНАЯ БЛОКИРОВКА СКРОЛЛА === */
+        html {
             height: 100%;
             width: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden; /* Блокирует скролл, но не ломает центровку */
-            overscroll-behavior: none;
+            overflow: hidden;
         }
 
         body {
@@ -37,43 +33,54 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            background-attachment: fixed;
+            background-attachment: scroll;
+            
             color: var(--text);
             font-family: 'Arial Black', 'Impact', sans-serif;
             
-            /* Гибкая центровка */
+            /* Жесткая фиксация экрана */
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            height: 100%;
+            width: 100%;
+            
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            overscroll-behavior: none;
+            touch-action: none;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
             transition: background-color 0.5s ease;
         }
 
-        /* Затемнение фона */
-        body::after {
+        body::before {
             content: "";
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
+            top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.4);
             z-index: -1;
             pointer-events: none;
         }
 
         .wrapper {
-            width: 90%; /* Немного меньше 100%, чтобы не прилипало к краям */
+            width: 90%;
             max-width: 600px;
-            text-align: center;
-            position: relative;
-            z-index: 10;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 20px; /* Отступы между элементами */
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            z-index: 10;
         }
 
-        /* === ВЕРХНИЕ КНОПКИ (АБСОЛЮТНОЕ ПОЗИЦИОНИРОВАНИЕ) === */
+        /* === ВЕРХНИЕ КНОПКИ === */
         .settings-bar {
             position: absolute;
             top: 20px;
@@ -83,7 +90,6 @@
             z-index: 1000;
         }
 
-        /* Учет челки iPhone */
         @supports (padding-top: env(safe-area-inset-top)) {
             .settings-bar { top: calc(20px + env(safe-area-inset-top)); }
         }
@@ -106,7 +112,7 @@
 
         .icon-btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
         .icon-btn:active { transform: scale(0.95); background: rgba(255,255,255,0.2); }
-        .icon-btn.off { opacity: 0.5; color: #aaa; background: rgba(0,0,0,0.6); border-color: #444; }
+        .icon-btn.off { opacity: 0.5; border-color: #444; color: #888; background: rgba(0,0,0,0.8); }
         .slash { display: none; }
         .icon-btn.off .slash { display: block; }
 
@@ -145,15 +151,16 @@
         .mobile-wallpapers { display: none; }
         @media (max-width: 768px) { .mobile-wallpapers { display: block; } }
 
-        /* === ЭЛЕМЕНТЫ ИНТЕРФЕЙСА === */
+        /* === ИНТЕРФЕЙС === */
         h1 {
             font-size: 1.8rem;
             text-transform: uppercase;
-            letter-spacing: 3px;
+            letter-spacing: 4px;
             color: #fff;
             text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-            margin: 0;
+            margin-bottom: 30px;
             line-height: 1.2;
+            width: 100%;
         }
 
         .output-box {
@@ -162,12 +169,11 @@
             border-radius: 16px;
             padding: 20px;
             width: 100%;
-            box-sizing: border-box; /* Важно: чтобы padding не увеличивал ширину */
             position: relative;
             box-shadow: 0 0 50px rgba(0,0,0,0.5);
             transition: 0.1s transform, 0.3s border-color, 0.3s box-shadow;
             cursor: pointer;
-            min-height: 180px; /* Фиксированная высота, чтобы не дергалось */
+            min-height: 180px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -177,7 +183,7 @@
         .output-box:active { transform: scale(0.98); }
 
         #carName {
-            font-size: 1.8rem; /* Чуть меньше, чтобы влезало длинное название */
+            font-size: 1.8rem;
             line-height: 1.2;
             text-transform: uppercase;
             background: -webkit-linear-gradient(#fff, #aaa);
@@ -185,33 +191,33 @@
             -webkit-text-fill-color: transparent;
             filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
             margin-bottom: 10px;
-            text-align: center;
-            word-wrap: break-word; /* Перенос длинных слов */
+            word-break: break-word;
         }
 
         #tierLabel {
             font-family: 'Segoe UI', sans-serif;
             font-size: 0.8rem;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
             color: #999;
             font-weight: 700;
             text-transform: uppercase;
         }
 
         .controls { 
-            width: 100%;
+            width: 100%; 
             display: flex; 
             flex-direction: column; 
-            gap: 12px; 
+            gap: 15px; 
+            margin-top: 20px; 
         }
 
         .btn {
             background: #fff;
             color: #000;
             border: none;
-            padding: 18px 0;
+            padding: 20px 0;
             width: 100%;
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             font-weight: 900;
             text-transform: uppercase;
             border-radius: 12px;
@@ -219,20 +225,20 @@
             transition: 0.1s;
             box-shadow: 0 0 20px rgba(255,255,255,0.1);
         }
-        .btn:active { transform: translateY(2px); background: #ccc; }
+        .btn:active { transform: translateY(2px); background: #ddd; }
         .btn:disabled { background: #333; color: #555; transform: none; box-shadow: none;}
 
         #googleBtn {
             display: none;
             background: rgba(0,0,0,0.6);
-            color: #ddd;
+            color: #aaa;
             border: 2px solid rgba(255,255,255,0.2);
             padding: 15px 0;
             width: 100%;
-            font-size: 0.9rem;
+            font-size: 1rem;
             font-weight: 700;
             text-transform: uppercase;
-            border-radius: 12px;
+            border-radius: 8px;
             cursor: pointer;
             transition: 0.2s;
             font-family: 'Segoe UI', sans-serif;
@@ -241,7 +247,7 @@
             justify-content: center;
             gap: 10px;
         }
-        #googleBtn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.5; }
+        #googleBtn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; }
         #googleBtn:hover { border-color: #fff; color: #fff; background: rgba(0,0,0,0.8); }
         #googleBtn:active { transform: scale(0.98); }
 
@@ -254,8 +260,6 @@
         .glow-pre #carName { background: -webkit-linear-gradient(#fff, var(--pre)); -webkit-background-clip: text; }
         .glow-lux { border-color: var(--lux); box-shadow: 0 0 80px rgba(255,189,0,0.3); }
         .glow-lux #carName { background: -webkit-linear-gradient(#fff, var(--lux)); -webkit-background-clip: text; }
-        .glow-chn { border-color: var(--chn); box-shadow: 0 0 60px rgba(255, 51, 51, 0.25); }
-        .glow-chn #carName { background: -webkit-linear-gradient(#fff, var(--chn)); -webkit-background-clip: text; }
 
         /* Админка */
         #cheatPanel {
@@ -311,12 +315,11 @@
 
 <div id="cheatPanel">
     <div style="color:red; font-size:10px; font-weight:bold">АДМИН ПАНЕЛЬ</div>
-    <div class="cheat-grid" style="grid-template-columns: 1fr 1fr;">
+    <div class="cheat-grid">
         <button class="cheat-btn" style="background:var(--eco)" onclick="activateCheat('economy')">ЭКО</button>
         <button class="cheat-btn" style="background:var(--mid)" onclick="activateCheat('middle')">СРЕД</button>
         <button class="cheat-btn" style="background:var(--pre); color:white" onclick="activateCheat('premium')">ПРЕМ</button>
         <button class="cheat-btn" style="background:var(--lux)" onclick="activateCheat('luxury')">ЛЮКС</button>
-        <button class="cheat-btn" style="background:var(--chn); color:white; grid-column: span 2;" onclick="activateCheat('china')">КИТАЙ</button>
     </div>
 </div>
 
@@ -347,7 +350,7 @@
         });
     }
 
-    // === UI ===
+    // === UI LOGIC ===
     function toggleBgMenu() {
         const menu = document.getElementById('bgMenu');
         menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
@@ -446,9 +449,11 @@
         }
     }
 
-    // === GENERATOR ===
+    // === GENERATOR (РАЗВЕРНУТЫЕ СПИСКИ) ===
     const r = (arr) => arr[Math.floor(Math.random() * arr.length)];
+    
     function genEconomy() {
+        // БЮДЖЕТ (Включая Китай)
         const pool = [
             () => `Lada Priora ${r(['Sedan', 'Hatchback', 'Coupe'])}`,
             () => `Lada Vesta ${r(['NG', 'SW Cross', 'Sport', '1.8'])}`,
@@ -462,11 +467,23 @@
             () => `Toyota Corolla ${r(['120', '150'])}`,
             () => `Honda Civic ${r(['EK3', 'EK9', 'ES', '4D', '5D'])}`,
             () => `Mazda 3 ${r(['BK', 'BL', 'BM'])}`,
-            () => `Mitsubishi Lancer ${r(['9', 'X 1.8', 'X 2.0'])}`
+            () => `Mitsubishi Lancer ${r(['9', 'X 1.8', 'X 2.0'])}`,
+            // Китай Эконом
+            () => `Haval M6`,
+            () => `Chery Tiggo 4 Pro`,
+            () => `Geely Emgrand`,
+            () => `Omoda S5`,
+            () => `Kaiyi E5`,
+            () => `BAIC U5 Plus`,
+            () => `JAC J7`,
+            () => `Changan Alsvin`,
+            () => `Haval Jolion ${r(['Comfort', 'Elite'])}`
         ];
         return r(pool)();
     }
+    
     function genMiddle() {
+        // СРЕДНИЙ КЛАСС (Включая Китай)
         const brands = {
             toyota: [
                 { model: "Mark II", chassis: ["JZX90", "JZX100", "JZX110"], trims: ["Grande", "Tourer S", "Tourer V", "iR-V"] },
@@ -489,30 +506,107 @@
             honda: [
                 { model: "Accord", chassis: ["CL7", "CL9", "CU2", "CV"], trims: ["Euro-R", "Type-S", "2.4"] },
                 { model: "Civic", chassis: ["Type-R EP3", "Type-R FN2", "Type-R FD2"], trims: [""] }
-            ]
+            ],
+            // Китай Средний
+            haval: [
+                { model: "F7x", chassis: [""], trims: ["Tech Plus", "Premium"] },
+                { model: "Dargo", chassis: ["X"], trims: ["Tech Plus"] },
+                { model: "H9", chassis: ["Restyling"], trims: ["Premium"] } 
+            ],
+            geely: [
+                { model: "Coolray", chassis: [""], trims: ["Flagship Sport"] },
+                { model: "Atlas Pro", chassis: ["4WD"], trims: ["Flagship"] },
+                { model: "Tugella", chassis: [""], trims: ["Flagship Sport"] }
+            ],
+            chery: [
+                { model: "Tiggo 7 Pro Max", chassis: ["AWD"], trims: ["Ultimate"] },
+                { model: "Tiggo 8 Pro Max", chassis: ["New"], trims: ["Ultimate"] },
+                { model: "Arrizo 8", chassis: ["Highline"], trims: ["Ultimate"] }
+            ],
+            tank: [ { model: "300", chassis: ["City"], trims: ["Premium"] } ],
+            jetour: [ { model: "Dashing", chassis: ["1.6T"], trims: ["Luxury"] }, { model: "T2", chassis: ["4WD"], trims: ["Expedition"] } ]
         };
-        const k=r(Object.keys(brands)), c=r(brands[k]); return `${k.charAt(0).toUpperCase()+k.slice(1)} ${c.model} ${r(c.chassis)} ${r(c.trims)}`;
+        const k=r(Object.keys(brands)), c=r(brands[k]); 
+        // Формируем строку
+        let res = `${k.charAt(0).toUpperCase()+k.slice(1)} ${c.model}`;
+        if (c.chassis && c.chassis[0] !== "") res += ` ${r(c.chassis)}`;
+        if (c.trims && c.trims[0] !== "") res += ` ${r(c.trims)}`;
+        return res;
     }
+    
     function genPremium() {
-        const g=[{b:"BMW",c:[{h:"E36",e:["318is","320i","325i","328i","M3"]},{h:"E46",e:["320i","325i","330Ci","330d","M3","M3 CSL"]},{h:"E92",e:["320i","325i","330d","335i","M3"]},{h:"F30",e:["320d","328i","330i","335i","340i"]},{h:"F80",e:["M3","M3 Competition","M3 CS"]},{h:"G20",e:["320d","330i","M340i"]},{h:"G80",e:["M3","M3 Competition"]},{h:"E34",e:["525i","530i","540i","M5 3.8"]},{h:"E39",e:["525i","530d","540i","M5"]},{h:"E60",e:["525i","530d","535d","545i","550i","M5"]},{h:"F10",e:["520d","528i","530d","535i","550i","M550d","M5"]},{h:"F90",e:["M5","M5 Competition","M5 CS"]},{h:"G30",e:["530d","540i","M550i"]},{h:"E38",e:["730d","740i","750iL"]},{h:"G12",e:["740d","750Li","M760Li"]},{h:"E53",e:["X5 3.0d","X5 4.4i","X5 4.8is"]},{h:"E70",e:["X5 3.0d","X5 4.8i","X5M"]},{h:"F15",e:["X5 40d","X5 M50d"]},{h:"F85",e:["X5M"]},{h:"G05",e:["X5 30d","X5 40i","X5 M50d"]},{h:"F95",e:["X5M Competition"]},{h:"G07",e:["X7 M50d","X7 M60i"]}]},{b:"Mercedes-Benz",c:[{h:"W204",e:["C180","C200","C250","C300","C350","C63 AMG","C63 AMG Black Series"]},{h:"W205",e:["C180","C200 4Matic","C43 AMG","C63 S AMG"]},{h:"W211",e:["E200 Kompressor","E320 CDI","E500","E55 AMG","E63 AMG"]},{h:"W212",e:["E200","E250 CDI","E300","E350","E400","E63 AMG","E63 S AMG"]},{h:"W213",e:["E200d","E220d","E300","E400d","E53 AMG","E63 S AMG"]},{h:"W140",e:["S500","S600"]},{h:"W222",e:["S350d","S500","S63 AMG","S65 AMG"]},{h:"W223",e:["S450","S580","S680 Maybach"]},{h:"W463",e:["G500","G55 AMG","G63 AMG"]},{h:"W464",e:["G63 AMG","G350d"]}]},{b:"Audi",c:[{h:"C6",e:["A6 3.0 TDI","S6 V10","RS6 Avant"]},{h:"C7",e:["A6 3.0 TFSI","A7 3.0 TDI","S7","RS6 Performance","RS7"]},{h:"C8",e:["A6 55 TFSI","RS6 Avant","RS7 Sportback"]},{h:"8V",e:["S3 Sedan","RS3 Sportback"]},{h:"B9",e:["A4 2.0 TFSI","A5 Sportback","RS4 Avant","RS5 Coupe"]},{h:"4M",e:["Q7 3.0 TDI","Q8 50 TDI","SQ8","RS Q8"]}]}];
-        const s=r(g), f=r(s.c); return `${s.b} ${r(f.e)} ${f.h}`;
-    }
-    function genLuxury() {
-        return r(["Ferrari 488 Pista","Ferrari F8 Tributo","Ferrari 812 Superfast","Ferrari SF90 Stradale","Ferrari LaFerrari","Ferrari Enzo","Ferrari F40","Lamborghini Aventador SVJ","Lamborghini Huracan Performante","Lamborghini Urus","Lamborghini Revuelto","Lamborghini Murcielago SV","Lamborghini Diablo VT","Porsche 911 Turbo S (992)","Porsche 911 GT3 RS (992)","Porsche 911 GT2 RS (991)","Porsche Carrera GT","Porsche 918 Spyder","Bugatti Chiron","Bugatti Chiron Super Sport","Bugatti Divo","Bugatti Veyron Super Sport","McLaren 720S","McLaren 765LT","McLaren P1","McLaren Senna","Rolls-Royce Phantom","Rolls-Royce Cullinan","Rolls-Royce Wraith","Bentley Continental GT Speed","Bentley Bentayga","Koenigsegg Agera RS","Koenigsegg Jesko","Pagani Huayra BC"]);
-    }
-    function genChina() {
-        const pool = [
-            "Geely Monjaro Exclusive", "Geely Monjaro Flagship", "Geely Tugella Flagship", "Geely Coolray Flagship Sport",
-            "Geely Atlas Pro", "Geely Emgrand", "Geely Preface",
-            "Haval Jolion Premium", "Haval F7x Tech Plus", "Haval Dargo Tech Plus", "Haval H9 Premium", "Haval M6", "Haval H3",
-            "Tank 300 City Premium", "Tank 300 Offroad", "Tank 500 Premium", "Tank 500 Urban", "Tank 700",
-            "Zeekr 001 FR", "Zeekr 001 YOU", "Zeekr 001 ME", "Zeekr 009", "Zeekr X", "Zeekr 007 Performance",
-            "Li Auto L7 Max", "Li Auto L7 Pro", "Li Auto L9 Ultra", "Li Auto L9 Max", "Li Auto L8 Max", "Li Auto One",
-            "Voyah Free EVR", "Voyah Dream", "Voyah Passion",
-            "Chery Tiggo 8 Pro Max", "Chery Arrizo 8", "Exeed VX President", "Exeed RX", "Omoda C5 Ultimate", "Omoda S5 GT",
-            "Avatr 11", "Avatr 12", "HiPhi Z", "HiPhi X", "Lotus Eletre R", "YangWang U8"
+        // ПРЕМИУМ (Включая Китай)
+        const g=[
+            // BMW
+            {b:"BMW",c:[{h:"E36",e:["318is","320i","325i","328i","M3"]},{h:"E46",e:["320i","325i","330Ci","330d","M3","M3 CSL"]},{h:"E92",e:["320i","325i","330d","335i","M3"]},{h:"F30",e:["320d","328i","330i","335i","340i"]},{h:"F80",e:["M3","M3 Competition","M3 CS"]},{h:"G20",e:["320d","330i","M340i"]},{h:"G80",e:["M3","M3 Competition"]},{h:"E34",e:["525i","530i","540i","M5 3.8"]},{h:"E39",e:["525i","530d","540i","M5"]},{h:"E60",e:["525i","530d","535d","545i","550i","M5"]},{h:"F10",e:["520d","528i","530d","535i","550i","M550d","M5"]},{h:"F90",e:["M5","M5 Competition","M5 CS"]},{h:"G30",e:["530d","540i","M550i"]},{h:"E38",e:["730d","740i","750iL"]},{h:"G12",e:["740d","750Li","M760Li"]},{h:"E53",e:["X5 3.0d","X5 4.4i","X5 4.8is"]},{h:"E70",e:["X5 3.0d","X5 4.8i","X5M"]},{h:"F15",e:["X5 40d","X5 M50d"]},{h:"F85",e:["X5M"]},{h:"G05",e:["X5 30d","X5 40i","X5 M50d"]},{h:"F95",e:["X5M Competition"]},{h:"G07",e:["X7 M50d","X7 M60i"]}]},
+            // Mercedes
+            {b:"Mercedes-Benz",c:[{h:"W204",e:["C180","C200","C250","C300","C350","C63 AMG","C63 AMG Black Series"]},{h:"W205",e:["C180","C200 4Matic","C43 AMG","C63 S AMG"]},{h:"W211",e:["E200 Kompressor","E320 CDI","E500","E55 AMG","E63 AMG"]},{h:"W212",e:["E200","E250 CDI","E300","E350","E400","E63 AMG","E63 S AMG"]},{h:"W213",e:["E200d","E220d","E300","E400d","E53 AMG","E63 S AMG"]},{h:"W140",e:["S500","S600"]},{h:"W222",e:["S350d","S500","S63 AMG","S65 AMG"]},{h:"W223",e:["S450","S580","S680 Maybach"]},{h:"W463",e:["G500","G55 AMG","G63 AMG"]},{h:"W464",e:["G63 AMG","G350d"]}]},
+            // Audi
+            {b:"Audi",c:[{h:"C6",e:["A6 3.0 TDI","S6 V10","RS6 Avant"]},{h:"C7",e:["A6 3.0 TFSI","A7 3.0 TDI","S7","RS6 Performance","RS7"]},{h:"C8",e:["A6 55 TFSI","RS6 Avant","RS7 Sportback"]},{h:"8V",e:["S3 Sedan","RS3 Sportback"]},{h:"B9",e:["A4 2.0 TFSI","A5 Sportback","RS4 Avant","RS5 Coupe"]},{h:"4M",e:["Q7 3.0 TDI","Q8 50 TDI","SQ8","RS Q8"]}]},
+            // Китай Премиум
+            {b:"Zeekr",c:[{h:"",e:["001 YOU","001 ME","007 Performance","X","009"]}]},
+            {b:"Li Auto",c:[{h:"",e:["L7 Max","L7 Ultra","L9 Max","L9 Ultra","L6","One"]}]},
+            {b:"Geely",c:[{h:"",e:["Monjaro Exclusive","Prefecture L"]}]},
+            {b:"Exeed",c:[{h:"",e:["VX President","RX"]}]},
+            {b:"Voyah",c:[{h:"",e:["Free EVR","Dream","Passion"]}]},
+            {b:"Tank",c:[{h:"",e:["500 Urban","500 Premium"]}]},
+            {b:"Avatr",c:[{h:"",e:["11","12"]}]},
+            {b:"HiPhi",c:[{h:"",e:["Z","X"]}]}
         ];
-        return r(pool);
+        const s=r(g), f=r(s.c); 
+        let res = `${s.b} ${r(f.e)}`;
+        if(f.h) res += ` ${f.h}`;
+        return res;
+    }
+    
+    function genLuxury() {
+        // ЛЮКС (Включая Китай)
+        return r([
+            "Ferrari 488 Pista",
+            "Ferrari F8 Tributo",
+            "Ferrari 812 Superfast",
+            "Ferrari SF90 Stradale",
+            "Ferrari LaFerrari",
+            "Ferrari Enzo",
+            "Ferrari F40",
+            "Lamborghini Aventador SVJ",
+            "Lamborghini Huracan Performante",
+            "Lamborghini Urus",
+            "Lamborghini Revuelto",
+            "Lamborghini Murcielago SV",
+            "Lamborghini Diablo VT",
+            "Porsche 911 Turbo S (992)",
+            "Porsche 911 GT3 RS (992)",
+            "Porsche 911 GT2 RS (991)",
+            "Porsche Carrera GT",
+            "Porsche 918 Spyder",
+            "Bugatti Chiron",
+            "Bugatti Chiron Super Sport",
+            "Bugatti Divo",
+            "Bugatti Veyron Super Sport",
+            "McLaren 720S",
+            "McLaren 765LT",
+            "McLaren P1",
+            "McLaren Senna",
+            "Rolls-Royce Phantom",
+            "Rolls-Royce Cullinan",
+            "Rolls-Royce Wraith",
+            "Bentley Continental GT Speed",
+            "Bentley Bentayga",
+            "Koenigsegg Agera RS",
+            "Koenigsegg Jesko",
+            "Pagani Huayra BC",
+            // Китай Люкс
+            "YangWang U8 Premium",
+            "YangWang U9",
+            "Lotus Eletre R",
+            "Lotus Emeya",
+            "Hongqi E-HS9 Executive",
+            "Hongqi H9+", 
+            "Zeekr 001 FR",
+            "HiPhi A",
+            "Tank 700 Hi4-T"
+        ]);
     }
 
     // === MAIN LOGIC ===
@@ -537,7 +631,7 @@
         if (clicks === 10) {
             clicks = 0;
             doVibrate(50);
-            if (prompt("КОД ДОСТУПА:") === "758") cheatPanel.style.display = 'block';
+            if (prompt("КОД ДОСТУПА:") === "758") cheatPanel.style.display = 'grid';
         }
     });
 
@@ -570,7 +664,7 @@
         const maxSteps = 20 + Math.floor(Math.random() * 10);
 
         function tick() {
-            const funcs = [genEconomy, genMiddle, genPremium, genLuxury, genChina];
+            const funcs = [genEconomy, genMiddle, genPremium, genLuxury];
             carNameEl.innerText = funcs[Math.floor(Math.random()*funcs.length)]();
             
             playClickSound();
@@ -594,11 +688,10 @@
             cheatNext = null;
         } else {
             const rand = Math.random();
-            if (rand < 0.20) tier = 'economy';
-            else if (rand < 0.40) tier = 'middle';
-            else if (rand < 0.60) tier = 'premium';
-            else if (rand < 0.80) tier = 'luxury';
-            else tier = 'china';
+            if (rand < 0.25) tier = 'economy';
+            else if (rand < 0.50) tier = 'middle';
+            else if (rand < 0.75) tier = 'premium';
+            else tier = 'luxury';
         }
 
         let resultName = "";
@@ -617,14 +710,10 @@
             resultName = genPremium();
             label = "КЛАСС 3: НЕМЕЦКАЯ МОЩЬ";
             glowClass = 'glow-pre';
-        } else if (tier === 'luxury') {
+        } else {
             resultName = genLuxury();
             label = "КЛАСС 4: ЭКЗОТИКА / ГИПЕРКАРЫ";
             glowClass = 'glow-lux';
-        } else {
-            resultName = genChina();
-            label = "КЛАСС 5: КИТАЙ / ТЕХНОЛОГИИ";
-            glowClass = 'glow-chn';
         }
 
         currentCar = resultName;
