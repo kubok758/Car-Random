@@ -7,10 +7,10 @@
     <style>
         :root {
             --primary: #00ff88;
-            --economy: #a8a8a8; /* Серый */
-            --middle: #00d9ff;  /* Голубой */
-            --premium: #d400ff; /* Фиолетовый */
-            --luxury: #ffcc00;  /* Золотой */
+            --economy: #a8a8a8;
+            --middle: #00d9ff;
+            --premium: #d400ff;
+            --luxury: #ffcc00;
             --bg: #121212;
             --card-bg: #1e1e1e;
             --text: #ffffff;
@@ -27,6 +27,7 @@
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             color: var(--text);
             overflow: hidden;
+            user-select: none; /* Чтобы текст не выделялся при быстром клике */
         }
 
         .container {
@@ -34,6 +35,7 @@
             width: 100%;
             max-width: 500px;
             padding: 20px;
+            position: relative;
         }
 
         h1 {
@@ -57,6 +59,12 @@
             justify-content: center;
             flex-direction: column;
             transition: all 0.3s;
+            cursor: pointer; /* Показываем, что можно кликать */
+        }
+
+        /* Эффект нажатия для названия */
+        .display-box:active {
+            transform: scale(0.98);
         }
 
         #carName {
@@ -97,11 +105,7 @@
             transform: translateY(-2px);
             filter: brightness(1.1);
         }
-
-        .spin-btn:active {
-            transform: translateY(1px);
-        }
-
+        .spin-btn:active { transform: translateY(1px); }
         .spin-btn:disabled {
             background: #444;
             color: #777;
@@ -110,7 +114,7 @@
             transform: none;
         }
 
-        /* Цветовые стили для классов */
+        /* Цветовые стили */
         .tier-economy #carName { color: var(--economy); }
         .tier-middle #carName { color: var(--middle); text-shadow: 0 0 10px rgba(0, 217, 255, 0.3); }
         .tier-premium #carName { color: var(--premium); text-shadow: 0 0 15px rgba(212, 0, 255, 0.4); }
@@ -120,6 +124,44 @@
         .tier-middle #carTier { color: var(--middle); border: 1px solid var(--middle); background: rgba(0, 217, 255, 0.1); }
         .tier-premium #carTier { color: var(--premium); border: 1px solid var(--premium); background: rgba(212, 0, 255, 0.1); }
         .tier-luxury #carTier { color: var(--luxury); border: 1px solid var(--luxury); background: rgba(255, 204, 0, 0.1); }
+
+        /* --- АДМИН ПАНЕЛЬ --- */
+        #adminPanel {
+            display: none; /* Скрыто по умолчанию */
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px dashed #ff0000;
+            border-radius: 10px;
+            background: rgba(50, 0, 0, 0.8);
+        }
+        .admin-title {
+            color: #ff5555;
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .cheat-btns {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .cheat-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            font-weight: bold;
+            opacity: 0.7;
+        }
+        .cheat-btn:hover { opacity: 1; }
+        .cheat-btn.active { border: 2px solid white; opacity: 1; transform: scale(1.1); }
+        
+        .c-eco { background: var(--economy); color: black; }
+        .c-mid { background: var(--middle); color: black; }
+        .c-pre { background: var(--premium); color: white; }
+        .c-lux { background: var(--luxury); color: black; }
 
     </style>
 </head>
@@ -131,6 +173,16 @@
         <div class="display-box" id="resultBox">
             <div id="carName">Жми кнопку</div>
             <div id="carTier">Равные шансы 25%</div>
+        </div>
+
+        <div id="adminPanel">
+            <div class="admin-title">ADMIN MODE: SET NEXT SPIN</div>
+            <div class="cheat-btns">
+                <button class="cheat-btn c-eco" onclick="setCheat('economy')">Force ECO</button>
+                <button class="cheat-btn c-mid" onclick="setCheat('middle')">Force MID</button>
+                <button class="cheat-btn c-pre" onclick="setCheat('premium')">Force PREM</button>
+                <button class="cheat-btn c-lux" onclick="setCheat('luxury')">Force LUX</button>
+            </div>
         </div>
 
         <button class="spin-btn" id="spinBtn" onclick="startSpin()">КРУТИТЬ</button>
@@ -181,31 +233,82 @@
         const carTierEl = document.getElementById('carTier');
         const resultBox = document.getElementById('resultBox');
         const spinBtn = document.getElementById('spinBtn');
+        const adminPanel = document.getElementById('adminPanel');
+        
         let isSpinning = false;
+        let forcedTier = null; // Переменная для подкрутки
 
-        // Создаем общий пул просто для визуальной анимации
-        const visualPool = [
-            ...db.economy, ...db.middle, ...db.premium, ...db.luxury
-        ];
+        // --- ЛОГИКА АДМИНКИ ---
+        let clickCount = 0;
+        let clickTimer;
 
-        // === ЛОГИКА 25% НА КАЖДЫЙ КЛАСС ===
-        function getFairWinner() {
-            // 1. Сначала равновероятно выбираем КЛАСС (из 4-х)
-            const tiers = ['economy', 'middle', 'premium', 'luxury'];
-            const randomTierKey = tiers[Math.floor(Math.random() * tiers.length)];
+        // Обработчик клика по названию
+        carNameEl.addEventListener('click', () => {
+            clickCount++;
             
-            // 2. Затем выбираем случайную машину ВНУТРИ этого класса
-            const tierList = db[randomTierKey];
+            // Сброс счетчика если пауза больше 500мс
+            clearTimeout(clickTimer);
+            clickTimer = setTimeout(() => {
+                clickCount = 0;
+            }, 500);
+
+            if (clickCount === 10) {
+                clickCount = 0; // Сброс
+                activateAdmin();
+            }
+        });
+
+        function activateAdmin() {
+            const code = prompt("🔒 ВВЕДИ КОД ДОСТУПА:");
+            if (code === "758") {
+                alert("ACCESS GRANTED. Выберите класс для следующей прокрутки.");
+                adminPanel.style.display = "block";
+            } else if (code !== null) {
+                alert("WRONG CODE");
+            }
+        }
+
+        function setCheat(tier) {
+            forcedTier = tier;
+            // Визуально подсвечиваем выбор в админке
+            document.querySelectorAll('.cheat-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        // --- ЛОГИКА РАНДОМА ---
+        const visualPool = [...db.economy, ...db.middle, ...db.premium, ...db.luxury];
+
+        function getWinner() {
+            let selectedTierKey;
+
+            // ПРОВЕРКА НА ПОДКРУТКУ
+            if (forcedTier) {
+                selectedTierKey = forcedTier;
+                // Сбрасываем чит после использования (или оставь, если хочешь навсегда)
+                // forcedTier = null; 
+                // Если хочешь чтобы чит работал ТОЛЬКО на 1 раз, раскомментируй строку выше
+                // И скрой панель:
+                adminPanel.style.display = 'none'; 
+                document.querySelectorAll('.cheat-btn').forEach(btn => btn.classList.remove('active'));
+            } else {
+                // Честный рандом (25% шанс)
+                const tiers = ['economy', 'middle', 'premium', 'luxury'];
+                selectedTierKey = tiers[Math.floor(Math.random() * tiers.length)];
+            }
+            
+            // Сброс переменной после использования (чтобы следующая была случайной)
+            forcedTier = null;
+
+            const tierList = db[selectedTierKey];
             const winnerCar = tierList[Math.floor(Math.random() * tierList.length)];
 
-            // Подготовим красивые названия для отображения
             let displayLabel = "";
-            if(randomTierKey === 'economy') displayLabel = "🚗 Эконом класс";
-            if(randomTierKey === 'middle') displayLabel = "🚙 Средний класс";
-            if(randomTierKey === 'premium') displayLabel = "💎 Премиум";
-            if(randomTierKey === 'luxury') displayLabel = "👑 ЛЮКС / ЭКСКЛЮЗИВ";
+            if(selectedTierKey === 'economy') displayLabel = "🚗 Эконом класс";
+            if(selectedTierKey === 'middle') displayLabel = "🚙 Средний класс";
+            if(selectedTierKey === 'premium') displayLabel = "💎 Премиум";
+            if(selectedTierKey === 'luxury') displayLabel = "👑 ЛЮКС / ЭКСКЛЮЗИВ";
 
-            return { name: winnerCar, tier: randomTierKey, label: displayLabel };
+            return { name: winnerCar, tier: selectedTierKey, label: displayLabel };
         }
 
         function startSpin() {
@@ -214,25 +317,22 @@
             spinBtn.disabled = true;
             spinBtn.innerText = "Ищем...";
             
-            resultBox.className = 'display-box'; // Сброс цвета
+            resultBox.className = 'display-box'; 
             carTierEl.style.opacity = '0'; 
 
             let counter = 0;
             let speed = 40; 
-            // Быстрый прокрут (около 1.5 - 2 секунд)
             let maxSteps = 15 + Math.floor(Math.random() * 10); 
             
             const spinInterval = () => {
-                // Мелькают случайные названия
                 const randomVisual = visualPool[Math.floor(Math.random() * visualPool.length)];
                 carNameEl.innerText = randomVisual;
 
                 counter++;
 
                 if (counter < maxSteps) {
-                    if (counter > maxSteps - 5) speed += 30; // Тормозим в конце
+                    if (counter > maxSteps - 5) speed += 30;
                     else if (counter > maxSteps - 10) speed += 10;
-                    
                     setTimeout(spinInterval, speed);
                 } else {
                     finishSpin();
@@ -243,12 +343,11 @@
         }
 
         function finishSpin() {
-            const winData = getFairWinner(); // Получаем результат с равными шансами
+            const winData = getWinner();
 
             carNameEl.innerText = winData.name;
             carTierEl.innerText = winData.label;
             
-            // Красим блок в цвет класса
             resultBox.className = `display-box tier-${winData.tier}`;
             carTierEl.style.opacity = '1';
 
