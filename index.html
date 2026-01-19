@@ -4,194 +4,192 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#0b0b0b">
-    <meta name="description" content="Ultimate Car Randomizer App">
+    <meta name="description" content="Ultimate Car Randomizer">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
     <title>ULTIMATE CAR RANDOMIZER</title>
     <style>
-        :root { --bg-color: #0b0b0b; --card: #141414; --text: #e0e0e0; --eco: #00ff9d; --mid: #00eaff; --pre: #d600ff; --lux: #ffbd00; --mat: #ff0040; }
-        
-        /* АНИМАЦИИ */
-        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 70% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
-        @keyframes slideUp { 0% { transform: translateY(20px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
-        @keyframes glowPulse { 0% { box-shadow: 0 0 10px currentColor; } 50% { box-shadow: 0 0 30px currentColor; } 100% { box-shadow: 0 0 10px currentColor; } }
-        @keyframes scanline { 0% { background-position: 0% 0%; } 100% { background-position: 0% 100%; } }
-
+        :root { --bg: #0b0b0b; --card: #141414; --text: #eee; --eco: #00ff9d; --mid: #00eaff; --pre: #d600ff; --lux: #ffbd00; --mat: #ff0040; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         html, body { height: 100%; width: 100%; overflow: hidden; margin: 0; padding: 0; }
         body {
-            background-color: var(--bg-color); background-size: cover; background-position: center;
-            font-family: 'Arial Black', 'Impact', sans-serif; color: var(--text);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            user-select: none; -webkit-tap-highlight-color: transparent;
-            transition: background-color 0.5s ease;
+            background: var(--bg); background-size: cover; background-position: center;
+            font-family: 'Arial Black', sans-serif; color: var(--text);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            user-select: none;
         }
-        body::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: -1; }
+        body::before { content:""; position:absolute; inset:0; background:rgba(0,0,0,0.5); z-index:-1; pointer-events:none; }
 
-        /* UI */
-        .settings-bar { position: absolute; top: 20px; right: 20px; display: flex; gap: 10px; z-index: 1000; }
+        /* UI ELEMENTS */
+        .settings-bar { position: absolute; top: 20px; right: 20px; display: flex; gap: 10px; z-index: 100; }
         @supports (padding-top: env(safe-area-inset-top)) { .settings-bar { top: calc(20px + env(safe-area-inset-top)); } }
-        .icon-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; backdrop-filter: blur(10px); transition: 0.2s; }
+        .icon-btn { width: 45px; height: 45px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); cursor: pointer; transition: 0.2s; }
         .icon-btn:active { transform: scale(0.9); }
+        .icon-btn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; }
         .icon-btn.off { opacity: 0.5; background: rgba(0,0,0,0.8); color: #888; border-color: #444; }
-        .icon-btn.active { background: #fff; color: #000; box-shadow: 0 0 15px #fff; }
         .slash { display: none; } .icon-btn.off .slash { display: block; }
 
-        /* MENUS */
-        #bgMenu { display: none; position: absolute; top: 80px; right: 20px; background: #141414; border: 1px solid #333; padding: 10px; border-radius: 10px; z-index: 1001; }
-        .bg-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 5px; }
-        .bg-btn { width: 40px; height: 40px; border-radius: 5px; border: 1px solid #555; }
-        
-        #cheatPanel { display: none; position: absolute; top: 20px; background: #000; border: 1px solid red; padding: 10px; z-index: 2000; border-radius: 10px; }
-        .cheat-btn { padding: 5px 10px; margin: 2px; font-weight: bold; border: none; border-radius: 4px; }
-
-        /* MAIN BOX */
         .wrapper { width: 90%; max-width: 500px; display: flex; flex-direction: column; align-items: center; gap: 20px; z-index: 10; }
-        
-        h1 { font-size: 2rem; letter-spacing: 5px; margin: 0; text-shadow: 0 4px 20px rgba(0,0,0,0.8); opacity: 0.8; }
+        h1 { font-size: 1.8rem; letter-spacing: 3px; text-transform: uppercase; margin: 0; text-shadow: 0 2px 10px rgba(0,0,0,0.5); text-align: center; }
 
+        /* MAIN CARD */
         .output-box {
-            width: 100%; min-height: 220px;
-            background: rgba(20, 20, 20, 0.9);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
+            width: 100%; min-height: 200px;
+            background: rgba(20,20,20,0.85); border: 2px solid rgba(255,255,255,0.1); border-radius: 20px;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            position: relative; overflow: hidden;
-            transition: 0.3s all;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            position: relative; transition: 0.3s; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px); padding: 20px; text-align: center;
         }
+        #carName { font-size: 1.6rem; line-height: 1.2; background: linear-gradient(#fff, #aaa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+        #tierLabel { font-size: 0.8rem; letter-spacing: 2px; color: #888; font-family: sans-serif; font-weight: 700; }
 
-        /* STYLES FOR ANIMATION PHASES */
-        .phase-1-tier {
-            font-size: 1.2rem; letter-spacing: 4px; font-family: 'Segoe UI', sans-serif; font-weight: 900;
-            text-transform: uppercase; margin-bottom: 20px;
-            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        /* BUTTONS */
+        .controls { width: 100%; display: grid; grid-template-columns: 1fr auto; gap: 10px; }
+        .btn { background: #fff; color: #000; border: none; padding: 20px; font-size: 1.4rem; font-weight: 900; text-transform: uppercase; border-radius: 12px; cursor: pointer; box-shadow: 0 0 20px rgba(255,255,255,0.1); }
+        .btn:active { transform: translateY(2px); background: #ddd; }
+        .btn-garage { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 65px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .btn-garage svg { width: 30px; height: 30px; stroke: currentColor; fill: none; stroke-width: 2; }
+        #googleBtn { display: none; width: 100%; padding: 15px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #fff; font-weight: 700; border-radius: 12px; cursor: pointer; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
+
+        /* CINEMATIC OVERLAY */
+        #cinematic {
+            position: fixed; inset: 0; background: #000; z-index: 2000;
+            display: none; flex-direction: column; justify-content: center; align-items: center;
+            opacity: 0; transition: opacity 0.5s ease;
         }
+        #cinematic.visible { opacity: 1; }
+        .cine-row { font-size: 1.2rem; margin: 10px 0; opacity: 0.3; transition: 0.3s; text-transform: uppercase; letter-spacing: 2px; text-align: center; width: 100%; min-height: 1.5em;}
+        .cine-row.active { opacity: 1; transform: scale(1.1); text-shadow: 0 0 20px currentColor; font-size: 1.5rem; }
+        .cine-row.done { opacity: 1; color: #fff; text-shadow: none; }
         
-        .phase-2-brand {
-            font-size: 2.5rem; line-height: 1; text-transform: uppercase; margin-bottom: 5px;
-            background: linear-gradient(180deg, #fff, #888); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            animation: slideUp 0.4s ease-out forwards;
+        #claimBtn {
+            margin-top: 40px; padding: 20px 40px; font-size: 1.5rem; background: #fff; color: #000; border: none; border-radius: 50px;
+            font-weight: 900; text-transform: uppercase; cursor: pointer; opacity: 0; transform: translateY(20px); transition: 0.5s;
+            box-shadow: 0 0 30px rgba(255,255,255,0.5); display: none;
         }
+        #claimBtn.show { opacity: 1; transform: translateY(0); display: block; }
 
-        .phase-3-model {
-            font-size: 1.2rem; color: #aaa; text-transform: uppercase; font-weight: 600;
-            animation: slideUp 0.4s ease-out forwards;
+        /* GARAGE MODAL */
+        #garageModal {
+            position: fixed; inset: 0; background: rgba(10,10,10,0.95); z-index: 3000;
+            display: none; flex-direction: column; padding: 20px; backdrop-filter: blur(20px);
         }
+        .g-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-top: env(safe-area-inset-top); }
+        .g-title { font-size: 1.5rem; text-transform: uppercase; letter-spacing: 2px; }
+        .g-close { font-size: 2rem; cursor: pointer; color: #888; }
+        .g-controls { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
+        .g-sort-btn { padding: 8px 15px; background: #333; border: 1px solid #555; color: #ddd; border-radius: 20px; white-space: nowrap; font-size: 0.8rem; font-family: sans-serif; font-weight: bold; }
+        .g-sort-btn.active { background: #fff; color: #000; border-color: #fff; }
+        
+        .g-list { flex: 1; overflow-y: auto; display: grid; gap: 10px; align-content: start; }
+        .g-item {
+            background: #1a1a1a; border: 1px solid #333; border-radius: 10px; padding: 15px;
+            display: flex; justify-content: space-between; align-items: center; position: relative;
+        }
+        .g-info { display: flex; flex-direction: column; gap: 4px; }
+        .g-name { font-size: 1rem; color: #fff; max-width: 250px; }
+        .g-meta { font-size: 0.7rem; color: #666; font-family: sans-serif; font-weight: 700; text-transform: uppercase; }
+        .g-count { background: #333; color: #fff; padding: 5px 10px; border-radius: 50px; font-size: 0.8rem; font-weight: bold; }
+        
+        /* Tier Colors */
+        .t-eco { color: var(--eco); } .b-eco { border-color: var(--eco); box-shadow: 0 0 10px rgba(0,255,157,0.1); }
+        .t-mid { color: var(--mid); } .b-mid { border-color: var(--mid); box-shadow: 0 0 15px rgba(0,234,255,0.15); }
+        .t-pre { color: var(--pre); } .b-pre { border-color: var(--pre); box-shadow: 0 0 20px rgba(214,0,255,0.2); }
+        .t-lux { color: var(--lux); } .b-lux { border-color: var(--lux); box-shadow: 0 0 25px rgba(255,189,0,0.25); }
+        .t-mat { color: var(--mat); } .b-mat { border-color: var(--mat); box-shadow: 0 0 30px rgba(255,0,64,0.4); }
 
-        /* GLOW CLASSES */
-        .glow-eco { border-color: var(--eco); box-shadow: 0 0 30px rgba(0,255,157,0.2); } .text-eco { color: var(--eco); text-shadow: 0 0 15px var(--eco); }
-        .glow-mid { border-color: var(--mid); box-shadow: 0 0 40px rgba(0,234,255,0.25); } .text-mid { color: var(--mid); text-shadow: 0 0 20px var(--mid); }
-        .glow-pre { border-color: var(--pre); box-shadow: 0 0 50px rgba(214,0,255,0.3); } .text-pre { color: var(--pre); text-shadow: 0 0 25px var(--pre); }
-        .glow-lux { border-color: var(--lux); box-shadow: 0 0 60px rgba(255,189,0,0.35); } .text-lux { color: var(--lux); text-shadow: 0 0 30px var(--lux); }
-        .glow-mat { border-color: var(--mat); box-shadow: 0 0 80px rgba(255,0,64,0.5); } .text-mat { color: var(--mat); text-shadow: 0 0 40px var(--mat); }
-
-        .scan-text { font-size: 1.5rem; opacity: 0.5; font-family: monospace; letter-spacing: 2px; }
-
-        .controls { width: 100%; display: flex; flex-direction: column; gap: 10px; }
-        .btn { padding: 20px; font-size: 1.5rem; font-weight: 900; background: #fff; border: none; border-radius: 12px; cursor: pointer; text-transform: uppercase; transition: 0.1s; }
-        .btn:active { transform: scale(0.98); background: #ddd; }
-        .btn:disabled { background: #333; color: #555; }
-        #googleBtn { display: none; padding: 15px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: #fff; font-weight: 700; border-radius: 12px; align-items: center; justify-content: center; gap: 10px; text-transform: uppercase; }
-        #googleBtn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
+        #cheatPanel { display: none; position: absolute; top: 50px; background: #000; border: 1px solid red; padding: 10px; z-index: 5000; }
     </style>
 </head>
 <body>
 
 <div class="settings-bar">
-    <button class="icon-btn" id="fastToggle" onclick="toggleFast()"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
-    <button class="icon-btn" id="bgToggle" onclick="toggleBgMenu()"><svg viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
-    <button class="icon-btn" id="vibroToggle" onclick="toggleVibro()"><svg viewBox="0 0 24 24"><rect x="10" y="4" width="4" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><line x1="3" y1="3" x2="21" y2="21" class="slash" stroke="#888" stroke-width="2"/></svg></button>
-    <button class="icon-btn" id="soundToggle" onclick="toggleSound()"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="none" stroke="currentColor" stroke-width="2"/><line x1="23" y1="9" x2="17" y2="15" class="slash" stroke="#888" stroke-width="2"/></svg></button>
-</div>
-
-<div id="bgMenu">
-    <div style="color:#888; font-size:10px; margin-bottom:5px">ЦВЕТА</div>
-    <div class="bg-grid">
-        <div class="bg-btn c-black" style="background:#0b0b0b" onclick="setBgColor('#0b0b0b')"></div>
-        <div class="bg-btn c-gray" style="background:#2d2d2d" onclick="setBgColor('#2d2d2d')"></div>
-        <div class="bg-btn c-blue" style="background:#0f1c2e" onclick="setBgColor('#0f1c2e')"></div>
-        <div class="bg-btn c-red" style="background:#2e0f0f" onclick="setBgColor('#2e0f0f')"></div>
+    <div class="icon-btn" id="vibroBtn" onclick="toggleVibro()">
+        <svg viewBox="0 0 24 24"><rect x="10" y="4" width="4" height="16" rx="2"></rect><path d="M7 8 L6 8 M7 12 L6 12 M7 16 L6 16 M17 8 L18 8 M17 12 L18 12 M17 16 L18 16"></path><line x1="3" y1="3" x2="21" y2="21" class="slash"></line></svg>
     </div>
-    <div style="color:#888; font-size:10px; margin:10px 0 5px">ОБОИ</div>
-    <div class="bg-grid">
-        <div class="bg-btn" style="background:url('mercedes.jpg') center/cover" onclick="setBgImage('mercedes.jpg')"></div>
-        <div class="bg-btn" style="background:url('bmw.jpg') center/cover" onclick="setBgImage('bmw.jpg')"></div>
-        <div class="bg-btn" style="background:url('porsche.jpg') center/cover" onclick="setBgImage('porsche.jpg')"></div>
+    <div class="icon-btn" id="soundBtn" onclick="toggleSound()">
+        <svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path><line x1="23" y1="9" x2="17" y2="15" class="slash"></line><line x1="17" y1="9" x2="23" y2="15" class="slash"></line></svg>
     </div>
 </div>
 
 <div id="cheatPanel">
-    <div class="cheat-grid" style="grid-template-columns: 1fr 1fr;">
-        <button class="cheat-btn" style="background:var(--eco)" onclick="ac('economy')">ECO</button>
-        <button class="cheat-btn" style="background:var(--mid)" onclick="ac('middle')">MID</button>
-        <button class="cheat-btn" style="background:var(--pre); color:white" onclick="ac('premium')">PREM</button>
-        <button class="cheat-btn" style="background:var(--lux)" onclick="ac('luxury')">LUX</button>
-        <button class="cheat-btn" style="background:var(--mat); color:white; grid-column:span 2" onclick="ac('matmall')">MAT</button>
-    </div>
+    <button onclick="cheat='economy';alert('Next: Eco')">Eco</button>
+    <button onclick="cheat='middle';alert('Next: Mid')">Mid</button>
+    <button onclick="cheat='premium';alert('Next: Pre')">Pre</button>
+    <button onclick="cheat='luxury';alert('Next: Lux')">Lux</button>
+    <button onclick="cheat='matmall';alert('Next: Mat')">Mat</button>
 </div>
 
 <div class="wrapper">
-    <h1>CAR RANDOMIZER</h1>
-    
-    <div class="output-box" id="box">
-        <div class="scan-text" id="scanText">ГОТОВО</div>
-        <div id="resultContainer" style="display:none; text-align:center;">
-            <div id="resTier" class="phase-1-tier"></div>
-            <div id="resBrand" class="phase-2-brand"></div>
-            <div id="resModel" class="phase-3-model"></div>
+    <h1>Car Randomizer</h1>
+    <div class="output-box" id="mainBox">
+        <div id="carName">ГОТОВО К ЗАЕЗДУ</div>
+        <div id="tierLabel">НАЖМИ КНОПКУ</div>
+    </div>
+    <div class="controls">
+        <button class="btn" onclick="startSpin()">КРУТИТЬ</button>
+        <div class="btn-garage" onclick="openGarage()">
+            <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
         </div>
     </div>
+    <button id="googleBtn" onclick="googleSearch()">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        ПОСМОТРЕТЬ ФОТО
+    </button>
+</div>
 
-    <div class="controls">
-        <button class="btn" id="spinBtn" onclick="spin()">КРУТИТЬ</button>
-        <button id="googleBtn" onclick="openGoogle()">
-            <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-            ФОТО
-        </button>
+<div id="cinematic">
+    <div class="cine-row" id="cineTier">КЛАСС</div>
+    <div class="cine-row" id="cineBrand">МАРКА</div>
+    <div class="cine-row" id="cineModel">МОДЕЛЬ</div>
+    <div class="cine-row" id="cineTune">ТЮНИНГ</div>
+    <button id="claimBtn" onclick="claimCar()">ЗАБРАТЬ</button>
+</div>
+
+<div id="garageModal">
+    <div class="g-header">
+        <div class="g-title">ГАРАЖ</div>
+        <div class="g-close" onclick="closeGarage()">&times;</div>
     </div>
+    <div class="g-controls">
+        <div class="g-sort-btn active" onclick="sortGarage('recent', this)">НЕДАВНИЕ</div>
+        <div class="g-sort-btn" onclick="sortGarage('high', this)">СНАЧАЛА ТОП</div>
+        <div class="g-sort-btn" onclick="sortGarage('low', this)">СНАЧАЛА ПРОСТЫЕ</div>
+    </div>
+    <div class="g-list" id="garageList"></div>
 </div>
 
 <script>
-    // --- SETTINGS ---
-    let sSound=true, sVibro=true, sFast=false, cheat=null, result="", audioCtx=null;
-    
-    function init() {
-        if(localStorage.getItem('cr_snd')==='0') toggleSound();
-        if(localStorage.getItem('cr_vib')==='0') toggleVibro();
-        if(localStorage.getItem('cr_fst')==='1') toggleFast();
-        const bgt=localStorage.getItem('cr_bgt'), bgv=localStorage.getItem('cr_bgv');
-        if(bgt==='c') document.body.style.background = bgv;
-        if(bgt==='i') document.body.style.backgroundImage = `url('${bgv}')`;
-    }
-    
-    // --- UI HELPERS ---
-    const el = (id) => document.getElementById(id);
-    const box = el('box'), spinBtn = el('spinBtn'), googleBtn = el('googleBtn');
-    
-    function toggleBgMenu() { el('bgMenu').style.display = el('bgMenu').style.display==='block'?'none':'block'; }
-    function setBgColor(c) { document.body.style.background=c; saveBg('c',c); toggleBgMenu(); }
-    function setBgImage(f) { document.body.style.background=`#000 url('${f}') center/cover fixed`; saveBg('i',f); toggleBgMenu(); }
-    function saveBg(t,v) { localStorage.setItem('cr_bgt',t); localStorage.setItem('cr_bgv',v); }
-    
-    function toggleSound() { sSound=!sSound; el('soundToggle').classList.toggle('off',!sSound); localStorage.setItem('cr_snd',sSound?'1':'0'); if(sSound)initAudio(); }
-    function toggleVibro() { sVibro=!sVibro; el('vibroToggle').classList.toggle('off',!sVibro); localStorage.setItem('cr_vib',sVibro?'1':'0'); }
-    function toggleFast() { sFast=!sFast; el('fastToggle').classList.toggle('active',sFast); localStorage.setItem('cr_fst',sFast?'1':'0'); }
-    
-    function initAudio() { if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); if(audioCtx.state==='suspended') audioCtx.resume(); }
-    function beep(freq=800, dur=0.05) {
-        if(!sSound||!audioCtx)return; const o=audioCtx.createOscillator(),g=audioCtx.createGain();
-        o.connect(g); g.connect(audioCtx.destination); o.type='triangle'; 
-        o.frequency.value=freq; g.gain.setValueAtTime(0.3,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+dur);
-        o.start(); o.stop(audioCtx.currentTime+dur);
-    }
-    function vib(ms) { if(sVibro&&navigator.vibrate) navigator.vibrate(ms); }
+    // --- DATA & SETTINGS ---
+    let sSound=true, sVibro=true, cheat=null, audioCtx=null;
+    let garage = JSON.parse(localStorage.getItem('garage_v1') || '[]');
+    let currentResult = null; // Temp storage before claim
 
-    // --- CAR GENERATOR (SAME MASSIVE DATA) ---
+    // Init
+    if(localStorage.getItem('snd')==='0') toggleSound();
+    if(localStorage.getItem('vib')==='0') toggleVibro();
+
+    // --- AUDIO / VIBRO ---
+    function initAudio() { if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); if(audioCtx.state==='suspended')audioCtx.resume(); }
+    function beep(f=600, t=0.05, vol=0.2) {
+        if(!sSound||!audioCtx)return; const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+        o.connect(g);g.connect(audioCtx.destination);o.type='triangle';o.frequency.value=f;
+        g.gain.setValueAtTime(vol,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+t);
+        o.start();o.stop(audioCtx.currentTime+t);
+    }
+    function vib(p) { if(sVibro&&navigator.vibrate) navigator.vibrate(p); }
+    function toggleSound() { sSound=!sSound; document.getElementById('soundBtn').classList.toggle('off',!sSound); localStorage.setItem('snd',sSound?'1':'0'); if(sSound)initAudio(); }
+    function toggleVibro() { sVibro=!sVibro; document.getElementById('vibroBtn').classList.toggle('off',!sVibro); localStorage.setItem('vib',sVibro?'1':'0'); }
+
+    // --- UTILS ---
     const r = (a) => a[Math.floor(Math.random()*a.length)];
     const chance = (p) => Math.random() < p;
+    function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+    
+    // --- CAR GENERATION ---
     function getTune(t) {
         if(!chance(0.15)) return ""; 
-        if(t=='bmw') return " ("+r(['Manhart','G-Power','Alpina','Hamann','Stage 2'])+")";
+        if(t=='bmw') return " ("+r(['Manhart','G-Power','Alpina','Hamann','Stage 2','Stage 3'])+")";
         if(t=='merc') return " ("+r(['Brabus','Mansory','Renntech','Lorinser','Rocket 900'])+")";
         if(t=='jdm') return " ("+r(['HKS','VeilSide','Liberty Walk','Rocket Bunny','Drift Spec'])+")";
         if(t=='lada') return " ("+r(['Stinger','Stage 2','Turbo','Pneuma','Bunker'])+")";
@@ -199,130 +197,244 @@
         return " (Tuned)";
     }
 
-    function getCars() {
-        return {
-            matmall: ["Porsche Cayenne Coupe Turbo GT (Mat-Mall Edition)"],
-            economy: [
-                "Lada Priora "+r(['Sedan','Hatchback','Coupe'])+getTune('lada'), "Lada Vesta "+r(['NG','SW Cross','Sport'])+getTune('lada'), "Lada Granta "+r(['Drive Active','Sport','FL']), "Lada 2114 Super-Avto",
-                "Volkswagen Polo "+r(['Sedan','GT','Liftback']), "Skoda Rapid "+r(['1.4 TSI','1.6 MPI','Monte Carlo']), "Skoda Octavia "+r(['A5','A7'])+" 1.6 MPI",
-                "Hyundai Solaris "+r(['1.6 MT','1.6 AT']), "Kia Rio "+r(['3','4','X-Line']), "Toyota Corolla 150", "Honda Civic "+r(['EK9','4D'])+getTune('jdm'),
-                "Mazda 3 "+r(['BK','BL']), "Mitsubishi Lancer "+r(['9','X'])+" 2.0", "Haval Jolion Premium", "Geely Emgrand", "Chery Tiggo 4 Pro"
-            ],
-            middle: [
-                "Toyota Mark II "+r(['JZX90','JZX100','JZX110'])+" Tourer V"+getTune('jdm'), "Toyota Chaser JZX100 Tourer V"+getTune('jdm'), "Toyota Camry "+r(['XV50','XV70'])+" 3.5 V6",
-                "Nissan Silvia "+r(['S13','S14','S15'])+" Spec-R"+getTune('jdm'), "Subaru Impreza WRX STI "+r(['GC8','GD','GRB'])+getTune('jdm'), "Honda Accord CL7 Euro-R",
-                "Haval F7x Tech Plus", "Geely Monjaro Flagship", "Geely Tugella", "Tank 300 Premium", "Jetour T2"
-            ],
-            premium: [
-                "BMW M5 "+r(['F90','E60','F10'])+" Competition"+getTune('bmw'), "BMW M3 "+r(['E46','E92','F80','G80'])+getTune('bmw'), "BMW X5M "+r(['F85','F95']),
-                "Mercedes E63 S AMG "+r(['W212','W213'])+getTune('merc'), "Mercedes C63 AMG "+r(['W204','W205']), "Mercedes G63 AMG "+r(['W463','W464'])+getTune('merc'),
-                "Audi RS6 "+r(['C7','C8'])+" Avant"+getTune('audi'), "Audi RS7 Sportback", "Porsche Panamera Turbo S", "Zeekr 001 YOU"+getTune('china'), "Li Auto L9 Ultra"
-            ],
-            luxury: [
-                "Ferrari "+r(['488 Pista','F8 Tributo','812 Superfast','LaFerrari']), "Lamborghini "+r(['Aventador SVJ','Huracan Performante','Urus']),
-                "Porsche 911 Turbo S (992)", "Porsche 918 Spyder", "McLaren 765LT", "Bugatti Chiron", "Koenigsegg Agera RS",
-                "Rolls-Royce Cullinan", "Bentley Continental GT", "YangWang U9"
-            ]
-        };
+    function generateCar() {
+        let t = cheat || (()=>{const x=Math.random();return x<0.01?'matmall':x<0.26?'economy':x<0.51?'middle':x<0.76?'premium':'luxury'})();
+        cheat = null;
+        let name = "", tierName = "", css = "", tVal = 0;
+
+        if(t==='matmall') { 
+            name = "Porsche Cayenne Coupe Turbo GT (Mat-Mall Edition)"; tierName="MAT-MALL"; css="t-mat"; tVal=5; 
+        } else if(t==='economy') {
+            tierName="ЭКОНОМ"; css="t-eco"; tVal=1;
+            const brands = [
+                () => "Lada "+r(["Vesta","Priora","Granta","2114","Niva"])+" "+r(["Sport","Cross","Luxe"])+getTune('lada'),
+                () => "Volkswagen "+r(["Polo","Golf 4","Jetta"])+" "+r(["1.6","1.4 TSI","GT"]),
+                () => "Skoda "+r(["Rapid","Octavia A5","Fabia"])+" "+r(["1.6","1.4 TSI","Monte Carlo"])+getTune('vag'),
+                () => "Hyundai "+r(["Solaris","Elantra","Creta","Accent"])+" "+r(["1.6","2.0","AT"]),
+                () => "Kia "+r(["Rio","Ceed","Cerato","Soul"])+" "+r(["1.6","2.0","GT-Line"]),
+                () => "Toyota "+r(["Corolla 150","Carina E","Avensis"])+" "+r(["1.6","1.8"]),
+                () => "Honda "+r(["Civic EK9","Civic 4D","Fit"])+" "+r(["VTEC","1.8"])+getTune('jdm'),
+                () => "Mitsubishi "+r(["Lancer 9","Lancer X","Colt"])+" "+r(["1.6","2.0"]),
+                () => r(["Haval","Chery","Geely","Omoda"])+" "+r(["Jolion","Tiggo 4","Emgrand","S5"])+" "+r(["Comfort","Premium"])+getTune('china')
+            ];
+            name = r(brands)();
+        } else if(t==='middle') {
+            tierName="СРЕДНИЙ / JDM"; css="t-mid"; tVal=2;
+            const brands = [
+                () => "Toyota "+r(["Mark II","Chaser","Cresta"])+" "+r(["JZX90","JZX100"])+" "+r(["Tourer V","Grande"])+getTune('jdm'),
+                () => "Toyota "+r(["Camry XV50","Camry XV70","RAV4","Prado 150"])+" "+r(["3.5 V6","2.5","4.0"]),
+                () => "Nissan "+r(["Silvia S15","Skyline R34","Laurel C35"])+" "+r(["Spec-R","GTS-T"])+getTune('jdm'),
+                () => "Subaru "+r(["Impreza WRX STI","Forester STI"])+" "+r(["GD","GRB","SF5"])+getTune('jdm'),
+                () => "Honda "+r(["Accord CL7","Civic Type-R"])+" "+r(["Euro-R","EP3"])+getTune('jdm'),
+                () => "Kia "+r(["K5","Stinger","Sorento"])+" "+r(["GT-Line","GT","3.3 V6"]),
+                () => "Geely "+r(["Monjaro","Tugella","Coolray"])+" "+r(["Flagship","Sport"])+getTune('china'),
+                () => "Haval "+r(["F7x","Dargo","H9"])+" "+r(["Tech Plus","Premium"]),
+                () => "Tank "+r(["300"])+" "+r(["City","Offroad"])
+            ];
+            name = r(brands)();
+        } else if(t==='premium') {
+            tierName="ПРЕМИУМ / СПОРТ"; css="t-pre"; tVal=3;
+            const brands = [
+                () => "BMW "+r(["M3","M4","M5","X5M"])+" "+r(["F80","G80","F90","F85"])+" "+r(["Competition","CS"])+getTune('bmw'),
+                () => "BMW "+r(["530d","740d","X5 30d","X7 M50d"])+" "+r(["G30","G11","G05"])+" M-Sport",
+                () => "Mercedes "+r(["E63 S","C63 S","G63","GT63 S"])+" AMG "+r(["W213","W205","W463"])+getTune('merc'),
+                () => "Mercedes "+r(["S500","GLS 600"])+" "+r(["W222","W223","Maybach"]),
+                () => "Audi "+r(["RS6","RS7","RS Q8"])+" "+r(["C7","C8"])+" "+r(["Performance","Avant"])+getTune('audi'),
+                () => "Porsche "+r(["Cayenne","Panamera","Macan"])+" "+r(["Turbo","GTS"])+getTune('super'),
+                () => "Zeekr "+r(["001","007","009"])+" "+r(["YOU","FR","Performance"])+getTune('china'),
+                () => "Li Auto "+r(["L7","L9"])+" "+r(["Max","Ultra"]),
+                () => "Tank "+r(["500","700"])+" "+r(["Urban","Hi4-T"])
+            ];
+            name = r(brands)();
+        } else {
+            tierName="ЛЮКС / ЭКЗОТИКА"; css="t-lux"; tVal=4;
+            const brands = [
+                () => "Ferrari "+r(["488 Pista","812 Superfast","SF90","LaFerrari"])+getTune('super'),
+                () => "Lamborghini "+r(["Aventador SVJ","Huracan STO","Urus","Revuelto"])+getTune('super'),
+                () => "Porsche "+r(["911 Turbo S","911 GT3 RS","Carrera GT"])+" (992)"+getTune('super'),
+                () => "Bugatti "+r(["Chiron","Veyron","Divo"])+" Super Sport",
+                () => "Rolls-Royce "+r(["Cullinan","Phantom","Wraith"])+" Black Badge",
+                () => "McLaren "+r(["720S","765LT","P1"]),
+                () => "YangWang U9 Ultimate"
+            ];
+            name = r(brands)();
+        }
+
+        // Parsing for animation
+        // Assuming format: "Brand Model (Tuning)" or "Brand Model"
+        // Simple extraction:
+        let parts = name.split(' ');
+        let brand = parts[0];
+        if(['Land','Alfa','Aston','Rolls','Li','Great'].includes(brand)) brand += " " + parts[1];
+        if(brand === 'Mercedes') brand = 'Mercedes-Benz';
+        
+        let rest = name.substring(brand.length).trim();
+        let tune = "";
+        if(rest.includes('(')) {
+            let split = rest.split('(');
+            tune = "(" + split[1]; // includes closing paren
+            rest = split[0].trim();
+        }
+        
+        return { full: name, tier: tierName, css: css, val: tVal, brand: brand, model: rest, tune: tune };
     }
 
-    // --- GAMEPLAY ---
-    box.onclick = () => {
-        if(++clicks===10) { clicks=0; vib(50); if(prompt("CODE:")==="758") el('cheatPanel').style.display='grid'; }
-        clearTimeout(timer); timer=setTimeout(()=>clicks=0,400);
-    };
-    function ac(t) { cheat=t; el('cheatPanel').style.display='none'; vib(50); alert("NEXT: "+t.toUpperCase()); }
-    function openGoogle() { window.open(`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(result)}`, '_blank'); }
-
-    function spin() {
-        if(spinBtn.disabled)return;
-        initAudio(); spinBtn.disabled=true; googleBtn.style.display='none';
+    // --- CINEMATIC SPIN ---
+    async function startSpin() {
+        initAudio();
+        document.getElementById('cinematic').style.display = 'flex';
+        // Fade in
+        setTimeout(() => document.getElementById('cinematic').classList.add('visible'), 10);
         
-        // Reset Visuals
-        box.className='output-box'; 
-        el('scanText').style.display='block';
-        el('scanText').innerText = "ПОИСК...";
-        el('resultContainer').style.display='none';
+        const cRow = document.getElementById('cineTier');
+        const bRow = document.getElementById('cineBrand');
+        const mRow = document.getElementById('cineModel');
+        const tRow = document.getElementById('cineTune');
+        const btn = document.getElementById('claimBtn');
 
-        if(sFast) { finalize(); return; }
+        // Reset
+        [cRow, bRow, mRow, tRow].forEach(e => { e.className='cine-row'; e.innerText = '...'; });
+        btn.classList.remove('show');
 
-        let speed=50, step=0, max=20+Math.floor(Math.random()*10);
-        function tick() {
-            // Fake scramble
-            const cats = ["ЭКОНОМ","JDM","SUV","СПОРТ","ЛЮКС","КИТАЙ","НЕМЦЫ"];
-            el('scanText').innerText = r(cats) + " / " + r(cats);
-            beep(600, 0.03); vib(5);
-            
-            if(++step < max) {
-                if(step > max-5) speed+=30;
-                setTimeout(tick, speed);
+        // Generate Data
+        currentResult = generateCar();
+
+        // 1. TIER SPIN
+        cRow.classList.add('active');
+        await spinText(cRow, ["ЭКОНОМ","СРЕДНИЙ","ПРЕМИУМ","ЛЮКС","MAT-MALL"], currentResult.tier, 1500);
+        cRow.classList.remove('active'); cRow.classList.add('done'); cRow.classList.add(currentResult.css); // Add color
+        vib(50); beep(400);
+
+        // 2. BRAND SPIN
+        bRow.classList.add('active');
+        // Fake brands pool based on real brand
+        await spinText(bRow, ["BMW","AUDI","LADA","TOYOTA","TANK","KIA"], currentResult.brand.toUpperCase(), 1500);
+        bRow.classList.remove('active'); bRow.classList.add('done');
+        vib(50); beep(500);
+
+        // 3. MODEL SPIN
+        mRow.classList.add('active');
+        await spinText(mRow, ["SEDAN","TURBO","GT","CROSS","SPORT"], currentResult.model, 1800);
+        mRow.classList.remove('active'); mRow.classList.add('done');
+        vib(50); beep(600);
+
+        // 4. TUNING SPIN
+        tRow.classList.add('active');
+        let tuneText = currentResult.tune ? currentResult.tune : "СТОК";
+        await spinText(tRow, ["STAGE 1","STAGE 2","MANHART","BRABUS","СТОК"], tuneText, 1500);
+        tRow.classList.remove('active'); tRow.classList.add('done');
+        if(!currentResult.tune) tRow.style.opacity = 0.5; // Dim if stock
+        vib([50,50,100]); beep(800, 0.2);
+
+        // Show Claim
+        btn.classList.add('show');
+    }
+
+    async function spinText(el, pool, final, dur) {
+        let start = Date.now();
+        while(Date.now() - start < dur) {
+            el.innerText = r(pool);
+            beep(800, 0.02, 0.05); // quiet tick
+            await wait(80);
+        }
+        el.innerText = final;
+    }
+
+    function claimCar() {
+        // Hide Overlay
+        document.getElementById('cinematic').classList.remove('visible');
+        setTimeout(() => document.getElementById('cinematic').style.display='none', 500);
+
+        // Show Result on Main Screen
+        const box = document.getElementById('mainBox');
+        const cn = document.getElementById('carName');
+        const tl = document.getElementById('tierLabel');
+        const gb = document.getElementById('googleBtn');
+
+        cn.innerText = currentResult.full;
+        tl.innerText = currentResult.tier;
+        // Reset classes
+        box.className = "output-box";
+        box.classList.add('b-'+currentResult.css.split('-')[1]); // e.g. b-eco
+        gb.style.display = 'flex';
+
+        // Add to Garage
+        addToGarage(currentResult);
+    }
+
+    function googleSearch() {
+        if(!currentResult) return;
+        window.open(`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(currentResult.full)}`, '_blank');
+    }
+
+    // --- GARAGE LOGIC ---
+    function addToGarage(car) {
+        garage.unshift({
+            name: car.full,
+            tier: car.tier,
+            css: car.css,
+            val: car.val,
+            ts: Date.now()
+        });
+        localStorage.setItem('garage_v1', JSON.stringify(garage));
+    }
+
+    function openGarage() {
+        renderGarage();
+        document.getElementById('garageModal').style.display = 'flex';
+    }
+    function closeGarage() { document.getElementById('garageModal').style.display = 'none'; }
+
+    function sortGarage(type, btn) {
+        // Update UI
+        document.querySelectorAll('.g-sort-btn').forEach(b => b.classList.remove('active'));
+        if(btn) btn.classList.add('active');
+        renderGarage(type);
+    }
+
+    function renderGarage(sortType = 'recent') {
+        const list = document.getElementById('garageList');
+        list.innerHTML = '';
+
+        // Compress duplicates
+        let map = new Map();
+        garage.forEach(c => {
+            if(map.has(c.name)) {
+                map.get(c.name).count++;
+                // keep earliest TS or latest? Doesn't matter much
             } else {
-                finalize();
+                map.set(c.name, { ...c, count: 1 });
             }
+        });
+        let unique = Array.from(map.values());
+
+        // Sort
+        if(sortType === 'recent') unique.sort((a,b) => b.ts - a.ts);
+        if(sortType === 'high') unique.sort((a,b) => b.val - a.val);
+        if(sortType === 'low') unique.sort((a,b) => a.val - b.val);
+
+        unique.forEach(c => {
+            let item = document.createElement('div');
+            item.className = `g-item b-${c.css.split('-')[1]}`;
+            let countBadge = c.count > 1 ? `<div class="g-count">×${c.count}</div>` : '';
+            item.innerHTML = `
+                <div class="g-info">
+                    <div class="g-name">${c.name}</div>
+                    <div class="g-meta ${c.css}">${c.tier}</div>
+                </div>
+                ${countBadge}
+            `;
+            list.appendChild(item);
+        });
+    }
+
+    // Secret trigger
+    document.getElementById('mainBox').addEventListener('click', (e) => {
+        if(e.detail === 3) {
+            if(prompt("Code")==="758") document.getElementById('cheatPanel').style.display='grid';
         }
-        tick();
-    }
+    });
 
-    function parseBrand(name) {
-        // Simple logic to extract brand for display
-        const parts = name.split(' ');
-        if(['Land','Alfa','Aston','Rolls','Li','Great'].includes(parts[0])) return parts[0]+' '+parts[1];
-        if(parts[0]==='Mercedes' || parts[0]==='Mercedes-Benz' || parts[0]==='Mercedes-AMG') return "MERCEDES";
-        return parts[0];
-    }
-
-    function finalize() {
-        const DB = getCars();
-        let tier;
-        
-        if(cheat) { tier=cheat; cheat=null; }
-        else {
-            const rnd = Math.random();
-            if(rnd<0.01) tier='matmall';
-            else if(rnd<0.2575) tier='economy';
-            else if(rnd<0.505) tier='middle';
-            else if(rnd<0.7525) tier='premium';
-            else tier='luxury';
-        }
-
-        result = r(DB[tier]);
-        const brand = parseBrand(result);
-        const model = result.substring(brand.length).trim(); // Remove brand from full string
-
-        let tName="", tClass="";
-        if(tier=='matmall'){tName="MAT-MALL"; tClass="text-mat glow-mat";}
-        else if(tier=='economy'){tName="ЭКОНОМ"; tClass="text-eco glow-eco";}
-        else if(tier=='middle'){tName="СРЕДНИЙ / JDM"; tClass="text-mid glow-mid";}
-        else if(tier=='premium'){tName="ПРЕМИУМ"; tClass="text-pre glow-pre";}
-        else {tName="ЛЮКС / ЭКЗОТИКА"; tClass="text-lux glow-lux";}
-
-        // ANIMATION SEQUENCE
-        el('scanText').style.display='none';
-        el('resultContainer').style.display='block';
-        
-        // 1. Reveal Tier
-        const tEl = el('resTier'); const bEl = el('resBrand'); const mEl = el('resModel');
-        tEl.innerText = tName; tEl.className = "phase-1-tier " + tClass;
-        bEl.innerText = ""; mEl.innerText = "";
-        box.className = "output-box " + tClass.split(' ')[1]; // Add glow border
-        beep(200, 0.3); vib(50);
-
-        // 2. Reveal Brand (delay 600ms)
-        setTimeout(() => {
-            bEl.innerText = brand;
-            beep(400, 0.1); vib(20);
-        }, sFast ? 0 : 600);
-
-        // 3. Reveal Model (delay 1200ms)
-        setTimeout(() => {
-            mEl.innerText = model;
-            beep(800, 0.4); vib([30,50,30]);
-            spinBtn.disabled = false;
-            googleBtn.style.display = 'flex';
-        }, sFast ? 0 : 1200);
-    }
-
-    init();
 </script>
 </body>
 </html>
