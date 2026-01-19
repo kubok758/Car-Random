@@ -3,10 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0b0b0b">
+    <meta name="description" content="Ultimate Car Randomizer App">
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
     <title>ULTIMATE CAR RANDOMIZER</title>
     <style>
         :root {
-            --bg: #0b0b0b;
+            --bg-color: #0b0b0b;
             --card: #141414;
             --text: #e0e0e0;
             --eco: #00ff9d;
@@ -16,7 +22,11 @@
         }
 
         body {
-            background: var(--bg);
+            background-color: var(--bg-color);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
             color: var(--text);
             font-family: 'Arial Black', 'Impact', sans-serif;
             display: flex;
@@ -27,6 +37,17 @@
             user-select: none;
             touch-action: manipulation; 
             -webkit-tap-highlight-color: transparent;
+            transition: background-color 0.5s ease;
+        }
+
+        /* Затемнение для читаемости на фоне картинок */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+            pointer-events: none;
         }
 
         .wrapper {
@@ -38,7 +59,7 @@
             box-sizing: border-box;
         }
 
-        /* === ВЕРХНИЕ КНОПКИ (НАСТРОЙКИ) === */
+        /* === ВЕРХНИЕ КНОПКИ (SETTINGS) === */
         .settings-bar {
             position: absolute;
             top: 20px;
@@ -49,8 +70,8 @@
         }
 
         .icon-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             color: #fff;
             width: 45px;
             height: 45px;
@@ -60,7 +81,7 @@
             align-items: center;
             justify-content: center;
             transition: all 0.2s ease;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(10px);
             padding: 0;
         }
 
@@ -76,29 +97,94 @@
 
         .icon-btn:active { transform: scale(0.9); }
         
-        /* Состояние "Выключено" */
+        /* Состояние выключено */
         .icon-btn.off {
             opacity: 0.5;
             border-color: #444;
             color: #888;
-            background: transparent;
+            background: rgba(0,0,0,0.5);
         }
         
         .slash { display: none; }
         .icon-btn.off .slash { display: block; }
 
+        /* === МЕНЮ ВЫБОРА ФОНА === */
+        #bgMenu {
+            display: none;
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            width: 260px;
+            background: rgba(20, 20, 20, 0.95);
+            border: 1px solid #444;
+            border-radius: 15px;
+            padding: 15px;
+            z-index: 300;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            text-align: left;
+        }
+
+        #bgMenu h3 {
+            margin: 0 0 10px 0;
+            font-size: 0.9rem;
+            color: #888;
+            text-transform: uppercase;
+            font-family: 'Segoe UI', sans-serif;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+
+        .bg-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .bg-btn {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            border: 2px solid rgba(255,255,255,0.1);
+            cursor: pointer;
+            transition: transform 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .bg-btn:hover { border-color: #fff; }
+        .bg-btn:active { transform: scale(0.9); }
+
+        /* Цвета */
+        .c-black { background: #0b0b0b; }
+        .c-gray { background: #2d2d2d; }
+        .c-blue { background: #0f1c2e; }
+        .c-red { background: #2e0f0f; }
+
+        /* Обои (файлы должны лежать рядом с index.html) */
+        .img-merc { background: url('mercedes.jpg') center/cover; }
+        .img-bmw { background: url('bmw.jpg') center/cover; }
+        .img-porsche { background: url('porsche.jpg') center/cover; }
+
+        /* Скрываем картинки на ПК, показываем на мобильных */
+        .mobile-wallpapers { display: none; }
+        @media (max-width: 768px) { .mobile-wallpapers { display: block; } }
+
+        /* === ОСНОВНОЙ ИНТЕРФЕЙС === */
         h1 {
             font-size: 1.8rem;
             text-transform: uppercase;
             letter-spacing: 4px;
-            color: #333;
+            color: #fff;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
             margin-bottom: 30px;
             margin-top: 50px;
         }
 
         .output-box {
-            background: var(--card);
-            border: 2px solid #333;
+            background: rgba(20, 20, 20, 0.85);
+            border: 2px solid rgba(255,255,255,0.1);
             border-radius: 12px;
             padding: 40px 15px;
             margin-bottom: 20px;
@@ -111,6 +197,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            backdrop-filter: blur(5px);
         }
         .output-box:active { transform: scale(0.98); }
 
@@ -129,7 +216,7 @@
             font-family: 'Segoe UI', sans-serif;
             font-size: 0.8rem;
             letter-spacing: 3px;
-            color: #555;
+            color: #888;
             font-weight: 700;
             text-transform: uppercase;
         }
@@ -155,9 +242,9 @@
 
         #googleBtn {
             display: none;
-            background: transparent;
+            background: rgba(0,0,0,0.6);
             color: #aaa;
-            border: 2px solid #333;
+            border: 2px solid rgba(255,255,255,0.2);
             padding: 15px 0;
             width: 100%;
             font-size: 1rem;
@@ -172,16 +259,11 @@
             justify-content: center;
             gap: 10px;
         }
-        #googleBtn svg {
-            width: 20px;
-            height: 20px;
-            stroke: currentColor;
-            fill: none;
-            stroke-width: 2;
-        }
-        #googleBtn:hover { border-color: #fff; color: #fff; background: rgba(255,255,255,0.05); }
+        #googleBtn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; }
+        #googleBtn:hover { border-color: #fff; color: #fff; background: rgba(0,0,0,0.8); }
         #googleBtn:active { transform: scale(0.98); }
 
+        /* Подсветка */
         .glow-eco { border-color: var(--eco); box-shadow: 0 0 40px rgba(0,255,157,0.15); }
         .glow-eco #carName { background: -webkit-linear-gradient(#fff, var(--eco)); -webkit-background-clip: text; }
         .glow-mid { border-color: var(--mid); box-shadow: 0 0 50px rgba(0,234,255,0.2); }
@@ -191,9 +273,10 @@
         .glow-lux { border-color: var(--lux); box-shadow: 0 0 80px rgba(255,189,0,0.3); }
         .glow-lux #carName { background: -webkit-linear-gradient(#fff, var(--lux)); -webkit-background-clip: text; }
 
+        /* Админка */
         #cheatPanel {
             display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            background: #000; border: 2px solid red; padding: 10px; z-index: 100;
+            background: #000; border: 2px solid red; padding: 10px; z-index: 500;
             box-shadow: 0 0 30px rgba(255,0,0,0.5); width: 80%; max-width: 400px; text-align: center;
         }
         .cheat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 5px; }
@@ -204,13 +287,14 @@
 
 <div class="wrapper">
     <div class="settings-bar">
+        <button class="icon-btn" id="bgToggle" onclick="toggleBgMenu()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+        </button>
         <button class="icon-btn" id="vibroToggle" onclick="toggleVibro()">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <rect x="10" y="4" width="4" height="16" rx="2"></rect>
-                <path d="M7 8 L6 8"></path> <path d="M7 12 L6 12"></path> <path d="M7 16 L6 16"></path>
-                <path d="M17 8 L18 8"></path> <path d="M17 12 L18 12"></path> <path d="M17 16 L18 16"></path>
-                <path d="M4 10 L3 10"></path> <path d="M4 14 L3 14"></path>
-                <path d="M20 10 L21 10"></path> <path d="M20 14 L21 14"></path>
+                <path d="M7 8 L6 8"></path><path d="M7 12 L6 12"></path><path d="M7 16 L6 16"></path>
+                <path d="M17 8 L18 8"></path><path d="M17 12 L18 12"></path><path d="M17 16 L18 16"></path>
                 <line x1="3" y1="3" x2="21" y2="21" class="slash" stroke="#888"></line>
             </svg>
         </button>
@@ -222,6 +306,24 @@
                 <line x1="17" y1="9" x2="23" y2="15" class="slash" stroke="#888"></line>
             </svg>
         </button>
+    </div>
+
+    <div id="bgMenu">
+        <h3>Цвета</h3>
+        <div class="bg-grid">
+            <div class="bg-btn c-black" onclick="setBgColor('#0b0b0b')"></div>
+            <div class="bg-btn c-gray" onclick="setBgColor('#2d2d2d')"></div>
+            <div class="bg-btn c-blue" onclick="setBgColor('#0f1c2e')"></div>
+            <div class="bg-btn c-red" onclick="setBgColor('#2e0f0f')"></div>
+        </div>
+        <div class="mobile-wallpapers">
+            <h3>Обои</h3>
+            <div class="bg-grid">
+                <div class="bg-btn img-merc" onclick="setBgImage('mercedes.jpg')"></div>
+                <div class="bg-btn img-bmw" onclick="setBgImage('bmw.jpg')"></div>
+                <div class="bg-btn img-porsche" onclick="setBgImage('porsche.jpg')"></div>
+            </div>
+        </div>
     </div>
 
     <div id="cheatPanel">
@@ -254,7 +356,29 @@
 </div>
 
 <script>
-    // === АУДИО ДВИЖОК ===
+    // PWA Service Worker
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('SW Registered!', reg.scope))
+                .catch(err => console.log('SW Fail:', err));
+        });
+    }
+
+    // === ЛОГИКА ФОНОВ ===
+    function toggleBgMenu() {
+        const menu = document.getElementById('bgMenu');
+        menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+    }
+    document.addEventListener('click', (e) => {
+        const menu = document.getElementById('bgMenu');
+        const btn = document.getElementById('bgToggle');
+        if (!menu.contains(e.target) && !btn.contains(e.target)) menu.style.display = 'none';
+    });
+    function setBgColor(c) { document.body.style.backgroundImage = 'none'; document.body.style.backgroundColor = c; document.getElementById('bgMenu').style.display = 'none'; }
+    function setBgImage(f) { document.body.style.backgroundColor = '#0b0b0b'; document.body.style.backgroundImage = `url('${f}')`; document.getElementById('bgMenu').style.display = 'none'; }
+
+    // === АУДИО (Web Audio API) ===
     let audioCtx = null;
     let isSoundOn = true;
     let isVibroOn = true;
@@ -275,16 +399,19 @@
         const gainNode = audioCtx.createGain();
         osc.connect(gainNode);
         gainNode.connect(audioCtx.destination);
+        
+        // Звук щелчка (короткий и резкий)
         osc.type = 'triangle'; 
         osc.frequency.setValueAtTime(800, audioCtx.currentTime); 
         osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.05);
+        
         gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+        
         osc.start();
         osc.stop(audioCtx.currentTime + 0.05);
     }
 
-    // === УПРАВЛЕНИЕ ===
     function toggleSound() {
         isSoundOn = !isSoundOn;
         const btn = document.getElementById('soundToggle');
@@ -304,9 +431,9 @@
         }
     }
 
-    // === ГЕНЕРАТОР ===
+    // === ГЕНЕРАТОР МАШИН (ПОЛНАЯ БАЗА) ===
     const r = (arr) => arr[Math.floor(Math.random() * arr.length)];
-    
+
     function genEconomy() {
         const pool = [
             () => `Lada Priora ${r(['Sedan', 'Hatchback', 'Coupe'])}`,
@@ -325,6 +452,7 @@
         ];
         return r(pool)();
     }
+
     function genMiddle() {
         const brands = {
             toyota: [
@@ -357,6 +485,7 @@
         const brandName = brandKey.charAt(0).toUpperCase() + brandKey.slice(1);
         return `${brandName} ${car.model} ${chassis} ${trim}`;
     }
+
     function genPremium() {
         const germans = [
             { 
@@ -418,6 +547,7 @@
         const engine = r(config.eng);
         return `${selectedBrand.brand} ${engine} ${config.ch}`;
     }
+
     function genLuxury() {
         const hypers = [
             "Ferrari 488 Pista", "Ferrari F8 Tributo", "Ferrari 812 Superfast", "Ferrari SF90 Stradale", "Ferrari LaFerrari", "Ferrari Enzo", "Ferrari F40",
@@ -433,7 +563,7 @@
         return r(hypers);
     }
 
-    // === ЛОГИКА ===
+    // === УПРАВЛЕНИЕ ===
     let cheatNext = null;
     let currentCar = "";
     let clicks = 0;
@@ -474,6 +604,7 @@
     function spin() {
         if (spinBtn.disabled) return;
         
+        // ВАЖНО: Активация аудио контекста по жесту пользователя
         initAudio();
         
         spinBtn.disabled = true;
