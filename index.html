@@ -1,0 +1,163 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5" />
+  <meta name="theme-color" content="#08080f" />
+  <meta name="description" content="Car Randomizer — 1000+ автомобилей, казино-рулетка с тремя слотами." />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Car Randomizer" />
+
+  <title>Car Randomizer</title>
+
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="apple-touch-icon" href="icon-192.svg" />
+  <link rel="manifest" href="manifest.json" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- Background Wallpaper -->
+  <div id="bg-wallpaper"></div>
+
+  <!-- Background -->
+  <div id="bg-base"></div>
+  <div id="bg-gradients">
+    <div class="bg-grad bg-grad-cyan"></div>
+    <div class="bg-grad bg-grad-purple"></div>
+  </div>
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- Install Prompt -->
+  <div id="install-banner" class="install-banner hidden">
+    <div class="install-inner">
+      <svg class="install-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+      <div style="flex:1">
+        <p class="install-title">Установить приложение</p>
+        <p class="install-desc">Добавьте Car Randomizer на главный экран</p>
+        <div class="install-buttons">
+          <button id="install-accept" class="install-btn-accept">Установить</button>
+          <button id="install-dismiss" class="install-btn-dismiss">Позже</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-container">
+
+    <!-- Header -->
+    <header class="header">
+      <h1 class="header-title">
+        <span class="accent">Car</span> Randomizer
+      </h1>
+      <p class="header-sub">Крути слоты — узнай свой автомобиль</p>
+    </header>
+
+    <!-- Wallpaper toggle (mobile only) -->
+    <button id="wp-toggle" class="wp-toggle" aria-label="Выбрать обои">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><path d="M3 20c0 0 2-6 6-6s4 4 7 4 5-3 5-3"/><rect x="2" y="3" width="20" height="18" rx="3"/></svg>
+    </button>
+
+    <!-- Wallpaper Picker Modal -->
+    <div id="wp-modal" class="wp-modal">
+      <div class="wp-modal-content glass">
+        <div class="wp-modal-header">
+          <span class="wp-modal-title">Обои</span>
+          <button id="wp-close" class="wp-close" aria-label="Закрыть">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="wp-grid">
+          <button class="wp-option active" data-wp="none">
+            <div class="wp-preview wp-preview-none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="4" y1="4" x2="20" y2="20"/><line x1="20" y1="4" x2="4" y2="20"/></svg></div>
+            <span class="wp-name">Нет</span>
+          </button>
+          <button class="wp-option" data-wp="bmw.jpg">
+            <div class="wp-preview"><img src="bmw.jpg" alt="BMW" loading="lazy"/></div>
+            <span class="wp-name">BMW</span>
+          </button>
+          <button class="wp-option" data-wp="mercedes.jpg">
+            <div class="wp-preview"><img src="mercedes.jpg" alt="Mercedes" loading="lazy"/></div>
+            <span class="wp-name">Mercedes</span>
+          </button>
+          <button class="wp-option" data-wp="porsche.jpg">
+            <div class="wp-preview"><img src="porsche.jpg" alt="Porsche" loading="lazy"/></div>
+            <span class="wp-name">Porsche</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slot Machine -->
+    <div class="slot-panel glass">
+      <div class="reels-container">
+        <!-- Reel 1: Brand -->
+        <div class="reel-col">
+          <div class="reel-label">Марка</div>
+          <div id="reel-0" class="reel-window glass-inset">
+            <div id="reel-strip-0" class="reel-strip"></div>
+          </div>
+        </div>
+        <!-- Reel 2: Model -->
+        <div class="reel-col">
+          <div class="reel-label">Модель</div>
+          <div id="reel-1" class="reel-window glass-inset">
+            <div id="reel-strip-1" class="reel-strip"></div>
+          </div>
+        </div>
+        <!-- Reel 3: Generation -->
+        <div class="reel-col">
+          <div class="reel-label">Поколение</div>
+          <div id="reel-2" class="reel-window glass-inset">
+            <div id="reel-strip-2" class="reel-strip"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Spin Button -->
+    <div style="text-align:center;">
+      <button id="spin-btn" class="spin-button">
+        <span class="spin-glow"></span>
+        <svg class="spin-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1" fill="currentColor" stroke="none"/></svg>
+        <span>Крутить</span>
+      </button>
+    </div>
+
+    <!-- Result Card -->
+    <div id="result-card" class="result-card glass">
+      <svg class="result-icon" viewBox="0 0 48 48" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 30V20l4-8h20l4 8v10"/><path d="M6 30h36"/><circle cx="14" cy="30" r="3"/><circle cx="34" cy="30" r="3"/><path d="M17 30h14"/></svg>
+      <h2 id="result-name" class="result-name"></h2>
+      <p id="result-gen" class="result-gen"></p>
+      <div class="result-buttons">
+        <a class="result-btn photo-btn" href="#" target="_blank" rel="noopener noreferrer"><svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg> Фото</a>
+      </div>
+    </div>
+
+    <!-- Counter -->
+    <div class="counter-section">
+      <div class="counter-pill glass-inset">
+        <span>Всего вращений:</span>
+        <span id="counter-value" class="num">0</span>
+      </div>
+    </div>
+
+    <!-- Car count -->
+    <div id="car-count" style="text-align:center; font-size:0.7rem; color:rgba(255,255,255,0.2); margin-top:0.75rem;"></div>
+
+
+
+  </div>
+
+  <script src="js/cars.js"></script>
+  <script src="js/sound.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
